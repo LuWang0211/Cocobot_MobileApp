@@ -1,0 +1,5 @@
+export default `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.99998 14.6663C11.6819 14.6663 14.6666 11.6816 14.6666 7.99967C14.6666 4.31778 11.6819 1.33301 7.99998 1.33301C4.31808 1.33301 1.33331 4.31778 1.33331 7.99967C1.33331 11.6816 4.31808 14.6663 7.99998 14.6663Z" stroke="#3E41A8" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.06 5.9994C6.21673 5.55385 6.5261 5.17814 6.9333 4.93883C7.3405 4.69951 7.81926 4.61203 8.28478 4.69188C8.7503 4.77173 9.17254 5.01375 9.47672 5.37509C9.78089 5.73642 9.94737 6.19375 9.94666 6.66607C9.94666 7.9994 7.94666 8.66607 7.94666 8.66607" stroke="#3E41A8" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 11.333H8.00667" stroke="#3E41A8" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`
