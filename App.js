@@ -7,15 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen }  from './app/loginscreen';
 
 import { AppNavigator } from './app/appnavigator';
-// import { HomeScreen } from './app/screens/homescreen';
-
-// function AppNavigator() {
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text>Navigator Screen</Text>
-//     </View>
-//   );
-// }
+import { SettingsStack } from './app/screens/settingscreens/settingstack';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +18,7 @@ export class App extends Component {
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Navigator" component={AppNavigator} />
-          {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+          <Stack.Screen name="Settings" component={SettingsStack} />
         </Stack.Navigator>
       </NavigationContainer>
     );

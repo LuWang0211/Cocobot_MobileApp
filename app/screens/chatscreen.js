@@ -2,18 +2,20 @@ import React from 'react';
 import {StyleSheet, View, Text, Button} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import SettingsStack from './settingscreens/settingstack';
-
+import GHeader from '../components/GHeader';
+import Notification from './settingscreens/settings/Notification';
+import { useNavigation } from '@react-navigation/native';
 
 export const ChatScreen = (props) => {
+    const navigation = useNavigation();
 
     return (
       <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Chat Screen</Text>
-          <Button
+          {/* <Button
           title="Settings"
-          onPress={() => props.navigation.navigate('Settings')}
-          />
-        <Text>Chat Screen</Text>
+          onPress={() => navigation.navigate('Settings')}
+          /> */}
       </View>
     )
 }

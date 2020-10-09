@@ -5,16 +5,7 @@ import { redBgAuth, purpleBgAuth } from './assets/icons/authBgIcons';
 
 export const LoginScreen = (props) => {
     const { navigation } = props;
-    return (
-    // <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    //     <Text>Login Screen</Text>
-    //     <Button
-    //     title="Go to Navigator"
-    //     onPress={() => props.navigation.navigate('Navigator')}
-    //     />
-    // </View>
-    // < AuthBackground />
-    
+    return (    
         <View style={styles.container}>
             <View style={styles.redBg}>
                 <SVGIcon

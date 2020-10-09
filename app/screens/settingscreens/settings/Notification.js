@@ -1,69 +1,50 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, Switch } from 'react-native';
-import Header from '../../../components/AppHeader/Header';
-import { color } from '../../../constant';
-import { ScrollView } from 'react-native-gesture-handler';
-import SettingsTitle from '../../../components/SettingsComponents/SettingsTitle';
-import SettingsButton from '../../../components/SettingsComponents/SettingsButton';
-import { MySwitch } from '../../../components/Switch/MySwitch';
+// import { color } from '../../.././assets/constant';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import PushNotification from 'react-native-push-notification';
 
-function Notification(props) {
-    const [emailEnabled, switchEmail] = useState(true);
-    const [dailyTasksEnabled, switchDailyTasks] = useState(true);
-    const [messagesEnabled, switchMessages] = useState(true);
-    const [pushNotificationsEnabled, switchPushNotifications] = useState(true);
+const showNotification = (title, message) => {
+    PushNotification.localNotification({
+        title: title,
+        message: message,
+    });
+};
 
-    function renderSuffixSwitch({ value: value, onValueChange: onValueChange }) {
-        return (
-            <MySwitch 
-                isOn={value}
-                onToggle={onValueChange}
-                width={32}
-                height={16}
-            />
-        );
-    }
+const handlerScheduleNotification = (title, message) => {
+    PushNotification.localNotificationSchedule({
+        title: title,
+        message: message,
+        date: new Date(Date.now() + 5 * 1000),
+    });
+};
+
+const handlerCancelNotification = () => {
+    PushNotification.cancelAllLocalNotifications();
+};
+
+export const Notification = (props) => {
+
     return (
         <View style={styles.container}>
-            <Header
-                back={() => props.navigation.goBack()}
-            />
             <ScrollView>
                 <View style={styles.body}>
-                    <SettingsTitle text='Notification' />
-                    <View style={styles.reminders}>
-                        <Text style={styles.remindersTitleText}>Reminders</Text>
-                        <Text style={styles.remindersBodyText}>
-                            Receive tasks reminders, messages from Cocobot and other reminders related to your activities on the Cocobot application
-                        </Text>
-                    </View>
-                    <SettingsButton
-                        title='Email'
-                        suffix={renderSuffixSwitch({ value: emailEnabled, onValueChange: state => switchEmail(state) })}
-                        disabled={true}
-                        style={styles.button}
-                    />
-                    <SettingsButton
-                        title='Daily Tasks'
-                        suffix={renderSuffixSwitch({ value: dailyTasksEnabled, onValueChange: state => switchDailyTasks(state) })}
-                        disabled={true}
-                        suffixWidth={32}
-                        suffixHeight={16}
-                        style={styles.button}
-                    />
-                    <SettingsButton
-                        title='Messages'
-                        suffix={renderSuffixSwitch({ value: messagesEnabled, onValueChange: state => switchMessages(state) })}
-                        disabled={true}
-                        suffixWidth={32}
-                        suffixHeight={16}
-                        style={styles.button}
-                    />
-                    <SettingsButton
-                        title='Push Notifications'
-                        suffix={renderSuffixSwitch({ value: pushNotificationsEnabled, onValueChange: state => switchPushNotifications(state) })}
-                        disabled={true}
-                    />
+                    <Text style={styles.Title}>Notification</Text>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('hello', 'coco is here')}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonTitle}>Tap to get notification </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => handlerScheduleNotification('haha', 'coco will be there in 5s')}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonTitle}>Tap to get notification after 5sec</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => handlerCancelNotification()}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonTitle}>Tap to cancel notification </Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </View>
@@ -73,10 +54,16 @@ function Notification(props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: color.white,
+        // backgroundColor: color.white,
     },
     body: {
         paddingHorizontal: 16,
+    },
+    Title: {
+        color: "black",
+        fontSize: 25,
+        fontWeight: "bold",
+        textAlign: "center"
     },
     reminders: {
         marginVertical: 48,
@@ -87,7 +74,7 @@ const styles = StyleSheet.create({
         fontWeight: 'normal',
         fontSize: 14,
         lineHeight: 21,
-        color: color.black,
+        // color: color.black,
         marginBottom: 7
     },
     remindersBodyText: {
@@ -96,11 +83,17 @@ const styles = StyleSheet.create({
         fontWeight: 'normal',
         fontSize: 12,
         lineHeight: 18,
-        color: color.settingsTitleColor,
+        // color: color.settingsTitleColor,
     },
     button: {
-        marginBottom: 24,
+        marginBottom: 15,
+        padding: 16,
+        backgroundColor: 'pink',
+        borderRadius: 24,
+        marginTop: 16,
+    },
+    buttonTitle: {
+        color: 'white',
+        fontSize: 16,
     },
 });
-
-export default Notification;

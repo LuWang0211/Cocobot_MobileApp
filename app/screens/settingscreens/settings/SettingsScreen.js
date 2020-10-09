@@ -1,52 +1,21 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
-// import CustomButton from '../../../components/Button/CustomButton';
-// import firebase from 'firebase';
-// import { AuthContext, SettingsContext } from '../../../context';
-// import { color } from '../../../constant';
-// import Header from '../../../components/AppHeader/Header';
-// import SettingsAvatar from '../../../components/SettingsComponents/SettingsAvatar';
-
-// import AccountSettings from './AccountSettings';
-// import Support from '../../../components/SettingsComponents/Support';
-// import Legal from '../../../components/SettingsComponents/Legal';
+import { View, StyleSheet, ActivityIndicator, Text, Button } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
-function SettingsScreen(props) {
-    // const { signOut } = useContext(AuthContext);
-    // const user = firebase.auth().currentUser;
-    // const { isRefreshed, refresh } = useContext(SettingsContext);
 
-    // function logout() {
-    //     firebase.auth()
-    //         .signOut()
-    //         .then(() => {
-    //             signOut();
-    //             props.navigation.navigate('Login');
-    //         })
-    //         .catch(err => {
-    //             console.log(err);
-    //         })
-    // }
-
-    // if (!user) {
-    //     return (
-    //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    //             <ActivityIndicator size="large" color={color.secondGrey} />
-    //         </View>
-    //     );
-    // }
-
-    // if (isRefreshed) {
-    //     refresh(false);
-    // }
-
+export const SettingsScreen = (props) => {
+    const { navigation } = props;
     return (
         <View style={styles.container}>
-            <Text>SettingsScreen</Text>
-            {/* <Header
-                back={() => props.navigation.goBack()}
-            /> */}
+            
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Text>SettingsScreen temp</Text>
+                <Button
+                title="Tap to Notification"
+                onPress={() => navigation.navigate('notification')}
+                />
+            </View>
             <ScrollView>
                 <View style={styles.body}>
                     <Text>SettingsScreen body</Text>
@@ -67,5 +36,3 @@ const styles = StyleSheet.create({
         paddingTop: 40,
     },
 })
-
-export default SettingsScreen;
