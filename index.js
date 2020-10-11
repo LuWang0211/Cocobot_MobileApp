@@ -21,7 +21,8 @@ PushNotification.configure({
       console.log("NOTIFICATION:", notification);
 
       if (notification.tag === notificationAction1) {
-        navigationRef.current?.navigate("Settings", {});
+        // navigationRef.current?.navigate("Settings", {});
+        navigationRef.current?.navigate("notification", {});
       }  
       /* else if (notification.data === notificationAction2) {
         lastReceivedNotifictionInstruction = notificationAction2;

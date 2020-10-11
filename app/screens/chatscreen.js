@@ -270,11 +270,7 @@ export const ChatScreen = (props) => {
 
     return (
       <>
-      <Header
-        placement="center"
-        backgroundColor="lightgray"
-        centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
-      />
+      {<HeaderComponent/>}
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <Text style={{ alignItems: 'center', justifyContent: 'center' }}>Chat Screen</Text>
         <GiftedChat
@@ -293,11 +289,19 @@ export const ChatScreen = (props) => {
     )
 }
 
+export const HeaderComponent = () => {
+  return <View style={styles.header}>
+      <SVGIcon height="30" width="30" src={cocobotIcon} />
+  </View>
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
+    display: 'flex',
     flexDirection: "column",
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 4
   },
   image: {
     flex: 1,

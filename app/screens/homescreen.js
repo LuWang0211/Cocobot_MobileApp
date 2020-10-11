@@ -17,7 +17,7 @@ export const HomeScreen = (props) => {
       <>
       {/* <GHeader
       /> */}
-        <Tab.Navigator initialRouteName="Today" tabBarOptions={{activeTintColor: "#FF786A"}}>
+        <Tab.Navigator initialRouteName="Today" tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
           <Tab.Screen name="Today" component={TodayScreen} options={{
             tabBarIcon: (props) => {
               return <SVGIcon height="22" width="22" src={todayIcon} color={props.color} />
