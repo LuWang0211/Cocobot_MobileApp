@@ -5,12 +5,12 @@ import SVGIcon from '../../SVGIcon/SVGIcon';
 import SVGIconButton from '../../SVGIcon/SVGIconButton';
 import ButtonGroup from './ButtonGroup';
 import Slider from './Slider/Slider';
-import { reselectIcon } from 'assets/icons/chatSelectIcons';
-import { surveyHeaderImg } from 'assets/icons/chatComponentHeaderIcons';
-import { checkBoxOff, checkBoxOn } from 'assets/icons/chatSelectIcons';
-import { reminderHeaderImg } from 'assets/icons/chatComponentHeaderIcons';
-import heartIcon from 'assets/icons/heart-filled-icon';
-import { calendarIcon, clockIcon, repeatIcon } from 'assets/icons/chatReminderIcons';
+import { reselectIcon } from '../../../assets/icons/chatSelectIcons';
+import { surveyHeaderImg } from '../../../assets/icons/chatComponentHeaderIcons';
+import { checkBoxOff, checkBoxOn } from '../../../assets/icons/chatSelectIcons';
+import { reminderHeaderImg } from '../../../assets/icons/chatComponentHeaderIcons';
+import heartIcon from '../../../assets/icons/heart-filled-icon';
+import { calendarIcon, clockIcon, repeatIcon } from '../../../assets/icons/chatReminderIcons';
 
 interface ChatWidgetsProps {
   text: string;

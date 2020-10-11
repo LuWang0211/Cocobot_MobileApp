@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Switch } from 'react-native';
+import { View, StyleSheet, Text, Button } from 'react-native';
 // import { color } from '../../.././assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification';
+import { notificationChannelId, notificationAction1 } from '../../../config';
+// import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
-        title: title,
-        message: message,
+        channelId: notificationChannelId,
+        largeIcon: "ic_launcher", // (optional) default: "ic_launcher". Use "" for no large icon.
+        title,
+        message,
+        when: new Date().getTime() + 10000,
+        actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
     });
 };
 
 const handlerScheduleNotification = (title, message) => {
     PushNotification.localNotificationSchedule({
-        title: title,
-        message: message,
-        date: new Date(Date.now() + 5 * 1000),
+        channelId: notificationChannelId,
+        title,
+        message,
+        date: new Date(Date.now() + 10 * 1000),
+        tag: notificationAction1,
+        actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
     });
 };
 
@@ -24,18 +33,39 @@ const handlerCancelNotification = () => {
 };
 
 export const Notification = (props) => {
+    // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+ 
+    // const showDatePicker = () => {
+    //   setDatePickerVisibility(true);
+    // };
+   
+    // const hideDatePicker = () => {
+    //   setDatePickerVisibility(false);
+    // };
+   
+    // const handleConfirm = (date) => {
+    //   console.warn("A date has been picked: ", date);
+    //   hideDatePicker();
+    // };
 
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.body}>
                     <Text style={styles.Title}>Notification</Text>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('hello', 'coco is here')}>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification </Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => handlerScheduleNotification('haha', 'coco will be there in 5s')}>
+                    {/* <Button title="Show Date Picker" onPress={showDatePicker} /> */}
+                    {/* <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="date"
+                        onConfirm={handleConfirm}
+                        onCancel={hideDatePicker}
+                    /> */}
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => handlerScheduleNotification('Coco', 'coco will be there in 5s')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification after 5sec</Text>
                         </View>

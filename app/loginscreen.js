@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Dimensions, Button, Text } from 'react-native';
 import SVGIcon from './components/SVGIcon/SVGIcon';
 import { redBgAuth, purpleBgAuth } from './assets/icons/authBgIcons';
+import { color } from './assets/constant';
 
 export const LoginScreen = (props) => {
     const { navigation } = props;
@@ -22,10 +23,12 @@ export const LoginScreen = (props) => {
                 />
             </View>
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Login Screen</Text>
+                <Text style={styles.text}>Coco is Here</Text>
                 <Button
-                title="Tap to Start"
-                onPress={() => navigation.navigate('Navigator')}
+                    style={styles.button}
+                    title="Tap to Start"
+                    // onPress={() => navigation.navigate('Navigator')}
+                    onPress={() => navigation.navigate('Home')}
                 />
             </View>
         </View>
@@ -43,6 +46,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginHorizontal: 32,
         fontFamily: 'Poppins-Regular'
+    },
+    text: {
+        fontSize: 36,
+        fontFamily: 'Poppins-Regular',
+        alignItems: "center",
+        color: color.brandPurple,
     },
     footer: {
         justifyContent: 'flex-end',
@@ -66,16 +75,11 @@ const styles = StyleSheet.create({
             }
         ]
     },
-    buttonContainerStyle: {
-        position: "absolute",
-        top: height * 0.8,
-        left: 0,
-        right: 0,
-        alignItems: "center"
+    button: {
+        marginBottom: 15,
+        padding: 16,
+        backgroundColor: 'pink',
+        borderRadius: 24,
+        marginTop: 16,
     },
-    backButton: {
-        position: 'absolute',
-        marginTop: 48,
-        marginLeft: 24
-    }
 });

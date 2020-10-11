@@ -8,6 +8,7 @@ import {App} from './App';
 import {name as appName} from './app.json';
 import PushNotification from 'react-native-push-notification';
 import { Platform } from 'react-native';
+import { notificationChannelId, notificationAction1, navigationRef } from "./app/config";
 
 PushNotification.configure({
     // (optional) Called when Token is generated (iOS and Android)
@@ -18,9 +19,18 @@ PushNotification.configure({
     // (required) Called when a remote is received or opened, or local notification is opened
     onNotification: function (notification) {
       console.log("NOTIFICATION:", notification);
+
+      if (notification.tag === notificationAction1) {
+        navigationRef.current?.navigate("Settings", {});
+      }  
+      /* else if (notification.data === notificationAction2) {
+        lastReceivedNotifictionInstruction = notificationAction2;
+      } */
+
       // process the notification
       // (required) Called when a remote is received or opened, or local notification is opened
     //   notification.finish(PushNotificationIOS.FetchResult.NoData);
+      notification.finish(1);
     },
   
     // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
@@ -45,5 +55,18 @@ PushNotification.configure({
     popInitialNotification: true,
     requestPermissions: Platform.OS === "ios",
   });
+
+PushNotification.createChannel(
+  {
+    channelId: notificationChannelId, // (required)
+    channelName: "cocobot-notificaiton-channel", // (required)
+    channelDescription: "A channel to categorise your notifications", // (optional) default: undefined.
+    soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+    importance: 4, // (optional) default: 4. Int value of the Android notification importance
+    vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+  },
+  (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+);
+
 
 AppRegistry.registerComponent(appName, () => App);

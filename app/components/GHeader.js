@@ -2,14 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { Avatar } from 'react-native-elements';
+import { color } from '../assets/constant';
 
-function GHeader() {
+function GHeader(props) {
     const navigation = useNavigation();
     return (
-        <TouchableOpacity style={{ padding: 16 }} onPress= {() => navigation.navigate('Settings')}>
-            <View style={styles.button}>
-                <Text  style={styles.buttonTitle}>Press Here to user settings</Text>
-            </View>
+        <TouchableOpacity onPress= {() => navigation.navigate('Settings')}>
+            <Avatar 
+                title="L"
+                size="large"
+                titleStyle={styles.avatarTitle}
+                containerStyle={styles.avatar}
+            />
         </TouchableOpacity>
     );
 }
@@ -17,14 +22,19 @@ function GHeader() {
 export default GHeader;
 
 const styles = StyleSheet.create({
-    button: {
-        padding: 16,
-        backgroundColor: 'purple',
-        borderRadius: 24,
-        marginTop: 16,
+    avatar: {
+        backgroundColor: color.brandPurple,
+        fontSize: 20,
+        width: 40,
+        height: 40,
+        borderRadius: 100,
     },
-    buttonTitle: {
-        color: 'white',
-        fontSize: 16,
+    avatarTitle: {
+        fontFamily: 'Poppins-Regular',
+        fontStyle: 'normal',
+        fontWeight: '500',
+        fontSize: 20,
+        lineHeight: 30,
+        color: color.white,
     },
 });

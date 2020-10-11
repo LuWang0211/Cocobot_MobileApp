@@ -3,10 +3,9 @@ import { StyleSheet } from "react-native";
 import {
   ReText,
   clamp,
-  onGestureEvent,
   snapPoint,
-  timing,
 } from "react-native-redash";
+import { onGestureEvent, timing } from "react-native-redash/lib/module/v1";
 import Animated, {
   cond,
   eq,
