@@ -6,6 +6,9 @@ import GHeader from '../components/GHeader';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import { redBgAuth, blueBgAuth } from '../assets/icons/authBgIcons';
 import { color } from '../assets/constant';
+import { Card, ListItem } from 'react-native-elements';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import cocobotIcon from '../assets/icons/cocobot-icon';
 
 export const TodayScreen = (props) => {
   return (
@@ -17,14 +20,29 @@ export const TodayScreen = (props) => {
             <View style={styles.blueBg}>
                 <SVGIcon height={198} width={171} src={blueBgAuth}/>
             </View>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={styles.text}>Hi Lisa!</Text>
-        </View>
+            <View style={{alignItems: 'center' }}>
+                <Text style={styles.text}>Hi Lisa!</Text>
+            </View>
+            
+            <TouchableOpacity activeOpacity={0.6} style={styles.card}>
+                <View style={{flex: 3, flexDirection: 'row'}}>
+                    <View style={{flex: 1}} >
+                        <SVGIcon height="40" width="40" src={cocobotIcon} />
+                    </View>
+                    <View style={{flex: 2}} >
+                        <Text style={styles.cardTitle}>You will learn meditation</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+            
         </View>
   );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: 'white',
+      },
     text: {
         fontSize: 36,
         alignItems: "center",
@@ -47,5 +65,16 @@ const styles = StyleSheet.create({
                 translateX: -50
             }
         ]
+    },
+    card: {
+        marginBottom: 40,
+        padding: 40,
+        backgroundColor: "powderblue",
+        borderRadius: 24,
+        marginTop: 16,
+    },
+    cardTitle: {
+        color: '#454545',
+        fontSize: 16,
     },
 });

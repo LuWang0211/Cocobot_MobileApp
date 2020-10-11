@@ -271,10 +271,10 @@ export const ChatScreen = (props) => {
       <>
       <Header
         placement="center"
-        backgroundColor="white"
+        backgroundColor="lightgray"
         centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
       />
-      <View style={{flex: 1, backgroundColor: 'lightgray'}}>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
         <Text style={{ alignItems: 'center', justifyContent: 'center' }}>Chat Screen</Text>
         <GiftedChat
           messages={messages}

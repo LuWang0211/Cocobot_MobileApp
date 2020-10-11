@@ -16,10 +16,10 @@ export const ResourceScreen = (props) => {
   const meditation = meditationResources[RandomIndex];
   
   // let newIndex = Math.floor(Math.random() * 3);
-  changeState = () => {
-    this.setState = ({index: newIndex});
-    // return newIndex
-  }
+  // changeState = () => {
+  //   this.setState = ({index: newIndex});
+  //   // return newIndex
+  // }
   
   playTrack = (audiouri) => {
         this.sound = new Sound(audiouri, null, (e) => {
@@ -50,7 +50,7 @@ export const ResourceScreen = (props) => {
     }
 
   return (   
-      <View style={ styles.container} onLoad={changeState, this.playTrack(meditation.audiouri) }>
+      <View style={ styles.container} onLoad={this.playTrack(meditation.audiouri) }>
         <ImageBackground source={{uri: meditation.pictureuri}} style={styles.image}>
           <Text style = {styles.text}> {meditation.name} </Text> 
           {/* <Button title="play me" onPress={this.playTrack(meditation.audiouri)} /> */}
