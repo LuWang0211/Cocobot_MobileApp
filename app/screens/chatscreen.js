@@ -129,6 +129,7 @@ export const ChatScreen = (props) => {
           _id: 2,
           name: 'React Native',
           avatar: 'https://placeimg.com/140/140/any',
+          // avatar: '../assets/coco.png',
         },
       }
 

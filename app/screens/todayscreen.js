@@ -1,26 +1,27 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 // import { NavigationContext } from "../context";
-// import firebase from 'firebase';
 import GHeader from '../components/GHeader';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import { redBgAuth, blueBgAuth } from '../assets/icons/authBgIcons';
 import { color } from '../assets/constant';
-import { Card, ListItem } from 'react-native-elements';
+// import { Card, ListItem } from 'react-native-elements';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 
 export const TodayScreen = (props) => {
   return (
+        <>
+        <GHeader/>
         <View style={styles.container}>
-            <GHeader/>
+            
             <View style={styles.redBg}>
                 <SVGIcon height={100} width={165} src={redBgAuth}/>
             </View>
             <View style={styles.blueBg}>
                 <SVGIcon height={198} width={171} src={blueBgAuth}/>
             </View>
-            <View style={{alignItems: 'center' }}>
+            <View>
                 <Text style={styles.text}>Hi Lisa!</Text>
             </View>
             
@@ -33,9 +34,10 @@ export const TodayScreen = (props) => {
                         <Text style={styles.cardTitle}>You will learn meditation</Text>
                     </View>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> 
             
         </View>
+        </>
   );
 };
 
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
     },
     card: {
         marginBottom: 40,
-        padding: 40,
+        padding: 50,
         backgroundColor: "powderblue",
         borderRadius: 24,
         marginTop: 16,
