@@ -35,6 +35,7 @@ export const ResourceScreen = (props) => {
   playComplete = (success) => {
     if(this.sound){
       if (success) {
+        this.pauseTrack();
         props.navigation.navigate('Chat');
         crossAppNotification.emit('ResourcePlayDone');
         console.log('successfully finished playing');
