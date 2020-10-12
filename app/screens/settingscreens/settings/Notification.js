@@ -9,6 +9,7 @@ import moment from 'moment';
 import { crossAppNotification, EventsNames } from '../../../config';
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
+import BackButton from "../../../components/HeaderComponents/BackButton";
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -32,7 +33,7 @@ const handlerScheduleNotification = (title, message, date) => {
         message,
         date,
         tag: notificationAction1,
-        actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
+        actions: ["Now"], // (Android only) See the doc for notification actions to know more
     });
 };
 
@@ -65,9 +66,9 @@ export const Notification = (props) => {
     const [date, setDate] = useState(initialDate);
 
     const onDateChange = useCallback((newDate) => {
-        if (moment(newDate).isSame(initialDate)) {            
-            return;
-        }
+        // if (moment(newDate).isSame(initialDate) && !isDateChanged) {            
+        //     return;
+        // }
         setIsDateChanged(true);
         setDate(newDate);
     }, [setDate]);
@@ -77,14 +78,7 @@ export const Notification = (props) => {
     }, [date]);
 
     const sendNotificationAtScheduledTime = useCallback(() => {
-        // navigation.navigate('Chat');
-
-        // setTimeout(() => {
-        //     crossAppNotification.emit(EventsNames.NotificationScheduled, {
-        //         scheduledTime: date
-        //     });
-        // }, 1000);
-        handlerScheduleNotification('Coco', 'coco will be there in 5s', date);
+        handlerScheduleNotification('COCOBOT', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date);
         setShowNotificationConfirm(true);
     }, [date]);
 
@@ -92,21 +86,15 @@ export const Notification = (props) => {
 
     return (
         <View style={styles.container}>
+            <HeaderComponent />
             <ScrollView>
                 <View style={styles.body}>
                     <Text style={styles.Title}>Notification</Text>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
+                    {/* <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification </Text>
                         </View>
                     </TouchableOpacity>
-                    {/* <Button title="Show Date Picker" onPress={showDatePicker} /> */}
-                    {/* <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleConfirm}
-                        onCancel={hideDatePicker}
-                    /> */}
                     <TouchableOpacity activeOpacity={0.6} onPress={() => handlerScheduleNotification('Coco', 'coco will be there in 5s')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification after 5sec</Text>
@@ -116,7 +104,7 @@ export const Notification = (props) => {
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to cancel notification </Text>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <DateTimePicker initialDate={initialDate} onDateChange={onDateChange} />
                     {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
                         <View style={styles.button}>
@@ -134,6 +122,14 @@ export const Notification = (props) => {
             </ScrollView>
         </View>
     );
+}
+
+export const HeaderComponent = () => {
+    const navigation = useNavigation();
+  
+    return <View style={styles.header}>
+        <BackButton onPress={() => navigation.navigate("Home")} />
+    </View>
 }
 
 const styles = StyleSheet.create({
@@ -198,5 +194,12 @@ const styles = StyleSheet.create({
     contentTitle: {
         fontSize: 20,
         marginBottom: 12,
+    },
+    header: {
+        display: 'flex',
+        flexDirection: "column",
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        padding: 4
     },
 });

@@ -49,7 +49,7 @@ export default DateTimePicker = ({
 
     return  <View style={styles.dateGroupContainer}>
         <DatePickerComponent initialDate={initialDate} reportDate={reportDate} reportDate={reportDate}/>
-        <HourPickerComponent defaultSelection={defaultHourSelection} reportHour={reportHour} />
+        <HourPickerComponent defaultSelection={defaultHourSelection} reportHour={reportHour} amPm={amPm} />
         <Text style={{
             height: 45,
             fontSize: 30,
@@ -86,7 +86,7 @@ const GenericPickerComponent = ({
             selectedValue={selectedItem}
             itemStyle={{color:"black", fontSize:30}}
             onValueChange={onValueChange}>
-            {itemList.map(({name, value}, i) => (
+            {intialItems.map(({name, value}, i) => (
                 <PickerItem label={name} value={value} key={i}/>
             ))}
         </Picker>
@@ -125,13 +125,22 @@ const DatePickerComponent = ({
 
 const HourPickerComponent = (
     {
-        reportHour, defaultSelection
+        reportHour, defaultSelection, amPm
     }
 ) => {
-    const hourValues = useMemo(() => ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((d) => ({
-        name: `${d}`,
-        value: d
-    }))), []);
+    const hourValues = useMemo(() => {
+        if (amPm == 0) {
+            return [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((d) => ({
+                name: `${d}`,
+                value: d % 12
+            }))
+        } else {
+            return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((d) => ({
+                name: `${d}`,
+                value: d % 12
+            }))
+        }
+    }, [amPm]);
 
     return <GenericPickerComponent width={50} intialItems={hourValues} defaultSelection={defaultSelection} reportSelection={reportHour} />
 }

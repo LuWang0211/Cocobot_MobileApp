@@ -1,17 +1,14 @@
 import React, { useState, useCallback, useEffect, useReducer } from 'react';
 import {StyleSheet, View, Text, Button, Image} from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage } from 'react-native-gifted-chat';
-import { Header } from 'react-native-elements';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { crossAppNotification, EventsNames } from "../config";
 import Modal from 'react-native-modal';
-import { clockRunning, color } from 'react-native-reanimated';
 import { color as colorConstants} from '../assets/constant';
-import QuickReplies from 'react-native-gifted-chat/lib/QuickReplies';
 import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
+import BackButton from "../components/HeaderComponents/BackButton";
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -50,7 +47,7 @@ const initialState = {
 const chatPlan = [
   {
     type: 'tell',
-    data: 'Hi, Lisa, Great! Wherr would like to do it?',
+    data: 'Hi, Lisa, Great! Where would like to do it?',
     control: 'unstarted'
   },
   {
@@ -229,7 +226,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
     const modelContent = 
       (<View style={styles.modalContent}>
         <Text style={styles.modalContentTitle}>{'unguided program is completed!'}</Text>
-        <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text>
+        {/* <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text> */}
       </View>);
 
       const subscription = crossAppNotification.addListener(EventsNames.ModalClose, () => {
@@ -481,7 +478,7 @@ export const ChatScreen = (props) => {
       <>
       {<HeaderComponent/>}
       <View style={{flex: 1, backgroundColor: 'white'}}>
-        <Text style={{ alignItems: 'center', justifyContent: 'center' }}>Chat Screen</Text>
+        {/* <Text style={{ alignItems: 'center', justifyContent: 'center' }}>Chat Screen</Text> */}
         <GiftedChat
           messages={messages}
           onInputTextChanged={text => dispatch({ type: "setTextInput", textInput: text })}
@@ -506,7 +503,12 @@ export const ChatScreen = (props) => {
 }
 
 export const HeaderComponent = () => {
+  const navigation = useNavigation();
+
   return <View style={styles.header}>
+      <View style={{position: 'absolute', left: 0}}>
+        <BackButton onPress={() => navigation.navigate("Today")} />
+      </View>
       <SVGIcon height="30" width="30" src={cocobotIcon} />
   </View>
 }
