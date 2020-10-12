@@ -10,6 +10,8 @@ import { crossAppNotification, EventsNames } from "../config";
 import Modal from 'react-native-modal';
 import { clockRunning, color } from 'react-native-reanimated';
 import { color as colorConstants} from '../assets/constant';
+import QuickReplies from 'react-native-gifted-chat/lib/QuickReplies';
+import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -48,7 +50,23 @@ const initialState = {
 const chatPlan = [
   {
     type: 'tell',
-    data: 'Hi, Lisa, how are you feeling right now?',
+    data: 'Hi, Lisa, Great! Wherr would like to do it?',
+    control: 'unstarted'
+  },
+  {
+    type: 'ask',
+    data: [{label: 'Unguided'}, {label: 'Guided'}],
+    selection: undefined,
+    control: 'unstarted'
+  },
+  {
+    type: 'tell',
+    data: 'Sounds good! Let’s get started!',
+    control: 'unstarted'
+  },
+  {
+    type: 'tell',
+    data: 'How are you feeling right now?',
     control: 'unstarted'
   },
   {
@@ -66,7 +84,7 @@ const chatPlan = [
     type: 'jump',
     data: 'Starting meditation in 1 sec...',
     control: 'unstarted'
-  },
+  },  
   {
     type: 'tell',
     data: 'How is today’s meditation?',
@@ -153,6 +171,86 @@ function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowMo
   }
 }
 
+function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent, navigation) {
+  const { data, control} = step;
+
+  if (control == 'unstarted') {
+    const methodStep = allSteps[1];
+
+    if (methodStep.selection == 'Guided') {
+      tellMessage(data);
+      setStep({
+        ...step,
+        control: 'guidedStep'
+      });
+    } else if (methodStep.selection == 'Unguided') {
+      setStep({
+        ...step,
+        control: 'unguidedStep'
+      });
+    }
+    
+  } else if (control == 'guidedStep') {
+    setTimeout(() => {
+      setStep({
+        ...step,
+        control: 'waiting'
+      });
+
+      const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
+        console.log('ResourcePlayDone captured');
+
+        setStep({
+          ...step,
+          control: 'done'
+        });
+        
+        subscription.remove();
+      });
+
+      navigation.navigate('Resources');
+    }, 1000);
+  } else if (control == 'unguidedStep') {
+    tellMessage('Now waiting for 5 minutes');
+
+    setStep({
+      ...step,
+      control: 'unguidedStep2'
+    });
+    
+  } else if (control == 'unguidedStep2') {
+    setTimeout(() => {
+      setStep({
+        ...step,
+        control: 'unguidedPopup'
+      });
+    }, 5000);
+  } else if (control == 'unguidedPopup') {
+    const modelContent = 
+      (<View style={styles.modalContent}>
+        <Text style={styles.modalContentTitle}>{'unguided program is completed!'}</Text>
+        <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text>
+      </View>);
+
+      const subscription = crossAppNotification.addListener(EventsNames.ModalClose, () => {
+        console.log('ModalClose captured');
+
+        setStep({
+          ...step,
+          control: 'done'
+        });
+        
+        subscription.remove();
+      });
+
+    setModelContent(modelContent);
+    setShowModal(true);
+
+  } else if ( control === 'done') {
+    moveNextStep();
+  }
+}
+
 
 export const ChatScreen = (props) => {
     const navigation = useNavigation();
@@ -162,16 +260,32 @@ export const ChatScreen = (props) => {
     const [user, setUser] = useState(null);
 
     const [stepId, setStepId] = useState(0);
+    const [allSteps, setAllSteps] = useState([]);
+
     const [step, setStep] = useState(chatPlan[stepId]);
     const [chatMsgId, setChatMsgId] = useState(1);
 
+    const [quickReplySelections, setQuickReplySelections] = useState({});
+
     const [showModal, setShowModal] = useState(false);
     const [modelContent, setModelContent] = useState(<View/>);
+    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false) 
 
     const moveNextStep = useCallback(() => {
-      setStepId(stepId + 1);
-      setStep(chatPlan[stepId + 1]);
-    }, [step, setStep, stepId, setStepId]);
+      if (!!moveNextStepWaiting) {
+        return;
+      }
+
+      setMoveNextStepWaiting(true);
+      setAllSteps(allSteps.concat(step));
+
+      setTimeout(() => {
+        setStepId(stepId + 1);
+        setStep(chatPlan[stepId + 1]);
+        setMoveNextStepWaiting(false);
+      }, 1000);
+      
+    }, [step, setStep, stepId, setStepId, moveNextStepWaiting, setMoveNextStepWaiting]);
 
 
     const tellMessage = useCallback((mesageText) => {
@@ -196,7 +310,7 @@ export const ChatScreen = (props) => {
       onSend([message]);
     }, [chatMsgId, setChatMsgId]);
 
-    const askMessage = useCallback((options) => {
+    const askMessage = useCallback((options, selection) => {
       const message = {
         _id: chatMsgId,
         text: '',
@@ -209,12 +323,23 @@ export const ChatScreen = (props) => {
         quickReplies: {
           type: 'radio',
           keepIt: true,
-          values: options.map(opt => ({
-            title: opt,
-            value: opt
-          }))
+          values: options.map(opt => {
+            let label = '';
+            if (typeof opt == 'string') {
+              label = opt;
+            } else {
+              label = opt.label;
+            }
+            return {
+              title: label,
+              value: label
+            }
+        })
+        },
+        data: {
+          selection
         }
-      }
+      };
 
       setChatMsgId(chatMsgId + 1);
 
@@ -246,6 +371,10 @@ export const ChatScreen = (props) => {
         return;
       }
 
+      if (moveNextStepWaiting) {
+        return;
+      }
+
       const { type, data, selection, control} = step;
 
       if (type == 'tell') {
@@ -255,7 +384,7 @@ export const ChatScreen = (props) => {
       
       if (type == 'ask') {
         if (control == 'unstarted') {
-          askMessage(data);
+          askMessage(data, selection);
 
           setStep({
             ...step,
@@ -267,39 +396,7 @@ export const ChatScreen = (props) => {
       } 
       
       if (type == 'jump') {
-        if (control == 'unstarted') {
-          tellMessage(data);
-
-          setStep({
-            ...step,
-            control: 'scheduled'
-          });
-          
-        } else if (control == 'scheduled') {
-
-          setTimeout(() => {
-
-            setStep({
-              ...step,
-              control: 'waiting'
-            });
-
-            const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
-              console.log('ResourcePlayDone captured');
-
-              setStep({
-                ...step,
-                control: 'done'
-              });
-              
-              subscription.remove();
-            });
-
-            navigation.navigate('Resources');
-          }, 1000);
-        } else if ( control === 'done') {
-          moveNextStep();
-        }
+        jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent, navigation);
       }
 
       if (type == 'surprise') {
@@ -314,12 +411,17 @@ export const ChatScreen = (props) => {
         return;
       }
 
+      setQuickReplySelections({
+        ...quickReplySelections,
+        [selection[0].messageId]: selection[0].value
+      });
+
       setStep({
         ...step,
         selection: selection[0].value,
         control: 'done'
       });
-    }, [step, setStep]);
+    }, [step, setStep, quickReplySelections, setQuickReplySelections]);
 
     const onSelect = (parent) => {
       const newMessage = {
@@ -348,6 +450,18 @@ export const ChatScreen = (props) => {
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, []);
+
+    const onModalClose = useCallback(() => {
+      setShowModal(false);
+      crossAppNotification.emit(EventsNames.ModalClose);
+    }, [setShowModal]);
+
+
+    const onRenderQuickReplies = useCallback((props) => {
+      const messgeId = props.currentMessage._id;
+      const selection = quickReplySelections[messgeId];
+      return <ChatQuickReplies {...props} selection={selection} /> ;
+    }, [quickReplySelections]);
 
 
     useEffect(() => {
@@ -378,10 +492,12 @@ export const ChatScreen = (props) => {
           user={{
             _id: 1,
           }}
+          renderQuickReplies={onRenderQuickReplies}
+          renderTime={() => {}}
         />
       </View>
       <View>
-          <Modal isVisible={showModal}  onBackdropPress={() => setShowModal(false)}>
+          <Modal isVisible={showModal}  onBackdropPress={onModalClose}>
             {modelContent}
           </Modal>
       </View>
