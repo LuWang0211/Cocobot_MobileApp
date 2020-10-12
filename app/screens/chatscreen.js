@@ -234,7 +234,7 @@ export const ChatScreen = (props) => {
 
       setStep({
         ...step,
-        // selection: selection[0].value,
+        selection: selection[0].value,
         control: 'done'
       });
     }, [step, setStep]);
@@ -265,7 +265,6 @@ export const ChatScreen = (props) => {
 
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-      console.log(messages.text)
     }, [])
 
     return (

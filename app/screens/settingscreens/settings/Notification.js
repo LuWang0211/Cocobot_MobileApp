@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Text, Button } from 'react-native';
 // import { color } from '../../.././assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification';
 import { notificationChannelId, notificationAction1 } from '../../../config';
-// import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "../../../components/DateTimePicker";
+import moment from 'moment';
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -17,12 +18,16 @@ const showNotification = (title, message) => {
     });
 };
 
-const handlerScheduleNotification = (title, message) => {
+const handlerScheduleNotification = (title, message, date) => {
+    if (date == undefined) {
+        date = new Date(Date.now() + 10 * 1000);
+    }
+
     PushNotification.localNotificationSchedule({
         channelId: notificationChannelId,
         title,
         message,
-        date: new Date(Date.now() + 10 * 1000),
+        date,
         tag: notificationAction1,
         actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
     });
@@ -47,6 +52,29 @@ export const Notification = (props) => {
     //   console.warn("A date has been picked: ", date);
     //   hideDatePicker();
     // };
+
+
+    const initialDate = useMemo(() => new Date(), [])
+
+    const [isDateChanged, setIsDateChanged] = useState(false);
+
+    const [date, setDate] = useState(initialDate);
+
+    const onDateChange = useCallback((newDate) => {
+        if (moment(newDate).isSame(initialDate)) {            
+            return;
+        }
+        setIsDateChanged(true);
+        setDate(newDate);
+    }, [setDate]);
+
+    const dateDisplayString = useMemo(() => {
+        return moment(date).format('ll LT');
+    }, [date]);
+
+    const sendNotificationAtScheduledTime = useCallback(() => {
+        handlerScheduleNotification('Coco', 'coco will be there in 5s', date);
+    }, [date]);
 
     return (
         <View style={styles.container}>
@@ -75,6 +103,12 @@ export const Notification = (props) => {
                             <Text style={styles.buttonTitle}>Tap to cancel notification </Text>
                         </View>
                     </TouchableOpacity>
+                    <DateTimePicker initialDate={initialDate} onDateChange={onDateChange} />
+                    {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonTitle}>{`Tap to get notification at ${dateDisplayString}`}</Text>
+                        </View>
+                    </TouchableOpacity>}
                 </View>
             </ScrollView>
         </View>
@@ -85,6 +119,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         // backgroundColor: color.white,
+    },
+    dateGroupContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: "stretch",
+        justifyContent: "space-evenly"
     },
     body: {
         paddingHorizontal: 16,
