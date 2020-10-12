@@ -6,6 +6,9 @@ import PushNotification from 'react-native-push-notification';
 import { notificationChannelId, notificationAction1 } from '../../../config';
 import DateTimePicker from "../../../components/DateTimePicker";
 import moment from 'moment';
+import { crossAppNotification, EventsNames } from '../../../config';
+import { useNavigation } from '@react-navigation/native';
+import Modal from 'react-native-modal';
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -53,6 +56,7 @@ export const Notification = (props) => {
     //   hideDatePicker();
     // };
 
+    navigation = useNavigation();
 
     const initialDate = useMemo(() => new Date(), [])
 
@@ -73,8 +77,18 @@ export const Notification = (props) => {
     }, [date]);
 
     const sendNotificationAtScheduledTime = useCallback(() => {
+        // navigation.navigate('Chat');
+
+        // setTimeout(() => {
+        //     crossAppNotification.emit(EventsNames.NotificationScheduled, {
+        //         scheduledTime: date
+        //     });
+        // }, 1000);
         handlerScheduleNotification('Coco', 'coco will be there in 5s', date);
+        setShowNotificationConfirm(true);
     }, [date]);
+
+    const [showNotificationConfirm, setShowNotificationConfirm] = useState(false);
 
     return (
         <View style={styles.container}>
@@ -109,6 +123,13 @@ export const Notification = (props) => {
                             <Text style={styles.buttonTitle}>{`Tap to get notification at ${dateDisplayString}`}</Text>
                         </View>
                     </TouchableOpacity>}
+                    <View>
+                        <Modal isVisible={showNotificationConfirm}  onBackdropPress={() => setShowNotificationConfirm(false)}>
+                            <View style={styles.content}>
+                                <Text style={styles.contentTitle}>{`You have scheduled a notification at ${dateDisplayString}`}</Text>
+                            </View>
+                        </Modal>
+                    </View>
                 </View>
             </ScrollView>
         </View>
@@ -165,5 +186,17 @@ const styles = StyleSheet.create({
     buttonTitle: {
         color: 'white',
         fontSize: 16,
+    },
+    content: {
+        backgroundColor: 'white',
+        padding: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    contentTitle: {
+        fontSize: 20,
+        marginBottom: 12,
     },
 });

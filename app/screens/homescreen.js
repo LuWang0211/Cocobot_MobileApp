@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {StyleSheet, View, Text, Button} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import GHeader from '../components/GHeader';
@@ -12,12 +12,22 @@ import { Login } from '../assets/context';
 const Tab = createBottomTabNavigator();
 
 export const HomeScreen = (props) => {
+    const routeParams = props.route.params;
+
+    const initialRoute = useMemo(() => {
+      if (!!routeParams && routeParams.activateRoute != undefined) {
+        return routeParams.activateRoute;
+      }
+
+      return "Today";
+
+    }, [routeParams])
 
     return (
       <>
       {/* <GHeader
       /> */}
-        <Tab.Navigator initialRouteName="Today" tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
+        <Tab.Navigator initialRouteName={initialRoute} tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
           <Tab.Screen name="Today" component={TodayScreen} options={{
             tabBarIcon: (props) => {
               return <SVGIcon height="22" width="22" src={todayIcon} color={props.color} />

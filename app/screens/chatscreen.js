@@ -1,14 +1,15 @@
 import React, { useState, useCallback, useEffect, useReducer } from 'react';
-import {StyleSheet, View, Text, Button} from 'react-native';
+import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage } from 'react-native-gifted-chat';
 import { Header } from 'react-native-elements';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
-import { crossAppNotification} from "../config";
-
-
+import { crossAppNotification, EventsNames } from "../config";
+import Modal from 'react-native-modal';
+import { clockRunning, color } from 'react-native-reanimated';
+import { color as colorConstants} from '../assets/constant';
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -95,8 +96,62 @@ const chatPlan = [
       'You are doing a good job taking care of yourself. Keep up the momentum!'
     ],
     control: 'unstarted'
+  },
+  {
+    type: 'surprise',
+    data: {
+      title: 'Congratulations!',
+      content: 'You’ve just finishied your first meditation for this week.',
+      gifs: [
+        'https://media.giphy.com/media/cKoHrJDJq0RSof5PIV/giphy.gif',
+        'https://media.giphy.com/media/Y0nfCLTb1T5C4XvE54/giphy.gif'
+      ]
+    },
+    control: 'unstarted'
   },  
 ];
+
+function generateDogsAndCats (size) {
+  const dd = ["🐈", "🐕", "🐎", "🐼"];
+
+  let out = "";
+
+  for (let i = 0; i < size; i++) {
+    const a = dd[Math.floor(Math.random() * dd.length)];
+    out += a;
+  }
+
+  return out;
+}
+
+function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowModal, setModelContent) {
+  const { data, control} = step;
+
+  if (control == 'unstarted') {
+    const {title, content, gifs} = data;
+
+    const gif = gifs[Math.floor(Math.random() * gifs.length)];
+
+    const modelContent = 
+      (<View style={styles.modalContent}>
+        <Image 
+            source={{uri: gif}}  
+            style={{width: 100, height:100 }} 
+        />
+        <Text style={styles.modalContentTitle}>{title}</Text>
+        <Text style={styles.modalContentBody}>{content}</Text>
+        <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text>
+      </View>);
+
+    setModelContent(modelContent);
+    setShowModal(true);
+
+    setStep({
+      ...step,
+      control: 'shown'
+    });
+  }
+}
 
 
 export const ChatScreen = (props) => {
@@ -109,6 +164,9 @@ export const ChatScreen = (props) => {
     const [stepId, setStepId] = useState(0);
     const [step, setStep] = useState(chatPlan[stepId]);
     const [chatMsgId, setChatMsgId] = useState(1);
+
+    const [showModal, setShowModal] = useState(false);
+    const [modelContent, setModelContent] = useState(<View/>);
 
     const moveNextStep = useCallback(() => {
       setStepId(stepId + 1);
@@ -163,6 +221,26 @@ export const ChatScreen = (props) => {
       onSend([message]);
     }, [chatMsgId, setChatMsgId]);
 
+
+    const tellSceduleMessage = useCallback((mesageText) => {
+      const message = {
+        _id: chatMsgId,
+        text: mesageText,
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          // avatar: 'https://placeimg.com/140/140/any',
+          avatar: '../assets/coco.png',
+        },
+      }
+
+      setChatMsgId(chatMsgId + 1);
+
+      onSend([message]);
+    }, [chatMsgId, setChatMsgId])
+
+
     useEffect(() => {
       if (stepId >= chatPlan.length) {
         return;
@@ -206,7 +284,7 @@ export const ChatScreen = (props) => {
               control: 'waiting'
             });
 
-            const subscription = crossAppNotification.addListener('ResourcePlayDone', () => {
+            const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
               console.log('ResourcePlayDone captured');
 
               setStep({
@@ -224,7 +302,11 @@ export const ChatScreen = (props) => {
         }
       }
 
-    }, [step, setStep, stepId, setStepId]);
+      if (type == 'surprise') {
+        processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowModal, setModelContent)
+      }
+
+    }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage]);
 
 
     const onQuickReply = useCallback((selection) => {
@@ -265,7 +347,21 @@ export const ChatScreen = (props) => {
 
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-    }, [])
+    }, []);
+
+
+    useEffect(() => {
+      // subscribe to random message request
+      const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
+        console.log('NotificationScheduled captured', eventData);
+
+        tellSceduleMessage(`You have a notification scheduled at ${eventData.scheduledTime}`);
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, [tellSceduleMessage]);
 
     return (
       <>
@@ -283,6 +379,11 @@ export const ChatScreen = (props) => {
             _id: 1,
           }}
         />
+      </View>
+      <View>
+          <Modal isVisible={showModal}  onBackdropPress={() => setShowModal(false)}>
+            {modelContent}
+          </Modal>
       </View>
       </>
     )
@@ -361,5 +462,25 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     bottom: 60,
     top: undefined
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  modalContentTitle: {
+    fontSize: 26,
+    lineHeight: 39,
+    marginBottom: 12,
+    color: colorConstants.brandPurple
+  },
+  modalContentBody: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 12,
+    color: 'black'
   },
 })
