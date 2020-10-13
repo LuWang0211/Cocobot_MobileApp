@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Text, Button } from 'react-native';
 // import { color } from '../../.././assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification';
 import { notificationChannelId, notificationAction1 } from '../../../config';
-// import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "../../../components/DateTimePicker";
+import moment from 'moment';
+import { crossAppNotification, EventsNames } from '../../../config';
+import { useNavigation } from '@react-navigation/native';
+import Modal from 'react-native-modal';
+import BackButton from "../../../components/HeaderComponents/BackButton";
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -17,14 +22,18 @@ const showNotification = (title, message) => {
     });
 };
 
-const handlerScheduleNotification = (title, message) => {
+const handlerScheduleNotification = (title, message, date) => {
+    if (date == undefined) {
+        date = new Date(Date.now() + 10 * 1000);
+    }
+
     PushNotification.localNotificationSchedule({
         channelId: notificationChannelId,
         title,
         message,
-        date: new Date(Date.now() + 10 * 1000),
+        date,
         tag: notificationAction1,
-        actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
+        actions: ["Now"], // (Android only) See the doc for notification actions to know more
     });
 };
 
@@ -48,23 +57,44 @@ export const Notification = (props) => {
     //   hideDatePicker();
     // };
 
+    navigation = useNavigation();
+
+    const initialDate = useMemo(() => new Date(), [])
+
+    const [isDateChanged, setIsDateChanged] = useState(false);
+
+    const [date, setDate] = useState(initialDate);
+
+    const onDateChange = useCallback((newDate) => {
+        // if (moment(newDate).isSame(initialDate) && !isDateChanged) {            
+        //     return;
+        // }
+        setIsDateChanged(true);
+        setDate(newDate);
+    }, [setDate]);
+
+    const dateDisplayString = useMemo(() => {
+        return moment(date).format('ll LT');
+    }, [date]);
+
+    const sendNotificationAtScheduledTime = useCallback(() => {
+        handlerScheduleNotification('COCOBOT', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date);
+        setShowNotificationConfirm(true);
+    }, [date]);
+
+    const [showNotificationConfirm, setShowNotificationConfirm] = useState(false);
+
     return (
         <View style={styles.container}>
+            <HeaderComponent />
             <ScrollView>
                 <View style={styles.body}>
                     <Text style={styles.Title}>Notification</Text>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
+                    {/* <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification </Text>
                         </View>
                     </TouchableOpacity>
-                    {/* <Button title="Show Date Picker" onPress={showDatePicker} /> */}
-                    {/* <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleConfirm}
-                        onCancel={hideDatePicker}
-                    /> */}
                     <TouchableOpacity activeOpacity={0.6} onPress={() => handlerScheduleNotification('Coco', 'coco will be there in 5s')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification after 5sec</Text>
@@ -74,17 +104,44 @@ export const Notification = (props) => {
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to cancel notification </Text>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
+                    <DateTimePicker initialDate={initialDate} onDateChange={onDateChange} />
+                    {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonTitle}>{`Tap to get notification at ${dateDisplayString}`}</Text>
+                        </View>
+                    </TouchableOpacity>}
+                    <View>
+                        <Modal isVisible={showNotificationConfirm}  onBackdropPress={() => setShowNotificationConfirm(false)}>
+                            <View style={styles.content}>
+                                <Text style={styles.contentTitle}>{`You have scheduled a notification at ${dateDisplayString}`}</Text>
+                            </View>
+                        </Modal>
+                    </View>
                 </View>
             </ScrollView>
         </View>
     );
 }
 
+export const HeaderComponent = () => {
+    const navigation = useNavigation();
+  
+    return <View style={styles.header}>
+        <BackButton onPress={() => navigation.navigate("Home")} />
+    </View>
+}
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         // backgroundColor: color.white,
+    },
+    dateGroupContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: "stretch",
+        justifyContent: "space-evenly"
     },
     body: {
         paddingHorizontal: 16,
@@ -125,5 +182,24 @@ const styles = StyleSheet.create({
     buttonTitle: {
         color: 'white',
         fontSize: 16,
+    },
+    content: {
+        backgroundColor: 'white',
+        padding: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    contentTitle: {
+        fontSize: 20,
+        marginBottom: 12,
+    },
+    header: {
+        display: 'flex',
+        flexDirection: "column",
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        padding: 4
     },
 });

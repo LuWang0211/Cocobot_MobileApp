@@ -9,3 +9,10 @@ export const navigationRef = React.createRef();
 
 
 export const crossAppNotification = new NativeEventEmitter();
+
+
+export const EventsNames = {
+    NotificationScheduled: 'NotificationScheduled',
+    ResourcePlayDone: 'ResourcePlayDone',
+    ModalClose: 'ModalClose'
+}

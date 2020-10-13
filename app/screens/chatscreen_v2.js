@@ -47,13 +47,18 @@ const initialState = {
 const chatPlan = [
   {
     type: 'tell',
-    data: 'Hi, Lisa, Great! Where would like to do it?',
+    data: 'Hi, Lisa, how do you want to start the session?',
     control: 'unstarted'
   },
   {
     type: 'ask',
-    data: [{label: 'Unguided'}, {label: 'Guided'}],
+    data: [{label: 'Alexa'}, {label: 'Phone'}],
     selection: undefined,
+    control: 'unstarted'
+  },
+  {
+    type: 'pause',
+    data: 'Okay',
     control: 'unstarted'
   },
   {
@@ -168,26 +173,87 @@ function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowMo
   }
 }
 
+function pauseStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent) {
+  const { data, control} = step;
+
+  if (control == 'unstarted') {
+    const methodStep = allSteps[1];
+
+    if (methodStep.selection == 'Phone') {
+      setStep({
+        ...step,
+        control: 'phoneStep'
+      });
+    } else if (methodStep.selection == 'Alexa') {
+      tellMessage(data);
+      setStep({
+        ...step,
+        control: 'alexaStep'
+      });
+    }
+    
+  } else if (control == 'phoneStep') {
+    moveNextStep();
+  } else if (control == 'alexaStep') {
+    tellMessage('Got it, Please tell Alexa to open coco solution!');
+
+    setStep({
+      ...step,
+      control: 'alexaStep2'
+    });
+    
+  } else if (control == 'alexaStep2') {
+    setTimeout(() => {
+      setStep({
+        ...step,
+        control: 'alexaPopup'
+      });
+    }, 5000);
+  } else if (control == 'alexaPopup') {
+    const modelContent = 
+      (<View style={styles.modalContent}>
+        <Text style={styles.modalContentTitle}>{'Alexa program is completed!'}</Text>
+      </View>);
+
+      const subscription = crossAppNotification.addListener(EventsNames.ModalClose, () => {
+        console.log('ModalClose captured');
+
+        setStep({
+          ...step,
+          control: 'done'
+        });
+        
+        subscription.remove();
+      });
+
+    setModelContent(modelContent);
+    setShowModal(true);
+
+  } else if ( control === 'done') {
+    return;
+  }
+}
+
 function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent, navigation) {
   const { data, control} = step;
 
   if (control == 'unstarted') {
     const methodStep = allSteps[1];
 
-    if (methodStep.selection == 'Guided') {
+    if (methodStep.selection == 'Phone') {
       tellMessage(data);
       setStep({
         ...step,
-        control: 'guidedStep'
+        control: 'phoneStep'
       });
-    } else if (methodStep.selection == 'Unguided') {
+    } else if (methodStep.selection == 'Alexa') {
       setStep({
         ...step,
-        control: 'unguidedStep'
+        control: 'alexaStep'
       });
     }
     
-  } else if (control == 'guidedStep') {
+  } else if (control == 'phoneStep') {
     setTimeout(() => {
       setStep({
         ...step,
@@ -207,25 +273,25 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
 
       navigation.navigate('Resources');
     }, 1000);
-  } else if (control == 'unguidedStep') {
+  } else if (control == 'alexaStep') {
     tellMessage('Now waiting for 5 minutes');
 
     setStep({
       ...step,
-      control: 'unguidedStep2'
+      control: 'alexaStep2'
     });
     
-  } else if (control == 'unguidedStep2') {
+  } else if (control == 'alexaStep2') {
     setTimeout(() => {
       setStep({
         ...step,
-        control: 'unguidedPopup'
+        control: 'alexaPopup'
       });
     }, 5000);
-  } else if (control == 'unguidedPopup') {
+  } else if (control == 'alexaPopup') {
     const modelContent = 
       (<View style={styles.modalContent}>
-        <Text style={styles.modalContentTitle}>{'unguided program is completed!'}</Text>
+        <Text style={styles.modalContentTitle}>{'Alexa program is completed!'}</Text>
         {/* <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text> */}
       </View>);
 
@@ -392,6 +458,10 @@ export const ChatScreen = (props) => {
         }        
       } 
       
+      if (type == 'pause') {
+        pauseStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent);
+      }
+
       if (type == 'jump') {
         jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent, navigation);
       }
@@ -399,6 +469,7 @@ export const ChatScreen = (props) => {
       if (type == 'surprise') {
         processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowModal, setModelContent)
       }
+
 
     }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage]);
 

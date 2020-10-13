@@ -8,7 +8,7 @@ import { color } from '../assets/constant';
 function GHeader(props) {
     const navigation = useNavigation();
     return (
-        <TouchableOpacity onPress= {() => navigation.navigate('Settings')}>
+        <TouchableOpacity onPress= {() => navigation.navigate('notification')}>
             <Avatar 
                 title="L"
                 size="large"
@@ -16,6 +16,7 @@ function GHeader(props) {
                 containerStyle={styles.avatar}
             />
         </TouchableOpacity>
+
     );
 }
 
