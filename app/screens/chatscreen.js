@@ -47,7 +47,7 @@ const initialState = {
 const chatPlan = [
   {
     type: 'tell',
-    data: 'Hi, Lisa, Great! Where would like to do it?',
+    data: 'Hi, Lisa, how do you want to start the session?',
     control: 'unstarted'
   },
   {
@@ -208,7 +208,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
       navigation.navigate('Resources');
     }, 1000);
   } else if (control == 'unguidedStep') {
-    tellMessage('Now waiting for 5 minutes');
+    tellMessage('Now coco will wait for 5 minutes, you can do meditation following your own resource');
 
     setStep({
       ...step,
