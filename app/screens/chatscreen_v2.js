@@ -47,7 +47,7 @@ const initialState = {
 const chatPlan = [
   {
     type: 'tell',
-    data: 'Hi, Lisa, Great! Where would like to do it?',
+    data: 'Hi, Lisa, how do you want to start the session?',
     control: 'unstarted'
   },
   {
@@ -195,7 +195,7 @@ function pauseStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessag
   } else if (control == 'phoneStep') {
     moveNextStep();
   } else if (control == 'alexaStep') {
-    tellMessage('Got it, Please call Alexa open Cooco!');
+    tellMessage('Got it, Please tell Alexa to open coco solution!');
 
     setStep({
       ...step,
@@ -291,7 +291,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
   } else if (control == 'alexaPopup') {
     const modelContent = 
       (<View style={styles.modalContent}>
-        <Text style={styles.modalContentTitle}>{'alexa program is completed!'}</Text>
+        <Text style={styles.modalContentTitle}>{'Alexa program is completed!'}</Text>
         {/* <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text> */}
       </View>);
 
