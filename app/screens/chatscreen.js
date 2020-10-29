@@ -12,20 +12,10 @@ import BackButton from "../components/HeaderComponents/BackButton";
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
-    case "startTutorial":
-      return { ...state, tutorial: true, showInput: false, options: action.options }
-    case "endTutorial":
-      return { ...state, tutorial: false, showInput: true, options: [] }
     case "showQuickReply":
       return { ...state, showInput: false, options: action.options }
     case "hideQuickReply":
       return { ...state, showInput: true, option: [] }
-    case "openTooltip":
-      return { ...state, showInput: true, tooltip: true, position: action.position, textInput: action.textInput, tooltipType: action.subType, stage: 0 };
-    case "nextTooltip":
-      return { ...state, position: action.position, textInput: action.textInput, stage: state.stage + 1 }
-    case "closeTooltip":
-      return { ...state, showInput: !state.tutorial, tooltip: false, textInput: ""};
     case "setTextInput":
       return { ...state, textInput: action.textInput };
     default:
@@ -205,7 +195,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
         subscription.remove();
       });
 
-      navigation.navigate('Resources');
+      navigation.navigate('ContentDetail');
     }, 1000);
   } else if (control == 'unguidedStep') {
     tellMessage('Now waiting for 5 minutes. You can do meditation by following your own resource');

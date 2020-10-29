@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import {StyleSheet, View, Text, Button, ImageBackground, RefreshControlComponent} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { ChatScreen } from './chatscreen';
+import {StyleSheet, View, Text} from 'react-native';
 
-
-export const ResourceScreen = (props) => {
+export const ProgressScreen = (props) => {
   return (   
       <View style={ styles.container}>
-          <Text style = {styles.text}> ResourceScreen </Text> 
+          <Text style = {styles.text}> ProgressScreen </Text> 
       </View>
     )
 }
