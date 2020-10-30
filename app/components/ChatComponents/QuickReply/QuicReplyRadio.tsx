@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
       borderWidth: 0,
       borderRadius: 20,
       backgroundColor: 'rgb(233,236,255)',
-      padding: 30
+      padding: 15
     },
     quickReply: {
       justifyContent: 'center',

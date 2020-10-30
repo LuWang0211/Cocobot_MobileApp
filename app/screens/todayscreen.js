@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
-import GHeader from '../components/GHeader';
+import { NotificationContext } from "../assets/context";
+// import GHeader from '../components/GHeader';
+import AppHeader from "../components/AppHeader/AppHeader";
+import { tabsHeader } from "../assets/styles";
+import LeftHeader from "../components/AppHeader/LeftHeader";
+import SOSButton from "../components/HeaderComponents/SOSButton";
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import { redBgAuth, blueBgAuth } from '../assets/icons/authBgIcons';
 import { color } from '../assets/constant';
@@ -14,7 +19,12 @@ export const TodayScreen = (props) => {
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
-            <GHeader/>
+            {/* <GHeader/> */}
+            <AppHeader
+                leftComponent={() => <LeftHeader/>}
+                rightComponent={<SOSButton/>}
+                headerStyle={{...tabsHeader, position: "absolute", right: 0, left: 0}}
+            />
             <View style={styles.redBg}>
                 <SVGIcon height={100} width={165} src={redBgAuth}/>
             </View>
