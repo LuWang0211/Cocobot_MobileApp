@@ -1,8 +1,10 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import MyAvatar from '../Avatar/MyAvatar';
+import { useNavigation } from "@react-navigation/native";
 
 function LeftHeader(props) {
+    const navigation = useNavigation();
     function retrieveName() {
         if (props.userFromFS) {
             return props.userFromFS.displayName;
@@ -13,11 +15,11 @@ function LeftHeader(props) {
                 return props.user.displayName;
             }
         }
-        return 'John Doe';
+        return 'Lisa';
     }
 
     return (
-        <TouchableOpacity onPress={() => props.navigation.navigate('Settings')} style={{ padding: 16 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('notification')} style={{ padding: 12 }}>
             <MyAvatar name={retrieveName()} />
         </TouchableOpacity>
     );

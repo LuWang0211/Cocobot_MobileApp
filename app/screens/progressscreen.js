@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import {StyleSheet, View, Text, Button, ImageBackground, RefreshControlComponent} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 import AppHeader from "../components/AppHeader/AppHeader";
 import { tabsHeader } from "../assets/styles";
 import LeftHeader from "../components/AppHeader/LeftHeader";
 import SOSButton from "../components/HeaderComponents/SOSButton";
 
 
-export const ResourceScreen = (props) => {
+export const ProgressScreen = (props) => {
   return (   
       <View style={ styles.container}>
           <AppHeader
@@ -14,7 +14,7 @@ export const ResourceScreen = (props) => {
             rightComponent={<SOSButton/>}
             headerStyle={{...tabsHeader, position: "absolute", right: 0, left: 0}}
           />
-          <Text style = {styles.text}> ResourceScreen </Text> 
+          <Text style = {styles.text}> ProgressScreen </Text> 
       </View>
     )
 }
@@ -43,12 +43,4 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginHorizontal: 100,
   },
-
-  bottom: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 30,
-    marginHorizontal: 100
-  }
-
 })

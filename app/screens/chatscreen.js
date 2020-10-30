@@ -9,23 +9,14 @@ import Modal from 'react-native-modal';
 import { color as colorConstants} from '../assets/constant';
 import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
 import BackButton from "../components/HeaderComponents/BackButton";
+import SendButton from '../components/ChatComponents/SendButton';
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
-    case "startTutorial":
-      return { ...state, tutorial: true, showInput: false, options: action.options }
-    case "endTutorial":
-      return { ...state, tutorial: false, showInput: true, options: [] }
     case "showQuickReply":
       return { ...state, showInput: false, options: action.options }
     case "hideQuickReply":
       return { ...state, showInput: true, option: [] }
-    case "openTooltip":
-      return { ...state, showInput: true, tooltip: true, position: action.position, textInput: action.textInput, tooltipType: action.subType, stage: 0 };
-    case "nextTooltip":
-      return { ...state, position: action.position, textInput: action.textInput, stage: state.stage + 1 }
-    case "closeTooltip":
-      return { ...state, showInput: !state.tutorial, tooltip: false, textInput: ""};
     case "setTextInput":
       return { ...state, textInput: action.textInput };
     default:
@@ -151,7 +142,7 @@ function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowMo
       (<View style={styles.modalContent}>
         <Image 
             source={{uri: gif}}  
-            style={{width: 100, height:100 }} 
+            style={{width: 100, height: 100 }} 
         />
         <Text style={styles.modalContentTitle}>{title}</Text>
         <Text style={styles.modalContentBody}>{content}</Text>
@@ -205,10 +196,10 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
         subscription.remove();
       });
 
-      navigation.navigate('Resources');
+      navigation.navigate('ContentDetails');
     }, 1000);
   } else if (control == 'unguidedStep') {
-    tellMessage('Now coco will wait for 5 minutes, you can do meditation following your own resource');
+    tellMessage('Now waiting for 5 minutes. You can do meditation by following your own resource');
 
     setStep({
       ...step,
@@ -437,13 +428,6 @@ export const ChatScreen = (props) => {
       }));
     };
 
-    const onReselect = (parent) => {
-      setMessages(previousMessages => previousMessages.map((item) => {
-        return item._id === parent._id ? parent : item;
-      }));
-    };
-   
-
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, []);
@@ -460,6 +444,16 @@ export const ChatScreen = (props) => {
       return <ChatQuickReplies {...props} selection={selection} /> ;
     }, [quickReplySelections]);
 
+
+    const renderSend = (props) => {
+      return (
+        <Send {...props}>
+          <View style={{ paddingRight: 10, paddingBottom: 10 }}>
+            <SendButton />
+          </View>
+        </Send>
+      );
+    };
 
     useEffect(() => {
       // subscribe to random message request
@@ -478,12 +472,10 @@ export const ChatScreen = (props) => {
       <>
       {<HeaderComponent/>}
       <View style={{flex: 1, backgroundColor: 'white'}}>
-        {/* <Text style={{ alignItems: 'center', justifyContent: 'center' }}>Chat Screen</Text> */}
         <GiftedChat
+          alignTop
           messages={messages}
           onInputTextChanged={text => dispatch({ type: "setTextInput", textInput: text })}
-          // renderInputToolbar={renderInputToolbar}
-          // renderMessageText={renderMessageText}
           onSend={messages => onSend(messages)}
           onQuickReply={onQuickReply}
           user={{
@@ -491,6 +483,11 @@ export const ChatScreen = (props) => {
           }}
           renderQuickReplies={onRenderQuickReplies}
           renderTime={() => {}}
+
+          renderSend={renderSend}
+          lightboxProps={{ springConfig: { tension: 90000, friction: 90000 } }}
+          textInputStyle={styles.textInputStyle}
+          alwaysShowSend={true}
         />
       </View>
       <View>
@@ -509,7 +506,7 @@ export const HeaderComponent = () => {
       <View style={{position: 'absolute', left: 0}}>
         <BackButton onPress={() => navigation.navigate("Today")} />
       </View>
-      <SVGIcon height="30" width="30" src={cocobotIcon} />
+      <SVGIcon height="40" width="40" src={cocobotIcon} />
   </View>
 }
 
@@ -519,7 +516,16 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 4
+    padding: 30,
+    backgroundColor: 'white',
+    // height: Platform.OS === 'ios' ? 80 : 110,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: 'rgba(199, 199, 199, 0.75)',
+    shadowOffset: {width: 2, height: 2},
+    shadowOpacity: 1,
+    elevation: 5,
+    zIndex: 999,
   },
   image: {
     flex: 1,

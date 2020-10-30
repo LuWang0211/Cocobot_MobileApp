@@ -1,13 +1,13 @@
 import React from 'react';
 import { Avatar } from 'react-native-elements';
-import { extractFirstLetter } from '../../functions/SettingsFunction';
+// import { extractFirstLetter } from '../../functions/SettingsFunction';
 import { StyleSheet } from 'react-native';
-import { color } from '../../constant';
+import { color } from '../../assets/constant';
 
 function MyAvatar(props) {
     return (
         <Avatar
-            title={extractFirstLetter(props.name)}
+            title={'L'}
             source={props.source}
             titleStyle={styles.avatarTitle}
             containerStyle={styles.avatar}
