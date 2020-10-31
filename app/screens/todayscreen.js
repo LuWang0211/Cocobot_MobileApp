@@ -44,6 +44,14 @@ export const TodayScreen = (props) => {
                     <Text style={styles.cardboby}>Talk Now</Text>
                 </View>
             </TouchableOpacity> 
+
+            {/* testvideo */}
+            <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("ContentDetails")}>
+                <View>
+                    <Text style={styles.cardboby}>testvideo</Text>
+                </View>
+            </TouchableOpacity> 
+             {/* testvideo */}
         </View>
         
     );
