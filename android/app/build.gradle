@@ -134,6 +134,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true // for trackplayer
     }
     
     splits {
@@ -201,6 +202,12 @@ dependencies {
 
     //notification
     implementation project(':react-native-push-notification')
+
+    //tracker
+    compile project(':react-native-track-player')
+    //tracker :  com.android.builder.dexing.DexArchiveMergerException: Error while merging dex archives:
+    implementation 'com.android.support:multidex:1.0.3'
+
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'

@@ -32,6 +32,7 @@
     "react-native-slider": "^0.11.0",
     "react-native-sound": "^0.11.0",
     "react-native-svg": "^12.1.0",
+    "react-native-swift": "^1.2.3",
     "react-native-track-player": "^1.2.3",
     "react-native-vector-icons": "^7.1.0",
     "react-native-wheel-picker": "^1.2.0",

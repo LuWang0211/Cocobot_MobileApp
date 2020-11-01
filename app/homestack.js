@@ -17,9 +17,9 @@ const Tab = createBottomTabNavigator();
 
 function TodayStackScreen() {
   return (
-    <TodayStack.Navigator screenOptions={{ headerShown: false }}>
+    <TodayStack.Navigator screenOptions={{ headerShown: false, tabBarVisible: false}}>
       <TodayStack.Screen name="Today" component={TodayScreen} />
-      <TodayStack.Screen name="ContentDetails" component={ContentScreen} />
+      <TodayStack.Screen name="ContentDetails" component={ContentScreen} options={{tabBarVisible: false}} />
     </TodayStack.Navigator>
   );
 }
@@ -27,7 +27,7 @@ function TodayStackScreen() {
 function ChatStackScreen() {
   return (
     <ChatStack.Navigator screenOptions={{ headerShown: false }}>
-      <ChatStack.Screen name="Chat" component={ChatScreen} />
+      <ChatStack.Screen name="Chat" component={ChatScreen}/>
       <ChatStack.Screen name="ContentDetails" component={ContentScreen} />
     </ChatStack.Navigator>
   );
@@ -71,7 +71,7 @@ export const HomeScreen = (props) => {
             tabBarIcon: (props) => {
               return <SVGIcon height="22" width="22" src={resourcesIcon} color={props.color} />
             },
-            // tabBarVisible: false,
+            tabBarVisible: false,
           }} />
           <Tab.Screen name="Progress" component={ProgressScreen} options={{
             tabBarIcon: (props) => {

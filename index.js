@@ -9,6 +9,7 @@ import {name as appName} from './app.json';
 import PushNotification from 'react-native-push-notification';
 import { Platform } from 'react-native';
 import { notificationChannelId, notificationAction1, navigationRef } from "./app/config";
+import TrackPlayer from 'react-native-track-player';
 
 PushNotification.configure({
     // (optional) Called when Token is generated (iOS and Android)
@@ -71,3 +72,6 @@ PushNotification.createChannel(
 
 
 AppRegistry.registerComponent(appName, () => App);
+
+//add this line to register the TrackPlayer
+TrackPlayer.registerPlaybackService(() => require('./service.js'));
