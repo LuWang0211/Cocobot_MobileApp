@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useReducer } from 'react';
+import React, { useState, useCallback, useEffect, useReducer, useRef } from 'react';
 import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage } from 'react-native-gifted-chat';
@@ -10,6 +10,7 @@ import { color as colorConstants} from '../assets/constant';
 import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
 import BackButton from "../components/HeaderComponents/BackButton";
 import SendButton from '../components/ChatComponents/SendButton';
+import { WorkflowRunner, GreetingNode } from "./chatWorkflow/workflow";
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -257,7 +258,8 @@ export const ChatScreen = (props) => {
 
     const [showModal, setShowModal] = useState(false);
     const [modelContent, setModelContent] = useState(<View/>);
-    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false) 
+    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false);
+    
 
     const moveNextStep = useCallback(() => {
       if (!!moveNextStepWaiting) {
@@ -275,6 +277,7 @@ export const ChatScreen = (props) => {
       
     }, [step, setStep, stepId, setStepId, moveNextStepWaiting, setMoveNextStepWaiting]);
 
+    
 
     const tellMessage = useCallback((mesageText) => {
       if (mesageText instanceof Array) {
@@ -355,6 +358,7 @@ export const ChatScreen = (props) => {
 
 
     useEffect(() => {
+      return;
       if (stepId >= chatPlan.length) {
         return;
       }
@@ -431,6 +435,22 @@ export const ChatScreen = (props) => {
     const onSend = useCallback((messages = []) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, []);
+
+    const workflowRunner = useRef(new WorkflowRunner(new GreetingNode(), onSend));
+
+    const [stepCounter, setStepCounter] = useState();
+
+    useEffect(() => {
+      const runner = workflowRunner.current;
+
+      const stepId = runner.run();
+
+      console.log(stepId);
+
+      setStepCounter(stepId);
+
+    }, [stepCounter, setStepCounter]);
+
 
     const onModalClose = useCallback(() => {
       setShowModal(false);
