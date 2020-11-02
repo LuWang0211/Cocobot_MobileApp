@@ -68,7 +68,7 @@ export class GreetingNode extends ResponseNodeLogic {
 export class Greeting2Node extends ResponseNodeLogic {
     step(): boolean {
         // console.log('Hi wo shi sha sha bao.')
-        this.sendMessage(['Hi wo shi sha sha bao.']);
+        this.sendMessage(['Hi wo shi guai bao bao.']);
 
         return true;
     }
