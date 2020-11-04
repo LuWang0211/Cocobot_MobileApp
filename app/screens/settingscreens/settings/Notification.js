@@ -22,18 +22,20 @@ const showNotification = (title, message) => {
     });
 };
 
-const handlerScheduleNotification = (title, message, date) => {
+const handlerScheduleNotification = (title, message, date, id) => {
     if (date == undefined) {
         date = new Date(Date.now() + 10 * 1000);
     }
-
     PushNotification.localNotificationSchedule({
         channelId: notificationChannelId,
+        id: id,
         title,
         message,
         date,
+        invokeApp: false,
+        largeIcon: "",
         tag: notificationAction1,
-        actions: ["Now"], // (Android only) See the doc for notification actions to know more
+        actions: ["Start Now", "Remind Later", "Skip This Session"], // (Android only) See the doc for notification actions to know more
     });
 };
 
@@ -43,21 +45,47 @@ const handlerCancelNotification = () => {
 
 export const Notification = (props) => {
     // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
- 
+
     // const showDatePicker = () => {
     //   setDatePickerVisibility(true);
     // };
-   
+
     // const hideDatePicker = () => {
     //   setDatePickerVisibility(false);
     // };
-   
+
     // const handleConfirm = (date) => {
     //   console.warn("A date has been picked: ", date);
     //   hideDatePicker();
     // };
 
-    navigation = useNavigation();
+    useEffect(() => {
+      PushNotification.configure({
+        onNotification: (notification) => {
+
+        },
+        onAction: (notification) => {
+          const { title, message } = notification;
+          if (notification.action) {
+            handlerCancelNotification();
+          }
+          switch (notification.action) {
+            case "Remind Later":
+              handlerScheduleNotification(title, message, new Date(Date.now() + 10 * 1000), notification.id);
+              break;
+            case "Start Now":
+              PushNotification.invokeApp(notification);
+              break;
+            default:
+              return;
+          }
+        },
+        popInitialNotification: true,
+        requestPermissions: Platform.OS === 'ios',
+      })
+    }, []);
+
+    const navigation = useNavigation();
 
     const initialDate = useMemo(() => new Date(), [])
 
@@ -66,7 +94,7 @@ export const Notification = (props) => {
     const [date, setDate] = useState(initialDate);
 
     const onDateChange = useCallback((newDate) => {
-        // if (moment(newDate).isSame(initialDate) && !isDateChanged) {            
+        // if (moment(newDate).isSame(initialDate) && !isDateChanged) {
         //     return;
         // }
         setIsDateChanged(true);
@@ -78,7 +106,12 @@ export const Notification = (props) => {
     }, [date]);
 
     const sendNotificationAtScheduledTime = useCallback(() => {
-        handlerScheduleNotification('COCOBOT', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date);
+        let d = Date.parse(date);
+        if (d - 10 * 60 * 1000 > Date.now()) {
+          handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000), 1);
+        }
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, 2);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), 3);
         setShowNotificationConfirm(true);
     }, [date]);
 
@@ -126,7 +159,7 @@ export const Notification = (props) => {
 
 export const HeaderComponent = () => {
     const navigation = useNavigation();
-  
+
     return <View style={styles.header}>
         <BackButton onPress={() => navigation.navigate("Home")} />
     </View>

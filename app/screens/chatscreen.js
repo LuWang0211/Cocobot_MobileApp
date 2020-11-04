@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useEffect, useReducer } from 'react';
+import React, { useState, useCallback, useEffect, useReducer, useContext } from 'react';
 import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage } from 'react-native-gifted-chat';
+import AppHeader from "../components/AppHeader/AppHeader";
+import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message } from 'react-native-gifted-chat';
+import { Reminder, ChatRating } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { crossAppNotification, EventsNames } from "../config";
@@ -10,6 +12,7 @@ import { color as colorConstants} from '../assets/constant';
 import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
 import BackButton from "../components/HeaderComponents/BackButton";
 import SendButton from '../components/ChatComponents/SendButton';
+import { SessionContext } from "../context";
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -33,7 +36,6 @@ const initialState = {
   showInput: true,
   options: []
 }
-
 
 const chatPlan = [
   {
@@ -72,7 +74,7 @@ const chatPlan = [
     type: 'jump',
     data: 'Starting meditation in 1 sec...',
     control: 'unstarted'
-  },  
+  },
   {
     type: 'tell',
     data: 'How is today’s meditation?',
@@ -114,7 +116,7 @@ const chatPlan = [
       ]
     },
     control: 'unstarted'
-  },  
+  },
 ];
 
 function generateDogsAndCats (size) {
@@ -138,11 +140,11 @@ function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowMo
 
     const gif = gifs[Math.floor(Math.random() * gifs.length)];
 
-    const modelContent = 
+    const modelContent =
       (<View style={styles.modalContent}>
-        <Image 
-            source={{uri: gif}}  
-            style={{width: 100, height: 100 }} 
+        <Image
+            source={{uri: gif}}
+            style={{width: 100, height: 100 }}
         />
         <Text style={styles.modalContentTitle}>{title}</Text>
         <Text style={styles.modalContentBody}>{content}</Text>
@@ -177,7 +179,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
         control: 'unguidedStep'
       });
     }
-    
+
   } else if (control == 'guidedStep') {
     setTimeout(() => {
       setStep({
@@ -192,7 +194,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
           ...step,
           control: 'done'
         });
-        
+
         subscription.remove();
       });
 
@@ -205,7 +207,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
       ...step,
       control: 'unguidedStep2'
     });
-    
+
   } else if (control == 'unguidedStep2') {
     setTimeout(() => {
       setStep({
@@ -214,7 +216,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
       });
     }, 5000);
   } else if (control == 'unguidedPopup') {
-    const modelContent = 
+    const modelContent =
       (<View style={styles.modalContent}>
         <Text style={styles.modalContentTitle}>{'unguided program is completed!'}</Text>
         {/* <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text> */}
@@ -227,7 +229,7 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
           ...step,
           control: 'done'
         });
-        
+
         subscription.remove();
       });
 
@@ -243,8 +245,9 @@ function jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage
 export const ChatScreen = (props) => {
     const navigation = useNavigation();
 
+    const {session, dispatch} = useContext(SessionContext);
+
     const [messages, setMessages] = useState([]);
-    const [state, dispatch] = useReducer(textInputReducer, initialState);
     const [user, setUser] = useState(null);
 
     const [stepId, setStepId] = useState(0);
@@ -257,7 +260,7 @@ export const ChatScreen = (props) => {
 
     const [showModal, setShowModal] = useState(false);
     const [modelContent, setModelContent] = useState(<View/>);
-    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false) 
+    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false)
 
     const moveNextStep = useCallback(() => {
       if (!!moveNextStepWaiting) {
@@ -272,7 +275,7 @@ export const ChatScreen = (props) => {
         setStep(chatPlan[stepId + 1]);
         setMoveNextStepWaiting(false);
       }, 1000);
-      
+
     }, [step, setStep, stepId, setStepId, moveNextStepWaiting, setMoveNextStepWaiting]);
 
 
@@ -363,13 +366,81 @@ export const ChatScreen = (props) => {
         return;
       }
 
+      if (!session.inSession) {
+        setMessages([
+          // {
+          //   _id: 'rating',
+          //   type: 'rating',
+          //   text: "rating",
+          //   fullWidth: true,
+          //   background: "white",
+          //   createdAt: new Date(),
+          //   user: {
+          //     _id: 2,
+          //     name: 'Cocobot'
+          //   }
+          // },
+          {
+            _id: 'reminder',
+            type: 'reminder',
+            text: 'Reminder Setting',
+            stretch: true,
+            createdAt: new Date(),
+            reminder: {
+              start: "Meditation",
+              times: ['8:00 am Tuesday, Oct 10 (tomorrow)'],
+              repeat: 'One-time'
+            },
+            user: {
+              _id: 2,
+              name: 'Cocobot'
+            }
+          },
+          {
+            _id: '3',
+            text: "Sounds good! I have created a reminder for you. Feel free to edit it below.",
+            type: 'text',
+            createdAt: new Date(),
+            user: {
+              _id: 2,
+              name: 'Cocobot'
+            }
+          },
+          {
+            _id: '2',
+            text: "Sure, I would like to meditate when I wake up at around 8 am.",
+            type: 'text',
+            createdAt: new Date(),
+            user: {
+              _id: 1,
+              name: 'user'
+            }
+          },
+          {
+            _id: '1',
+            text: "We discussed about your stress and decided that short meditation sessions might be helpful to relieve your stress. I have some good guided meditation resources. Would you like to set a schedule for the meditation sessions?",
+            type: 'text',
+            createdAt: new Date(),
+            user: {
+              _id: 2,
+              name: 'Cocobot'
+            },
+          }
+        ]);
+        return;
+      }
+      if (!session.reset) {
+        setMessages([]);
+        dispatch({ type: "reset" });
+      }
+
       const { type, data, selection, control} = step;
 
       if (type == 'tell') {
         tellMessage(data);
         moveNextStep();
-      } 
-      
+      }
+
       if (type == 'ask') {
         if (control == 'unstarted') {
           askMessage(data, selection);
@@ -380,9 +451,9 @@ export const ChatScreen = (props) => {
           })
         } else if (control == 'done') {
           moveNextStep();
-        }        
-      } 
-      
+        }
+      }
+
       if (type == 'jump') {
         jumpStep(step, setStep, allSteps, moveNextStep, tellMessage, askMessage, setShowModal, setModelContent, navigation);
       }
@@ -391,7 +462,7 @@ export const ChatScreen = (props) => {
         processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowModal, setModelContent)
       }
 
-    }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage]);
+    }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage, session]);
 
 
     const onQuickReply = useCallback((selection) => {
@@ -444,15 +515,94 @@ export const ChatScreen = (props) => {
       return <ChatQuickReplies {...props} selection={selection} /> ;
     }, [quickReplySelections]);
 
+    const renderBubble = (props) => {
+      let stretchBubbleStyle = {};
+      let shadowStyle = {};
+      if (props.currentMessage.type !== 'text' && props.currentMessage.stretch) {
+        stretchBubbleStyle = {
+          alignSelf: 'stretch',
+          marginRight: 10,
+          marginLeft: 5,
+          borderColor: '#F5F5F5',
+          borderWidth: props.currentMessage.type === 'tutorial' ? 0 : 2,
+          padding: 0
+        }
+      }
+      if (props.currentMessage.type === 'tutorial' || props.currentMessage.type === 'chatResource') {
+        shadowStyle = {
+          shadowColor: 'rgba(199, 199, 199, 0.75)',
+          shadowOffset: {width: 2, height: 2},
+          shadowOpacity: 1,
+          elevation: 5,
+          zIndex: 5000,
+        }
+      }
+
+      return (
+        <Bubble
+         {...props}
+         wrapperStyle={{
+           left: {
+             ...styles.wrapperStyle,
+             width: props.currentMessage.fullWidth? "84%" :null,
+             backgroundColor: props.currentMessage.background ? props.currentMessage.background : '#EDEDED',
+             marginLeft: 5,
+             padding: props.currentMessage.type === 'chatResource' ? 0 : 5,
+             ...stretchBubbleStyle,
+             ...shadowStyle
+           },
+           right: {
+             ...styles.wrapperStyle,
+             overflow: 'hidden',
+             backgroundColor: props.currentMessage.type === 'userSelection' ? 'transparent' : '#E9ECFF',
+           }
+         }}
+         textStyle={{
+           left: styles.messageTextStyle,
+           right: styles.messageTextStyle,
+         }}
+         />
+      )
+    };
+
+    const renderMessageText = (props) => {
+      const {
+        currentMessage,
+      } = props;
+      const {
+        text: currText,
+        type: messageType,
+      } = currentMessage;
+      switch(messageType) {
+        case 'text':
+          return <MessageText { ...props } />;
+        case 'reminder':
+          return <Reminder { ...props.currentMessage } message={props.currentMessage} />
+        case 'rating':
+          return <ChatRating />
+        default:
+          return (
+            <View>
+              <MessageText { ...props }/>
+            </View>
+          );
+      }
+    };
 
     const renderSend = (props) => {
       return (
         <Send {...props}>
-          <View style={{ paddingRight: 10, paddingBottom: 10 }}>
+          <View style={{ paddingRight: 10, paddingBottom: 5 }}>
             <SendButton />
           </View>
         </Send>
       );
+    };
+
+    const renderInputToolbar = (props) => {
+      return (
+         <InputToolbar {...props} containerStyle={styles.inputToolbarStyle} />
+      )
     };
 
     useEffect(() => {
@@ -481,10 +631,13 @@ export const ChatScreen = (props) => {
           user={{
             _id: 1,
           }}
+          renderBubble={renderBubble}
+          renderMessageText={renderMessageText}
+          renderAvatar={null}
           renderQuickReplies={onRenderQuickReplies}
           renderTime={() => {}}
-
           renderSend={renderSend}
+          renderInputToolbar={renderInputToolbar}
           lightboxProps={{ springConfig: { tension: 90000, friction: 90000 } }}
           textInputStyle={styles.textInputStyle}
           alwaysShowSend={true}
@@ -502,22 +655,27 @@ export const ChatScreen = (props) => {
 export const HeaderComponent = () => {
   const navigation = useNavigation();
 
-  return <View style={styles.header}>
-      <View style={{position: 'absolute', left: 0}}>
-        <BackButton onPress={() => navigation.navigate("Today")} />
-      </View>
-      <SVGIcon height="40" width="40" src={cocobotIcon} />
-  </View>
+  return <AppHeader
+      leftComponent={<BackButton onPress={() => navigation.navigate("Today")} />}
+      centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
+      headerStyle={styles.header}
+    />
+
+
+
+  // return <View style={styles.header}>
+  //     <View style={{position: 'absolute', left: 0}}>
+  //       <BackButton onPress={() => navigation.navigate("Today")} />
+  //     </View>
+  //     <SVGIcon height="40" width="40" src={cocobotIcon} />
+  // </View>
 }
 
 const styles = StyleSheet.create({
   header: {
-    display: 'flex',
-    flexDirection: "column",
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
     backgroundColor: 'white',
+    height: 110,
     // height: Platform.OS === 'ios' ? 80 : 110,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -546,7 +704,7 @@ const styles = StyleSheet.create({
   wrapperStyle: {
     margin: 2,
     padding: 5,
-    marginBottom: 8,
+    marginBottom: 5,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     borderTopLeftRadius: 20,
