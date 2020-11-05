@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useEffect, useContext } from 'react';
 import { View, StyleSheet, Text, Button } from 'react-native';
 // import { color } from '../../.././assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import { crossAppNotification, EventsNames } from '../../../config';
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 import BackButton from "../../../components/HeaderComponents/BackButton";
+import { SessionContext } from "../../../context";
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -44,6 +45,7 @@ const handlerCancelNotification = () => {
 };
 
 export const Notification = (props) => {
+    const {session, dispatch} = useContext(SessionContext);
     // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     // const showDatePicker = () => {
@@ -66,16 +68,22 @@ export const Notification = (props) => {
         },
         onAction: (notification) => {
           const { title, message } = notification;
-          if (notification.action) {
-            handlerCancelNotification();
-          }
+          console.log(notification)
           switch (notification.action) {
             case "Remind Later":
-              handlerScheduleNotification(title, message, new Date(Date.now() + 10 * 1000), notification.id);
+              if (notification.id === 3) {
+                handlerScheduleNotification(title, message, new Date(Date.now() + 30 * 1000), notification.id);
+              }
               break;
             case "Start Now":
               PushNotification.invokeApp(notification);
+              if (!session.inSession) {
+                dispatch({ type: "inSession" });
+              }
+              props.navigation.navigate("Home", { screen: "Chat" });  
               break;
+            case "Skip this Session":
+              handlerCancelNotification();
             default:
               return;
           }

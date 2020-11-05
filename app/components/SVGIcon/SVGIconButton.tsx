@@ -6,8 +6,8 @@ import SVGIcon from '../SVGIcon/SVGIcon'
 interface Props {
   disabled?: boolean;
   src: string;
-  width?: string;
-  height?: string;
+  width?: number | string;
+  height?: number | string;
   color?: string;
   onPress(): any;
   styles?: object;

@@ -4,8 +4,8 @@ import { TouchableOpacity } from "react-native";
 
 interface Props {
   src: string;
-  width?: string;
-  height?: string;
+  width?: number | string;
+  height?: number | string;
   color?: string;
 }
 
