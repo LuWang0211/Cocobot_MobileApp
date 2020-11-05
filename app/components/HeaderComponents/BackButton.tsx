@@ -1,5 +1,5 @@
 import React from "react";
-import svg from 'assets/icons/back-button-icon';
+import svg from '../../assets/icons/back-button-icon';
 import SVGIconButton from '../SVGIcon/SVGIconButton';
 
 interface Props {
