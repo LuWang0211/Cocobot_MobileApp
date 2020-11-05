@@ -7,9 +7,10 @@ interface Props {
   text: string;
   label: string;
   resourceImage: string;
+  id: string;
 }
 
-const ResourceCard = ({ text, label, resourceImage }: Props) => {
+const ResourceCard = ({ id, text, label, resourceImage }: Props) => {
   const labelBackground = {
     Symptoms: "#D4F2F9",
     SymptomManagement: "#D4F7DA",

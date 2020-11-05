@@ -1,19 +1,33 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useReducer } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TodayScreen } from './screens/todayscreen';
 import { ChatScreen } from './screens/chatscreen';
 import { ResourceScreen } from './screens/resourcescreen';
-import { ProgressScreen } from './screens/progressscreen';
+import ProgressScreen from './screens/Progress/Progress';
 import { ContentScreen } from './screens/contentscreen';
 import SVGIcon from './components/SVGIcon/SVGIcon';
 import { chatIcon, todayIcon, resourcesIcon, progressIcon } from './assets/icons/tabBarIcons';
+import { SessionContext } from './context';
 
 const TodayStack = createStackNavigator();
 const ChatStack = createStackNavigator();
 const ResourceStack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
+
+const sessionReducer = (state, action) => {
+  switch (action.type) {
+    case "inSession":
+      return { inSession: true, reset: false };
+    case "reset":
+      return { ...state, reset: true };
+    case "endSession":
+      return { inSession: false, reset: false};
+    default:
+      return false;
+  }
+}
 
 function TodayStackScreen() {
   return (
@@ -44,6 +58,7 @@ function ResourceStackScreen() {
 
 export const HomeScreen = (props) => {
     const routeParams = props.route.params;
+    const [session, dispatch] = useReducer(sessionReducer, { inSession: false, reset: false });
 
     const initialRoute = useMemo(() => {
       if (!!routeParams && routeParams.activateRoute != undefined) {
@@ -55,6 +70,7 @@ export const HomeScreen = (props) => {
     }, [routeParams])
 
     return (
+      <SessionContext.Provider value={{ session: session, dispatch: dispatch }}>
         <Tab.Navigator initialRouteName={initialRoute} tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
           <Tab.Screen name="Today" component={TodayStackScreen} options={{
             tabBarIcon: (props) => {
@@ -80,5 +96,6 @@ export const HomeScreen = (props) => {
             // tabBarVisible: false,
           }} />
         </Tab.Navigator>
+      </SessionContext.Provider>
     )
 }

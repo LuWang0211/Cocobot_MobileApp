@@ -13,9 +13,10 @@ import { color } from '../assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { createNavigatorFactory, useNavigation } from "@react-navigation/native";
-
+import { SessionContext } from "../context";
 
 export const TodayScreen = (props) => {
+    const {session, dispatch} = useContext(SessionContext);
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
@@ -34,8 +35,13 @@ export const TodayScreen = (props) => {
             <View>
                 <Text style={styles.text}>Hi Lisa!</Text>
             </View>
-            
-            <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("Chat")}>
+
+            <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => {
+              if (!session.inSession) {
+                dispatch({ type: "inSession" });
+              }
+              navigation.navigate("Chat");
+            }}>
                 <View>
                     <SVGIcon height="45" width="45" src={cocobotIcon} />
                 </View>
@@ -43,24 +49,16 @@ export const TodayScreen = (props) => {
                     <Text style={styles.cardTitle}>You will learn meditation</Text>
                     <Text style={styles.cardboby}>Talk Now</Text>
                 </View>
-            </TouchableOpacity> 
-
-            {/* testvideo */}
-            <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("ContentDetails")}>
-                <View>
-                    <Text style={styles.cardboby}>testvideo</Text>
-                </View>
-            </TouchableOpacity> 
-             {/* testvideo */}
+            </TouchableOpacity>
         </View>
-        
+
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
-        height: '100%'        
+        height: '100%'
       },
     text: {
         fontSize: 36,

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMemoOne, useCallbackOne } from 'use-memo-one';
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { AirbnbRating } from 'react-native-ratings';
 import SVGIcon from '../../SVGIcon/SVGIcon';
 import SVGIconButton from '../../SVGIcon/SVGIconButton';
 import ButtonGroup from './ButtonGroup';
@@ -371,3 +372,24 @@ export const Reminder = ({ text, reminder, onCancel, onSetReminder }: ChatWidget
     </View>
   );
 };
+
+export const ChatRating = () => {
+  const [rating, setRating] = useState(0);
+  const [disable, setDisable] = useState(false);
+  return (
+    <View>
+      <AirbnbRating
+        fractions={0}
+        defaultRating={rating}
+        isDisabled={disable}
+        showRating={false}
+        selectedColor="#3E41A8"
+        onFinishRating={(value) => {
+            setRating(value);
+            setDisable(true);
+          }
+        }
+        />
+    </View>
+  )
+}
