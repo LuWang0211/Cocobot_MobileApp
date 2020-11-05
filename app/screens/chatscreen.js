@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useReducer, useContext } from 
 import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from "../components/AppHeader/AppHeader";
-import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message, SystemMessage } from 'react-native-gifted-chat';
 import { Reminder, ChatRating } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
@@ -381,6 +381,23 @@ export const ChatScreen = (props) => {
           //   }
           // },
           {
+            _id: 5,
+            text: 'Chatting session ended',
+            createdAt: new Date(),
+            system: true,
+            // Any additional custom parameters are passed through
+          },
+          {
+            _id: '4',
+            text: "Your reminder is set up. I’ll see you then!",
+            type: 'text',
+            createdAt: new Date(),
+            user: {
+              _id: 2,
+              name: 'Cocobot'
+            }
+          },
+          {
             _id: 'reminder',
             type: 'reminder',
             text: 'Reminder Setting',
@@ -631,6 +648,7 @@ export const ChatScreen = (props) => {
           user={{
             _id: 1,
           }}
+          renderSystemMessage={(props) => <SystemMessage {...props} containerStyle={{ paddingBottom: 5}} /> }
           renderBubble={renderBubble}
           renderMessageText={renderMessageText}
           renderAvatar={null}
