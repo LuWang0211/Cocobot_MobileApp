@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
 import com.zyu.ReactNativeWheelPickerPackage;
+import com.guichaguri.trackplayer.TrackPlayer; // <--- Import Package
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -30,6 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           packages.add(new ReactNativeWheelPickerPackage());
+          // packages.add(new TrackPlayer());  // add trackPlayer
           return packages;
         }
 
