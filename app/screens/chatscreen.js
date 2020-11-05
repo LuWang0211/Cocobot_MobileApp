@@ -254,8 +254,6 @@ export const ChatScreen = (props) => {
     const [step, setStep] = useState(chatPlan[stepId]);
     const [chatMsgId, setChatMsgId] = useState(1);
 
-    const [quickReplySelections, setQuickReplySelections] = useState({});
-
     const [showModal, setShowModal] = useState(false);
     const [modelContent, setModelContent] = useState(<View/>);
     const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false);
@@ -397,23 +395,18 @@ export const ChatScreen = (props) => {
 
     }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage]);
 
+    const [quickReplySelections, setQuickReplySelections] = useState({});
 
     const onQuickReply = useCallback((selection) => {
-      if (step.type != 'ask') {
-        return;
-      }
+      const {msgId, selection: selected} = workflowRunner.current.onQuickReply(selection);
+     
+      console.log('onQuickReply chat screen', msgId, selected);
 
       setQuickReplySelections({
         ...quickReplySelections,
-        [selection[0].messageId]: selection[0].value
+        [msgId]: selected
       });
-
-      setStep({
-        ...step,
-        selection: selection[0].value,
-        control: 'done'
-      });
-    }, [step, setStep, quickReplySelections, setQuickReplySelections]);
+    }, [quickReplySelections, setQuickReplySelections, messages, setMessages]);
 
     const onSelect = (parent) => {
       const newMessage = {
@@ -436,6 +429,7 @@ export const ChatScreen = (props) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, []);
 
+
     const workflowRunner = useRef(new WorkflowRunner(new GreetingNode(), onSend));
 
     const [stepCounter, setStepCounter] = useState();
@@ -443,11 +437,13 @@ export const ChatScreen = (props) => {
     useEffect(() => {
       const runner = workflowRunner.current;
 
-      const stepId = runner.run();
+      (async () => {
+        const stepId = await runner.run();
 
-      console.log(stepId);
+        console.log(stepId);
 
-      setStepCounter(stepId);
+        setStepCounter(stepId);
+      })();
 
     }, [stepCounter, setStepCounter]);
 
@@ -459,7 +455,7 @@ export const ChatScreen = (props) => {
 
 
     const onRenderQuickReplies = useCallback((props) => {
-      const messgeId = props.currentMessage._id;
+      const messgeId = props.currentMessage._id;      
       const selection = quickReplySelections[messgeId];
       return <ChatQuickReplies {...props} selection={selection} /> ;
     }, [quickReplySelections]);
