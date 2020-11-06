@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 import BackButton from "../../../components/HeaderComponents/BackButton";
 import { SessionContext } from "../../../context";
+import RNPickerSelect from 'react-native-picker-select';
 
 const showNotification = (title, message) => {
     PushNotification.localNotification({
@@ -23,9 +24,10 @@ const showNotification = (title, message) => {
     });
 };
 
-const handlerScheduleNotification = (title, message, date, id) => {
+const handlerScheduleNotification = (title, message, date, id, freq) => {
     if (date == undefined) {
-        date = new Date(Date.now() + 10 * 1000);
+      return;
+        // date = new Date(Date.now() + 10 * 1000);
     }
     PushNotification.localNotificationSchedule({
         channelId: notificationChannelId,
@@ -36,6 +38,8 @@ const handlerScheduleNotification = (title, message, date, id) => {
         invokeApp: false,
         largeIcon: "",
         tag: notificationAction1,
+        repeatType: freq.type === "once" ? null : freq.type,
+        repeatTime: freq.time,
         actions: ["Start Now", "Remind Later", "Skip This Session"], // (Android only) See the doc for notification actions to know more
     });
 };
@@ -70,20 +74,17 @@ export const Notification = (props) => {
           const { title, message } = notification;
           console.log(notification)
           switch (notification.action) {
-            case "Remind Later":
-              if (notification.id === 3) {
-                handlerScheduleNotification(title, message, new Date(Date.now() + 30 * 1000), notification.id);
-              }
-              break;
             case "Start Now":
               PushNotification.invokeApp(notification);
               if (!session.inSession) {
+                console.log("yes")
                 dispatch({ type: "inSession" });
               }
-              props.navigation.navigate("Home", { screen: "Chat" });  
+              props.navigation.navigate("Home", { screen: "Chat" });
               break;
-            case "Skip this Session":
-              handlerCancelNotification();
+            case "Skip This Session":
+              PushNotification.cancelLocalNotifications({id: 2});
+              PushNotification.cancelLocalNotifications({id: 3});
             default:
               return;
           }
@@ -101,6 +102,8 @@ export const Notification = (props) => {
 
     const [date, setDate] = useState(initialDate);
 
+    const [freq, setFreq] = useState({type: "once", time: null});
+
     const onDateChange = useCallback((newDate) => {
         // if (moment(newDate).isSame(initialDate) && !isDateChanged) {
         //     return;
@@ -115,13 +118,11 @@ export const Notification = (props) => {
 
     const sendNotificationAtScheduledTime = useCallback(() => {
         let d = Date.parse(date);
-        if (d - 10 * 60 * 1000 > Date.now()) {
-          handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000), 1);
-        }
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, 2);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), 3);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's almost time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000), 1, freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, 2, freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's past time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), 3, freq);
         setShowNotificationConfirm(true);
-    }, [date]);
+    }, [date, freq]);
 
     const [showNotificationConfirm, setShowNotificationConfirm] = useState(false);
 
@@ -147,6 +148,30 @@ export const Notification = (props) => {
                         </View>
                     </TouchableOpacity> */}
                     <DateTimePicker initialDate={initialDate} onDateChange={onDateChange} />
+                    <RNPickerSelect
+                      value={freq.type}
+                      onValueChange={(value) => setFreq({type: value, time: null})}
+                      placeholder={{}}
+                      useNativeAndroidPickerStyle={false}
+                      style={{
+                        inputAndroid: {
+                          fontSize: 25,
+                          marginTop: 10,
+                          paddingHorizontal: 25,
+                          marginRight: 10,
+                          paddingVertical: 8,
+                          borderWidth: 2,
+                          borderColor: 'pink',
+                          color: 'black',
+                          paddingRight: 30,
+                        }
+                      }}
+                      items={[
+                          { label: 'Once', value: "once" },
+                          { label: 'Daily', value: 'day' },
+                          { label: 'Weekly', value: 'week' },
+                      ]}
+                    />
                     {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>{`Tap to get notification at ${dateDisplayString}`}</Text>
