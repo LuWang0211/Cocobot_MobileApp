@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useReducer} from 'react';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -8,6 +8,7 @@ import { HomeScreen } from './app/homestack';
 // import { SettingsStack } from './app/screens/settingscreens/settingstack';
 import { Notification } from './app/screens/settingscreens/settings/Notification';
 import { navigationRef } from "./app/config"
+import { SessionContext } from "./app/context";
 
 const MyTheme = {
   ...DefaultTheme,
@@ -17,11 +18,26 @@ const MyTheme = {
   },
 };
 
+const sessionReducer = (state, action) => {
+  switch (action.type) {
+    case "inSession":
+      return { inSession: true, reset: false };
+    case "reset":
+      return { ...state, reset: true };
+    case "endSession":
+      return { inSession: false, reset: false};
+    default:
+      return false;
+  }
+}
+
 export const Stack = createStackNavigator();
 
-export class App extends Component {
-  render() {
-    return (
+export function App() {
+  const [session, dispatch] = useReducer(sessionReducer, { inSession: false, reset: false });
+  
+  return (
+    <SessionContext.Provider value={{ session: session, dispatch: dispatch }}>
       <NavigationContainer ref={navigationRef} theme={MyTheme}>
         <Stack.Navigator initialRouteName={"Login"} screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -30,6 +46,6 @@ export class App extends Component {
           <Stack.Screen name="notification" component={Notification} />
         </Stack.Navigator>
       </NavigationContainer>
-    );
-  }
+    </SessionContext.Provider>
+  );
 }

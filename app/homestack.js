@@ -8,26 +8,12 @@ import ProgressScreen from './screens/Progress/Progress';
 import { ContentScreen } from './screens/contentscreen';
 import SVGIcon from './components/SVGIcon/SVGIcon';
 import { chatIcon, todayIcon, resourcesIcon, progressIcon } from './assets/icons/tabBarIcons';
-import { SessionContext } from './context';
 
 const TodayStack = createStackNavigator();
 const ChatStack = createStackNavigator();
 const ResourceStack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
-
-const sessionReducer = (state, action) => {
-  switch (action.type) {
-    case "inSession":
-      return { inSession: true, reset: false };
-    case "reset":
-      return { ...state, reset: true };
-    case "endSession":
-      return { inSession: false, reset: false};
-    default:
-      return false;
-  }
-}
 
 function TodayStackScreen() {
   return (
@@ -58,8 +44,6 @@ function ResourceStackScreen() {
 
 export const HomeScreen = (props) => {
     const routeParams = props.route.params;
-    const [session, dispatch] = useReducer(sessionReducer, { inSession: false, reset: false });
-
     const initialRoute = useMemo(() => {
       if (!!routeParams && routeParams.activateRoute != undefined) {
         return routeParams.activateRoute;
@@ -70,32 +54,30 @@ export const HomeScreen = (props) => {
     }, [routeParams])
 
     return (
-      <SessionContext.Provider value={{ session: session, dispatch: dispatch }}>
-        <Tab.Navigator initialRouteName={initialRoute} tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
-          <Tab.Screen name="Today" component={TodayStackScreen} options={{
-            tabBarIcon: (props) => {
-              return <SVGIcon height="22" width="22" src={todayIcon} color={props.color} />
-            },
-          }} />
-          <Tab.Screen name="Chat" component={ChatStackScreen} options={{
-            tabBarIcon: (props) => {
-              return <SVGIcon height="22" width="22" src={chatIcon} color={props.color} />
-            },
-            tabBarVisible: false,
-          }} />
-          <Tab.Screen name="Resources" component={ResourceStackScreen} options={{
-            tabBarIcon: (props) => {
-              return <SVGIcon height="22" width="22" src={resourcesIcon} color={props.color} />
-            },
-            tabBarVisible: false,
-          }} />
-          <Tab.Screen name="Progress" component={ProgressScreen} options={{
-            tabBarIcon: (props) => {
-              return <SVGIcon height="22" width="22" src={progressIcon} color={props.color} />
-            },
-            // tabBarVisible: false,
-          }} />
-        </Tab.Navigator>
-      </SessionContext.Provider>
+      <Tab.Navigator initialRouteName={initialRoute} tabBarOptions={{activeTintColor: "#FF786A"}} shifting={false}>
+        <Tab.Screen name="Today" component={TodayStackScreen} options={{
+          tabBarIcon: (props) => {
+            return <SVGIcon height="22" width="22" src={todayIcon} color={props.color} />
+          },
+        }} />
+        <Tab.Screen name="Chat" component={ChatStackScreen} options={{
+          tabBarIcon: (props) => {
+            return <SVGIcon height="22" width="22" src={chatIcon} color={props.color} />
+          },
+          tabBarVisible: false,
+        }} />
+        <Tab.Screen name="Resources" component={ResourceStackScreen} options={{
+          tabBarIcon: (props) => {
+            return <SVGIcon height="22" width="22" src={resourcesIcon} color={props.color} />
+          },
+          tabBarVisible: false,
+        }} />
+        <Tab.Screen name="Progress" component={ProgressScreen} options={{
+          tabBarIcon: (props) => {
+            return <SVGIcon height="22" width="22" src={progressIcon} color={props.color} />
+          },
+          // tabBarVisible: false,
+        }} />
+      </Tab.Navigator>
     )
 }

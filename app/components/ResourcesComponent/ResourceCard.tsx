@@ -1,13 +1,18 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ImageBackground } from 'react-native';
 import SVGIconButton from "../SVGIcon/SVGIconButton";
-import heartIcon from "assets/icons/heart-icon";
+import heartIcon from "../../assets/icons/heart-icon";
 
 interface Props {
   text: string;
-  label: string;
+  label: Label[];
   resourceImage: string;
   id: string;
+}
+
+interface Label {
+  category: string;
+  text: string;
 }
 
 const ResourceCard = ({ id, text, label, resourceImage }: Props) => {
@@ -74,7 +79,7 @@ const ResourceCard = ({ id, text, label, resourceImage }: Props) => {
                 return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={key}>{text}</Text>
               })}
             </View>
-            <SVGIconButton height="24" width="24" src={heartIcon} onPress={() => alert("toggle like")} />
+            <SVGIconButton height="24" width="24" src={heartIcon} onPress={() => {}} />
           </View>
         </TouchableOpacity>
       </View>
