@@ -4,6 +4,8 @@ import AppHeader from "../components/AppHeader/AppHeader";
 import { tabsHeader } from "../assets/styles";
 import LeftHeader from "../components/AppHeader/LeftHeader";
 import SOSButton from "../components/HeaderComponents/SOSButton";
+import { color } from '../assets/constant';
+import { useNavigation } from "@react-navigation/native";
 import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
 import ResourceCard from "../components/ResourcesComponent/ResourceCard";
 import ExploreAllContainer from "../components/ResourcesComponent/ExploreAll/ExploreAllContainer";

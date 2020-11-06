@@ -41,7 +41,7 @@ export function App() {
       <NavigationContainer ref={navigationRef} theme={MyTheme}>
         <Stack.Navigator initialRouteName={"Login"} screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name={"Home"} component={HomeScreen} />
           {/* <Stack.Screen name="Settings" component={SettingsStack} /> */}
           <Stack.Screen name="notification" component={Notification} />
         </Stack.Navigator>

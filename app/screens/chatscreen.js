@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useReducer, useContext } from 'react';
+import React, { useState, useCallback, useEffect, useReducer, useRef, useContext } from 'react';
 import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from "../components/AppHeader/AppHeader";
@@ -12,6 +12,7 @@ import { color as colorConstants} from '../assets/constant';
 import ChatQuickReplies from "../components/ChatComponents/QuickReply/QuicReplyRadio";
 import BackButton from "../components/HeaderComponents/BackButton";
 import SendButton from '../components/ChatComponents/SendButton';
+import { WorkflowRunner, GreetingNode } from "./chatWorkflow/workflow";
 import { SessionContext } from "../context";
 
 const textInputReducer = (state, action) => {
@@ -256,11 +257,10 @@ export const ChatScreen = (props) => {
     const [step, setStep] = useState(chatPlan[stepId]);
     const [chatMsgId, setChatMsgId] = useState(1);
 
-    const [quickReplySelections, setQuickReplySelections] = useState({});
-
     const [showModal, setShowModal] = useState(false);
     const [modelContent, setModelContent] = useState(<View/>);
-    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false)
+    const [moveNextStepWaiting, setMoveNextStepWaiting] = useState(false);
+    
 
     const moveNextStep = useCallback(() => {
       if (!!moveNextStepWaiting) {
@@ -278,6 +278,7 @@ export const ChatScreen = (props) => {
 
     }, [step, setStep, stepId, setStepId, moveNextStepWaiting, setMoveNextStepWaiting]);
 
+    
 
     const tellMessage = useCallback((mesageText) => {
       if (mesageText instanceof Array) {
@@ -358,6 +359,7 @@ export const ChatScreen = (props) => {
 
 
     useEffect(() => {
+      return;
       if (stepId >= chatPlan.length) {
         return;
       }
@@ -481,23 +483,18 @@ export const ChatScreen = (props) => {
 
     }, [step, setStep, stepId, setStepId, moveNextStep, tellMessage, session]);
 
+    const [quickReplySelections, setQuickReplySelections] = useState({});
 
     const onQuickReply = useCallback((selection) => {
-      if (step.type != 'ask') {
-        return;
-      }
+      const {msgId, selection: selected} = workflowRunner.current.onQuickReply(selection);
+     
+      console.log('onQuickReply chat screen', msgId, selected);
 
       setQuickReplySelections({
         ...quickReplySelections,
-        [selection[0].messageId]: selection[0].value
+        [msgId]: selected
       });
-
-      setStep({
-        ...step,
-        selection: selection[0].value,
-        control: 'done'
-      });
-    }, [step, setStep, quickReplySelections, setQuickReplySelections]);
+    }, [quickReplySelections, setQuickReplySelections, messages, setMessages]);
 
     const onSelect = (parent) => {
       const newMessage = {
@@ -520,6 +517,25 @@ export const ChatScreen = (props) => {
       setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, []);
 
+
+    const workflowRunner = useRef(new WorkflowRunner(new GreetingNode(), onSend));
+
+    const [stepCounter, setStepCounter] = useState();
+
+    useEffect(() => {
+      const runner = workflowRunner.current;
+
+      (async () => {
+        const stepId = await runner.run();
+
+        console.log(stepId);
+
+        setStepCounter(stepId);
+      })();
+
+    }, [stepCounter, setStepCounter]);
+
+
     const onModalClose = useCallback(() => {
       setShowModal(false);
       crossAppNotification.emit(EventsNames.ModalClose);
@@ -527,7 +543,7 @@ export const ChatScreen = (props) => {
 
 
     const onRenderQuickReplies = useCallback((props) => {
-      const messgeId = props.currentMessage._id;
+      const messgeId = props.currentMessage._id;      
       const selection = quickReplySelections[messgeId];
       return <ChatQuickReplies {...props} selection={selection} /> ;
     }, [quickReplySelections]);
