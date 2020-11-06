@@ -50,6 +50,21 @@ export const TodayScreen = (props) => {
                     <Text style={styles.cardboby}>Talk Now</Text>
                 </View>
             </TouchableOpacity>
+
+            <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => {
+              if (!session.inSession) {
+                dispatch({ type: "inSession" });
+              }
+              navigation.navigate("ContentDetails");
+            }}>
+                <View>
+                    <SVGIcon height="45" width="45" src={cocobotIcon} />
+                </View>
+                <View>
+                    <Text style={styles.cardTitle}>You will learn meditation</Text>
+                    <Text style={styles.cardboby}>Talk Now</Text>
+                </View>
+            </TouchableOpacity>
         </View>
 
     );
