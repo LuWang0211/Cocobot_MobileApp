@@ -58,11 +58,7 @@ export const TodayScreen = (props) => {
               navigation.navigate("ContentDetails");
             }}>
                 <View>
-                    <SVGIcon height="45" width="45" src={cocobotIcon} />
-                </View>
-                <View>
-                    <Text style={styles.cardTitle}>You will learn meditation</Text>
-                    <Text style={styles.cardboby}>Talk Now</Text>
+                    <Text style={styles.cardboby}>testing content</Text>
                 </View>
             </TouchableOpacity>
         </View>

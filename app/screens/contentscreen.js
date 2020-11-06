@@ -194,8 +194,11 @@ export const ContentScreen = (props) => {
             <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) ? 'Exercise Session Has Ended ' : ''}</Text>
 
             <View style = { styles.btn }>
-                <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
+                {/* <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
                       <Text style={styles.cardboby}>Go back</Text>
+              </TouchableOpacity>  */}
+              <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("Chat")}>
+                      <Text style={styles.cardboby}>testing back to chat</Text>
               </TouchableOpacity> 
             </View>
           </View>
