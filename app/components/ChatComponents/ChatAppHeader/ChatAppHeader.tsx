@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Platfrom } from 'react-native';
+import { View, Platform } from 'react-native';
 import AppHeader from '../../AppHeader/AppHeader';
 import SVGIcon from '../../SVGIcon/SVGIcon';
 import SOSButton from '../../HeaderComponents/SOSButton';
 import BackButton from '../../HeaderComponents/BackButton';
-import cocobotIcon from 'assets/icons/cocobot-icon';
+import cocobotIcon from '../../../assets/icons/cocobot-icon';
 
 interface Props {
   disabled: boolean;

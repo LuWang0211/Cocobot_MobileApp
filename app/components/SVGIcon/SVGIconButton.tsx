@@ -4,7 +4,7 @@ import { TouchableOpacity } from "react-native";
 import SVGIcon from '../SVGIcon/SVGIcon'
 
 interface Props {
-  disabled: boolean;
+  disabled?: boolean;
   src: string;
   width?: string;
   height?: string;

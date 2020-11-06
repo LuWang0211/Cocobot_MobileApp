@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from 'react-native';
-import svg from 'assets/icons/send-icon';
+import svg from '../../assets/icons/send-icon';
 import SVGIcon from '../SVGIcon/SVGIcon';
 
 const SendButton = () => {
