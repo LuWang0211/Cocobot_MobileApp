@@ -1,17 +1,17 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Platform } from 'react-native';
-// import { NavigationContext } from "../../../context";
+import { NavigationContext } from "../../../context";
 import SVGIcon from '../../SVGIcon/SVGIcon';
 
 const ExploreCard = (props) => {
-  // const navigation = useContext(NavigationContext);
+  const navigation = useContext(NavigationContext);
   return (
     <TouchableOpacity
       style={{ ...styles.cardShadowStyle, backgroundColor: props.color }}
       onPress={() => {
-        // navigation.navigate("ResourceList", {
-        //   category: props.category
-        // });
+        navigation.navigate("ResourceList", {
+          category: props.category
+        });
       }}>
       <View style={styles.exploreCard}>
         <Text style={styles.cardTextStyle}>{props.category}</Text>

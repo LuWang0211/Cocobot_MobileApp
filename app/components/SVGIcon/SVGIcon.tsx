@@ -1,11 +1,10 @@
 import React from "react";
 import { SvgXml } from "react-native-svg";
-import { TouchableOpacity } from "react-native";
 
 interface Props {
   src: string;
-  width?: number | string;
-  height?: number | string;
+  width?: string;
+  height?: string;
   color?: string;
 }
 

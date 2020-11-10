@@ -15,9 +15,11 @@ import { useNavigation } from "@react-navigation/native";
 import { crossAppNotification } from "../config";
 
 const meditationResources = [
-  {name:"Breathing Meditation", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-  // {name:"4-min Meditation", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
-//  {name:"Ding Test", duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
+  {type:"Meditation", name:"Breathing Meditation", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+  // {type:"Meditation", name:"4-min Meditation", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
+  // {{type:"Testing", name:"Ding Test", duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
+  // {type:"Testing", name:"Youtube", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+
 ]
 
 let RandomIndex = Math.floor(Math.random() * meditationResources.length);
@@ -154,7 +156,7 @@ export const ContentScreen = (props) => {
               <View style={{position: 'absolute', left: 0}}>
                 <Icon raised name='chevron-left' size={30} onPress={() => navigation.goBack()} style={{color:'white'}}/>
               </View>
-              <Text style = {styles.smalltext}> {meditation.name} </Text>
+              <Text style = {styles.smalltext}> {meditation.type} </Text>
             </View>
 
             <View style={{alignItems: 'stretch', }}>
@@ -194,8 +196,11 @@ export const ContentScreen = (props) => {
             <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) ? 'Exercise Session Has Ended ' : ''}</Text>
 
             <View style = { styles.btn }>
-                <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
+                {/* <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
                       <Text style={styles.cardboby}>Go back</Text>
+              </TouchableOpacity>  */}
+              <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("Chat")}>
+                      <Text style={styles.cardboby}>testing back to chat</Text>
               </TouchableOpacity> 
             </View>
           </View>

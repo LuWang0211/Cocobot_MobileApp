@@ -1,12 +1,22 @@
-import React from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import React, { useContext } from 'react';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { NavigationContext } from "../../context";
+import { useNavigation } from "@react-navigation/native";
 
 const ResourcesContainer = (props) => {
+  // const navigation = useContext(NavigationContext);
+  const navigation = useNavigation();
   return (
     <React.Fragment>
       <View style={styles.titleContainer}>
         <Text style={styles.titleTextStyle}>{props.title}</Text>
-        <Text style={{ fontFamily: "Poppins-Medium", color: "#3E41A8" }}>See All</Text>
+        <TouchableOpacity onPress={() => {
+          navigation.navigate("Resources", {
+            category: props.title
+          });
+        }}>
+          <Text style={{ fontFamily: "Poppins-Medium", color: "#3E41A8" }}>See All</Text>
+        </TouchableOpacity>
       </View>
       <View>
         <ScrollView
@@ -40,6 +50,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flexDirection: "row",
+    paddingRight: 0,
     paddingHorizontal: 25,
     paddingTop: 20,
     paddingBottom: 20
