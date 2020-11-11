@@ -15,10 +15,10 @@ import { useNavigation } from "@react-navigation/native";
 import { crossAppNotification } from "../config";
 
 const meditationResources = [
-  {type:"Meditation", name:"Breathing Meditation", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-  // {type:"Meditation", name:"4-min Meditation", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
-  // {{type:"Testing", name:"Ding Test", duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
-  // {type:"Testing", name:"Youtube", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+  //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+  //{type:"Meditation", name:"4-min Meditation", author: "?author", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
+  {type:"Testing", name:"Ding Test",author: "?author",  duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
+  // {type:"Testing", name:"Youtube", author: "?author", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
 
 ]
 
@@ -124,7 +124,7 @@ export const ContentScreen = (props) => {
     let newPosition = 0;
     TrackPlayer.seekTo(newPosition);
   };
- 
+
   const slidingStarted = () => {
     setIsSeeking(true);
   };
@@ -133,6 +133,13 @@ export const ContentScreen = (props) => {
     await TrackPlayer.seekTo( value * duration);
     setSliderValue(value);
     setIsSeeking(false);
+  };
+
+  const resumePressed =() => {
+    console.log('resumePressed')
+    let newPosition = 0;
+    TrackPlayer.seekTo(newPosition);
+    TrackPlayer.play();
   };
 
   const convertMS = (value) => {
@@ -153,32 +160,34 @@ export const ContentScreen = (props) => {
           <View style={styles.overlay} >
 
             <View style={styles.header}>
-              <View style={{position: 'absolute', left: 0}}>
-                <Icon raised name='chevron-left' size={30} onPress={() => navigation.goBack()} style={{color:'white'}}/>
+              <View style={{position: 'absolute', left: 20}}>
+                <Icon raised name='chevron-left' size={32} onPress={() => navigation.goBack()} style={{color:'white'}}/>
               </View>
-              <Text style = {styles.smalltext}> {meditation.type} </Text>
+              <Text style = {styles.title}> {meditation.type} </Text>
             </View>
 
-            <View style={{alignItems: 'stretch', }}>
+            <View style={{alignItems: 'stretch'}}>
               <Text style = {styles.text}> {meditation.name} </Text> 
-              <Text style = {styles.smalltext}> {meditation.duration} </Text>
+              <Text style = {styles.smalltext}> by {meditation.author} </Text>
             </View>
 
-            <View style={{flex:3, flexDirection: "row",justifyContent:'space-around'}}>
-              {/* <Icon raised name='step-backward' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+            <View style={{flexDirection: "row", justifyContent:'space-around', marginTop: 120, marginHorizontal: 50, padding:15}}>
+              {Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
+                <Icon raised name='rotate-ccw' size={30} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
+              :
+                <>
+                {/* <Icon raised name='skip-back' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                <Icon raised name='rotate-ccw' size={30} onPress={jumpBackwardPressed} disabled={!isTrackPlayerInit} style={{color:'white',padding: -25}} />
+                {/* <Badge value="15" containerStyle={{ backgroundColor:'transparent', top: 5, left: -25}}/> */}
+                <Icon raised name={isPlaying ? 'pause' : 'play'} size={30} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+                <Icon raised name='rotate-cw' size={30} onPress={jumpForwardPressed} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
 
-              <Icon raised name='rotate-ccw' size={30} onPress={jumpBackwardPressed} disabled={!isTrackPlayerInit} style={{color:'white',padding: -25}} />
-              {/* <Badge value="15" containerStyle={{ backgroundColor:'transparent', top: 5, left: -25}}/> */}
-
-              <Icon raised name={isPlaying ? 'pause' : 'play'} size={30} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
-
-              <Icon raised name='rotate-cw' size={30} onPress={jumpForwardPressed} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
-              {/* <Badge value="15" containerStyle={{top: 5, left: -25}}/> */}
-
-              {/* <Icon raised name='step-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                {/* <Icon raised name='skip-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                </>
+              }
             </View>
 
-            <View style={{alignItems: 'stretch', padding:15, justifyContent:'space-around' }}>
+            <View style={{alignItems: 'stretch', padding: 15}}>
               <Slider
                 onValueChange={(value) => this.setState({ value })}
                 minimumValue={0}
@@ -190,19 +199,29 @@ export const ContentScreen = (props) => {
                 minimumTrackTintColor="white"
                 maximumTrackTintColor="lightgray"
               />
-              <Text style={styles.smalltext}>{convertMS(position)}  {convertMS(duration-position)}</Text>
+              <View style={{flexDirection: "row", justifyContent:'space-between'} }>
+                <Text style = {styles.smalltext}>{convertMS(position)}</Text>
+                <Text style = {styles.smalltext} >{convertMS(duration-position)}</Text>
+              </View>
+              
             </View>
 
-            <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) ? 'Exercise Session Has Ended ' : ''}</Text>
+            {/* <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0 ? 'Session ended ' : ''}</Text> */}
 
             <View style = { styles.btn }>
-                {/* <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
-                      <Text style={styles.cardboby}>Go back</Text>
-              </TouchableOpacity>  */}
-              <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("Chat")}>
-                      <Text style={styles.cardboby}>testing back to chat</Text>
-              </TouchableOpacity> 
+              { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
+                <>
+                <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
+                <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
+                  <Text style={styles.btntext}>Go gack</Text>
+                </TouchableOpacity> 
+                </>
+              : 
+                <TouchableOpacity style = {{...styles.btn, color: "transprants"}}>
+                  {/* <Text style={styles.btntext}>haha</Text> */}
+                </TouchableOpacity> }
             </View>
+
           </View>
         </ImageBackground>
       </View>
@@ -233,58 +252,41 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
+    padding: 40,
   },
-  toolbar: {
-    marginTop: 30,
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 5,
-  },
-  mediaPlayer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-  },
-
-
-  text: {
+  title: {
     color: "white",
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 200,
+  },
+  text: {
+    color: "white",
+    fontSize: 24,
+    textAlign: "center",
+    marginTop: 80,
     marginBottom: 20,
   },
   smalltext: {
     color: "white",
-    fontSize: 20,
-    textAlign: "center"
+    fontSize: 14,
+    fontWeight: "800",
+    textAlign: "center",
   },
   btn: {
-    flex: 1,
     justifyContent: 'flex-end',
-    marginBottom: 50,
+    marginBottom: 120,
     marginHorizontal: 100,
+    // backgroundColor:"pink",
   },
-
-  progressBar: {
-    height: 150,
-    paddingBottom: 90,
-  },
-
   card: {
-    padding: 10,
+    padding: 5,
     alignItems: 'center',
     borderRadius: 20,
     borderColor:"white",
     borderWidth: 2,
   },
-  cardboby: {
+  btntext: {
       color: "white",
       fontSize: 15,
   },
