@@ -51,7 +51,6 @@ export abstract class ResponseNodeLogic implements ChatWorkflowNode {
                 _id: 2,
                 name: 'React Native',
                 avatar: 'https://placeimg.com/140/140/any',
-                // avatar: '../assets/coco.png',
             },
         };
 
@@ -63,7 +62,7 @@ export abstract class ResponseNodeLogic implements ChatWorkflowNode {
 export class GreetingNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
         // console.log('Hi Lisa, where do you want to do it?');
-        this.sendMessage(['Hi Lisa, where do you want to do it?']);
+        this.sendMessage(['Hi Lisa, where would you like me to start the session?']);
 
         return true;
     }
@@ -124,9 +123,36 @@ export class DeviceChoiceUteranceNode extends ChoiceUteranceNode {
     }
 
     getNextNode(): ChatWorkflowNode {
-        return new BaobaoCuteUteranceNode();
+        console.log(this.selected);
+        if (this.selected.text == 'Alexa') {
+            return new AlexaPromptNode();
+        } else {
+            return new PhonePromptNode();
+        }
     }
 }
+
+export class AlexaPromptNode extends ResponseNodeLogic {
+    async step(): Promise<boolean> {
+        this.sendMessage(['Please say: Alexa, tell cocobot to start the {scheduled practice} session.']);
+        return true;
+    }
+    getNextNode(): ChatWorkflowNode {
+        return null;
+    }
+}
+
+export class PhonePromptNode extends ResponseNodeLogic {
+    async step(): Promise<boolean> {
+        this.sendMessage(['Okay! Please find a comfortable position and click the video below to start.']);
+        this.sendMessage(['{show picture}']);
+        return true;
+    }
+    getNextNode(): ChatWorkflowNode {
+        return null;
+    }
+}
+
 
 export class BaobaoCuteUteranceNode extends ChoiceUteranceNode {
     constructor() {

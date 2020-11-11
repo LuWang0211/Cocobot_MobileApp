@@ -4,8 +4,8 @@ import { NavigationContext } from "../../context";
 import { useNavigation } from "@react-navigation/native";
 
 const ResourcesContainer = (props) => {
-  const navigation = useContext(NavigationContext);
-  // const navigation = useNavigation();
+  // const navigation = useContext(NavigationContext);
+  const navigation = useNavigation();
   return (
     <React.Fragment>
       <View style={styles.titleContainer}>

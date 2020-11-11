@@ -653,7 +653,7 @@ export const ChatScreen = (props) => {
 
     return (
       <>
-      {<HeaderComponent/>}
+      <HeaderComponent/>
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <GiftedChat
           alignTop
@@ -709,8 +709,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     backgroundColor: 'white',
-    height: 110,
-    // height: Platform.OS === 'ios' ? 80 : 110,
+    height: Platform.OS === 'ios' ? 80 : 80,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: 'rgba(199, 199, 199, 0.75)',
