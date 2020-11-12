@@ -28,7 +28,7 @@ const ResourceCard = (props: Props) => {
   const { text, label, resourceImage, type, author, audiouri, backgroundImage } = props;
 
   const navigation = useNavigation();
-  console.log('Resource Card', props);
+  // console.log('Resource Card', props);
   return (
       <View style={styles.container}>
         <TouchableOpacity

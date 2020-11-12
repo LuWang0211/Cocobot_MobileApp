@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {StyleSheet, Dimensions, SafeAreaView, View, Text, Button, ImageBackground, Animated, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Sound from 'react-native-sound';
@@ -9,10 +9,9 @@ import { useTrackPlayerProgress, useTrackPlayerEvents } from 'react-native-track
 import { Slider, Badge } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 // import Slider from "react-native-slider";
-
 import { useNavigation } from "@react-navigation/native";
 
-import { crossAppNotification } from "../config";
+import { crossAppNotification, ResourcePlayDone } from "../config";
 
 const meditationResources = [
   //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
@@ -50,19 +49,28 @@ const trackPlayerInit = async () => {
 };
 
 
-export const ContentScreen = (props) => {
-  const navigation = useNavigation();
+export const ContentScreen = ({ route, navigation }) => {
+  // const navigation = useNavigation();
 
   const [isTrackPlayerInit, setIsTrackPlayerInit] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const {position, duration} = useTrackPlayerProgress(1000);
+  const {position, duration} = useTrackPlayerProgress(500);
+
+  // let { testingdata } = useContext(ResourcePlayContext);
+  // const testingdata =  props.navigation.getParam('data', 'nothing sent')
+  const { data } = route.params;
+  
+  // console.log("ResourcePlayContext here", data);
 
   useEffect(() => {
     const startPlayer = async () => {
        let isInit =  await trackPlayerInit();
        setIsTrackPlayerInit(isInit);
+       crossAppNotification.emit('ResourcePlayDone');
+       console.log('successfully finished playing');
+
     }
     startPlayer();
   }, []);

@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from "../components/AppHeader/AppHeader";
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message, SystemMessage } from 'react-native-gifted-chat';
-import { Reminder, ChatRating } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
+import { Reminder, ChatRating, ResourceImage } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { crossAppNotification, EventsNames } from "../config";
@@ -346,9 +346,9 @@ export const ChatScreen = (props) => {
         createdAt: new Date(),
         user: {
           _id: 2,
-          name: 'React Native',
+          name: 'User',
           // avatar: 'https://placeimg.com/140/140/any',
-          avatar: '../assets/coco.png',
+          // avatar: '../assets/coco.png',
         },
       }
 
@@ -551,6 +551,8 @@ export const ChatScreen = (props) => {
     const renderBubble = (props) => {
       let stretchBubbleStyle = {};
       let shadowStyle = {};
+
+      // console.log('renderBubble', props.currentMessage);
       if (props.currentMessage.type !== 'text' && props.currentMessage.stretch) {
         stretchBubbleStyle = {
           alignSelf: 'stretch',
@@ -560,8 +562,7 @@ export const ChatScreen = (props) => {
           borderWidth: props.currentMessage.type === 'tutorial' ? 0 : 2,
           padding: 0
         }
-      }
-      if (props.currentMessage.type === 'tutorial' || props.currentMessage.type === 'chatResource') {
+      } else if (props.currentMessage.type === 'tutorial' || props.currentMessage.type === 'chatResource') {
         shadowStyle = {
           shadowColor: 'rgba(199, 199, 199, 0.75)',
           shadowOffset: {width: 2, height: 2},
@@ -569,6 +570,16 @@ export const ChatScreen = (props) => {
           elevation: 5,
           zIndex: 5000,
         }
+      }
+
+      // Bubble Defaul Props when quick reply
+      if (props.currentMessage.type == 'QuickReply') {
+        return <Bubble {...props} />; 
+      }
+
+      // show resource image
+      if (props.currentMessage.type == 'ShowResource') {
+        return <ResourceImage />; 
       }
 
       return (
@@ -599,6 +610,7 @@ export const ChatScreen = (props) => {
     };
 
     const renderMessageText = (props) => {
+      console.log("renderMessageText");
       const {
         currentMessage,
       } = props;
@@ -609,8 +621,10 @@ export const ChatScreen = (props) => {
       switch(messageType) {
         case 'text':
           return <MessageText { ...props } />;
-        case 'reminder':
-          return <Reminder { ...props.currentMessage } message={props.currentMessage} />
+        // case 'reminder':
+        //   return <Reminder { ...props.currentMessage } message={props.currentMessage} />
+        case 'ShowResource':
+          return <ResourceImage imageURI={{imageURI: "https://reactnative.dev/img/tiny_logo.png"}}/>
         case 'rating':
           return <ChatRating />
         default:
@@ -665,7 +679,7 @@ export const ChatScreen = (props) => {
             _id: 1,
           }}
           renderSystemMessage={(props) => <SystemMessage {...props} containerStyle={{ paddingBottom: 5}} /> }
-          renderBubble={renderBubble}
+          renderBubble={renderBubble} // input text styles
           renderMessageText={renderMessageText}
           renderAvatar={null}
           renderQuickReplies={onRenderQuickReplies}
