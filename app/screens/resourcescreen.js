@@ -6,10 +6,10 @@ import { tabsHeader } from "../assets/styles";
 import LeftHeader from "../components/AppHeader/LeftHeader";
 import SOSButton from "../components/HeaderComponents/SOSButton";
 import SVGIcon from '../components/SVGIcon/SVGIcon';
-import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
+// import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
 import ResourceListCard from '../components/ResourcesComponent/ResourceListCard';
-import { IMAGE_SOURCE } from '../constant';
-import searchIcon from '../assets/icons/search-icon';
+import { categories } from '../constant';
+// import searchIcon from '../assets/icons/search-icon';
 import pickerIcon from '../assets/icons/picker-icon';
 import { useNavigation } from "@react-navigation/native";
 
@@ -20,32 +20,7 @@ export const ResourceScreen = (props) =>  {
   const navigation = useNavigation();
 
   const data = {
-    Resources: [
-      {
-        id: 0,
-        title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-        category: "SymptomManagement",
-        about: ["ANXIOUS"],
-        image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-        favored: false,
-      },
-      {
-        id: 1,
-        title: "Caregiver Stress and Burnout",
-        category: "SymptomManagement",
-        about: "TIRED",
-        image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-        favored: false,
-      },
-      {
-        id: 2,
-        title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-        category: "SymptomManagement",
-        about: "health",
-        image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-        favored: false,
-      },
-    ],
+    Resources: categories
   };
 
   const renderResources = () => {
@@ -53,17 +28,20 @@ export const ResourceScreen = (props) =>  {
         return (
         <ResourceListCard 
           key={resource.id}
-          text={resource.title}
-          src="coco testing"
+          text={resource.name}
+          src={resource.author}
           label={[
             {
               category: resource.category,
-              text: resource.about,
+              abouttext: resource.about,
             },
             ]}
           resourceImage={resource.image}
+          type={resource.type}
+          author={resource.author}
+          audiouri={resource.audiouri}
+          backgroundImage={resource.pictureuri}
           />
-
         );
     });
   }

@@ -6,82 +6,24 @@ import { useNavigation } from "@react-navigation/native";
 import { labelBackground } from '../../constant';
 
 interface Props {
-  navigation: any;
+  key: number;
   text: string;
-  label: [];
-  src: string;
+  label: Label[];  // <- string <- Label[] 
   resourceImage: string;
+  type: string;
+  author: string;
+  audiouri: string;
+  backgroundImage: string;
 }
 
-const ResourceListCard = ({ text, src, label, resourceImage }: Props) => {
+interface Label {
+  category: [];
+  abouttext: [];
+}
 
+export const ResourceListCard = (props: Props) => {
+  const { text, label, resourceImage, type, author, audiouri, backgroundImage } = props;
   const navigation = useNavigation();
-
-  const styles = StyleSheet.create({
-    shadowStyle: {
-      shadowColor: 'rgba(199, 199, 199, 0.65)',
-      shadowOffset: {width: 2, height: 2},
-      shadowOpacity: 1,
-      zIndex: 5000,
-      elevation: 5,
-      marginLeft: 25,
-      marginRight: 25,
-      marginTop: 25,
-      borderRadius: 20,
-      backgroundColor: "#FFF",
-    },
-    container: {
-      flexDirection: "row",
-      height: 175,
-      overflow: "hidden",
-      borderRadius: 20,
-      padding: 0,
-    },
-    imageStyle: {
-      flex: 1,
-      resizeMode: "cover",
-      width: "100%"
-    },
-    contentStyle: {
-      overflow: "hidden",
-      justifyContent: "flex-end",
-    },
-    textStyle: {
-      paddingTop: 5,
-      height: 60,
-      fontFamily: 'Poppins-Medium',
-      fontSize: 14,
-      color: '#454545'
-    },
-    srcTextStyle: {
-      padding: 0,
-      textTransform: "uppercase",
-      fontFamily: "Poppins-Regular",
-      fontSize: 12,
-      color: "#737373"
-    },
-    footer: {
-      paddingTop: 15,
-      justifyContent: "space-between",
-      flexDirection: "row"
-    },
-    labels: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    labelText: {
-      overflow: "hidden",
-      fontFamily: 'Poppins-Regular',
-      fontSize: 12,
-      color: "#6D6A6A",
-      borderRadius: 12,
-      backgroundColor: "#D4F2F9",
-      paddingHorizontal: 8,
-      paddingVertical: 2,
-      marginRight: 5,
-      textTransform: "uppercase"
-    }
-  });
 
   return (
     <TouchableOpacity
@@ -96,12 +38,12 @@ const ResourceListCard = ({ text, src, label, resourceImage }: Props) => {
         <View style={{justifyContent: "space-between", flex: 1, padding: 15}}>
           <View style={styles.contentStyle}>
             <Text numberOfLines={2} ellipsizeMode='tail' style={styles.textStyle}>{text}</Text>
-            <Text style={styles.srcTextStyle}>{src}</Text>
+            <Text style={styles.srcTextStyle}>{author}</Text>
           </View>
           <View style={styles.footer}>
             <View style={styles.labels}>
-              {label.map(({ text, category }, key) => {
-                return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={key}>{text}</Text>
+              {label.map(({ abouttext, category }, id) => {
+                return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={id}>{abouttext}</Text>
               })}
             </View>
           </View>
@@ -111,4 +53,68 @@ const ResourceListCard = ({ text, src, label, resourceImage }: Props) => {
   )
 };
 
-export default ResourceListCard;
+const styles = StyleSheet.create({
+  shadowStyle: {
+    shadowColor: 'rgba(199, 199, 199, 0.65)',
+    shadowOffset: {width: 2, height: 2},
+    shadowOpacity: 1,
+    zIndex: 5000,
+    elevation: 5,
+    marginLeft: 25,
+    marginRight: 25,
+    marginTop: 25,
+    borderRadius: 20,
+    backgroundColor: "#FFF",
+  },
+  container: {
+    flexDirection: "row",
+    height: 175,
+    overflow: "hidden",
+    borderRadius: 20,
+    padding: 0,
+  },
+  imageStyle: {
+    flex: 1,
+    resizeMode: "cover",
+    width: "100%"
+  },
+  contentStyle: {
+    overflow: "hidden",
+    justifyContent: "flex-end",
+  },
+  textStyle: {
+    paddingTop: 5,
+    height: 60,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: '#454545'
+  },
+  srcTextStyle: {
+    padding: 0,
+    textTransform: "uppercase",
+    fontFamily: "Poppins-Regular",
+    fontSize: 12,
+    color: "#737373"
+  },
+  footer: {
+    paddingTop: 15,
+    justifyContent: "space-between",
+    flexDirection: "row"
+  },
+  labels: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  labelText: {
+    overflow: "hidden",
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: "#6D6A6A",
+    borderRadius: 12,
+    backgroundColor: "#D4F2F9",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 5,
+    textTransform: "uppercase"
+  }
+});

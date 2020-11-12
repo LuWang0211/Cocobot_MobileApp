@@ -9,8 +9,7 @@ import SOSButton from "../components/HeaderComponents/SOSButton";
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import { redBgAuth, blueBgAuth } from '../assets/icons/authBgIcons';
 import backgroundImg from "../assets/icons/today-background-img";
-import { color } from '../assets/constant';
-// import { Card, ListItem } from 'react-native-elements';
+import { color, categories } from '../constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import talkIcon from "../assets/icons/chevron-right-icon";
@@ -19,53 +18,33 @@ import { SessionContext } from "../context";
 import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
 import ResourceCard from "../components/ResourcesComponent/ResourceCard";
 
+
 export const TodayScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
     const navigation = useNavigation();
-    // const navigation = useContext(NavigationContext);
     const [checked, setChecked] = useState(new Set());
     const data = {
-      Resources: [
-        {
-          id: 0,
-          title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-          category: "SymptomManagement",
-          about: ["ANXIOUS"],
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-        {
-          id: 1,
-          title: "Caregiver Stress and Burnout",
-          category: "SymptomManagement",
-          about: "TIRED",
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-        {
-          id: 2,
-          title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-          category: "SymptomManagement",
-          about: "health",
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-      ],
+        Resources: categories,
     };
 
     const renderResources = () => {
+        console.log("Resources")
         return data.Resources.map((resource) => {
             return (
             <ResourceCard
                 key={resource.id}
-                text={resource.title}
+                text={resource.name}
                 label={[
                 {
                     category: resource.category,
-                    text: resource.about,
+                    abouttext: resource.about,
                 },
                 ]}
                 resourceImage={resource.image}
+                type={resource.type}
+                author={resource.author}
+                audiouri={resource.audiouri}
+                backgroundImage={resource.pictureuri}
             />
             );
         });
