@@ -11,7 +11,7 @@ import { checkBoxOff, checkBoxOn } from '../../../assets/icons/chatSelectIcons';
 import { reminderHeaderImg } from '../../../assets/icons/chatComponentHeaderIcons';
 import heartIcon from '../../../assets/icons/heart-filled-icon';
 import { calendarIcon, clockIcon, repeatIcon } from '../../../assets/icons/chatReminderIcons';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { NavigationContainer } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -30,9 +30,6 @@ interface ChatWidgetsProps {
   max: string;
   count: number;
   onSurvey: () => void;
-  label: Label[];
-  resourceImage: string;
-  imageURI: string;
 }
 
 interface Reminder {
@@ -41,13 +38,21 @@ interface Reminder {
   start: string;
 }
 
-interface Label {
-  category: string;
-  text: string;
+// Interface of ResoureceImage
+interface ResourceImage {
+  key: number;
+  name: string;
+  label: Label[];  // <- string <- Label[] 
+  resourceImage: string;
+  type: string;
+  author: string;
+  audiouri: string;
+  backgroundImage: string;
 }
 
-interface ResourceImage {
-  imageURI: string;
+interface Label {
+  category: [];
+  abouttext: [];
 }
 
 export const Reminder = ({ text, reminder, onCancel, onSetReminder }: ChatWidgetsProps) => {
@@ -78,6 +83,28 @@ export const Reminder = ({ text, reminder, onCancel, onSetReminder }: ChatWidget
   );
 };
 
+export const ResourceImage = (props: ResourceImage) => {
+  console.log("Chat ResourceImage Props", props);
+  const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
+  console.log("uri", props);
+  const navigation = useNavigation();
+  return (
+    <TouchableOpacity 
+      onPress={() => {
+        navigation.navigate("ContentDetails", {data: {
+          type, name, author, audiouri, backgroundImage
+        }});
+      }}
+    >
+      {/* <Text> testing </Text> */}
+      <View>
+        <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
+        <Icon name ='play' style={styles.icon} size={30} />
+      </View>
+    </TouchableOpacity>
+  )
+}
+
 export const ChatRating = () => {
   const [rating, setRating] = useState(0);
   const [disable, setDisable] = useState(false);
@@ -94,22 +121,8 @@ export const ChatRating = () => {
           }
         }
         />
+        <Text style={styles.ratingtext}> Please rate the exercise to help coco learn your preferences! </Text>
     </View>
-  )
-}
-
-export const ResourceImage = (props: ResourceImage) => {
-  const { imageURI } = props;
-  console.log("uri", props);
-  const navigation = useNavigation();
-  return (
-    <TouchableOpacity onPress={() => {navigation.navigate("ContentDetails",{data: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3"})}}>
-      <Icon name ='play' size={30}/>
-      <Image
-        style={styles.tinyLogo} 
-        source={{uri: "https://reactnative.dev/img/tiny_logo.png"}}/>
-      <Text> testing </Text>
-    </TouchableOpacity>
   )
 }
 
@@ -160,5 +173,16 @@ const styles = StyleSheet.create({
     width: 192,
     height: 108,
     borderRadius: 20,
+  },
+  icon: {
+    position: 'absolute', 
+    color: "white", 
+    left: 81,  // tinyLogo, width / 2
+    bottom: 40, // tinyLogo, wiheightdth / 2
+  },
+  ratingtext: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: "lightgray"
   },
 });

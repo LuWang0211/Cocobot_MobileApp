@@ -16,7 +16,8 @@ import talkIcon from "../assets/icons/chevron-right-icon";
 import { createNavigatorFactory, useNavigation } from "@react-navigation/native";
 import { SessionContext } from "../context";
 import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
-import ResourceCard from "../components/ResourcesComponent/ResourceCard";
+// import * as baobao from "../components/ResourcesComponent/ResourceCard";
+import { ResourceCard }  from "../components/ResourcesComponent/ResourceCard";
 
 
 export const TodayScreen = (props) => {
@@ -28,12 +29,13 @@ export const TodayScreen = (props) => {
     };
 
     const renderResources = () => {
-        console.log("Resources")
+        console.log("Start to Play Resources");
+        // const Lulu = baobao.ResourceCard;
         return data.Resources.map((resource) => {
             return (
             <ResourceCard
                 key={resource.id}
-                text={resource.name}
+                name={resource.name}
                 label={[
                 {
                     category: resource.category,
@@ -86,6 +88,15 @@ export const TodayScreen = (props) => {
                     <SVGIcon width="18" height="18" src={talkIcon} />
                 </View>
             </TouchableOpacity>
+
+            {/* <View style={styles.titleContainer}>
+                <Text style={styles.titleTextStyle}>Resources</Text>
+                <TouchableOpacity onPress={() => {
+                navigation.navigate("Resources");
+                }}>
+                <Text style={{ fontFamily: "Poppins-Medium", color: "#3E41A8" }}>See All</Text>
+                </TouchableOpacity>
+            </View> */}
 
             <ResourcesContainer title="Resources">{renderResources()}</ResourcesContainer>
 

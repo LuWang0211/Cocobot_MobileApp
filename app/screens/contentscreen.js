@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import Sound from 'react-native-sound';
 import MediaControls, {PLAYER_STATES} from 'react-native-media-controls';  //Media Controls to control Play/Pause/Seek and full screen
 
-import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING } from 'react-native-track-player';
+import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING, STATE_STOPPED } from 'react-native-track-player';
 import { useTrackPlayerProgress, useTrackPlayerEvents } from 'react-native-track-player/lib/hooks';
 import { Slider, Badge } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
@@ -13,25 +13,26 @@ import { useNavigation } from "@react-navigation/native";
 
 import { crossAppNotification, ResourcePlayDone } from "../config";
 
-const meditationResources = [
-  //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-  //{type:"Meditation", name:"4-min Meditation", author: "?author", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
-  {type:"Testing", name:"Ding Test",author: "?author",  duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
-  // {type:"Testing", name:"Youtube", author: "?author", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+// const meditationResources = [
+//   //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+//   //{type:"Meditation", name:"4-min Meditation", author: "?author", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
+//   {type:"Testing", name:"Ding Test",author: "?author",  duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
+//   // {type:"Testing", name:"Youtube", author: "?author", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
 
-]
+// ]
 
-let RandomIndex = Math.floor(Math.random() * meditationResources.length);
-const meditation = meditationResources[RandomIndex];
+// let RandomIndex = Math.floor(Math.random() * meditationResources.length);
+// const meditation = meditationResources[RandomIndex];
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-
-const trackPlayerInit = async () => {
+//Initialize the Track Player
+const trackPlayerInit = async (data) => {
   await TrackPlayer.setupPlayer();
   TrackPlayer.updateOptions({
     stopWithApp: true,
+    // An array of media controls capabilities
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
@@ -40,10 +41,10 @@ const trackPlayerInit = async () => {
     ],
   });
   await TrackPlayer.add({
-    url: meditation.audiouri,
-    type: 'default',
-    name: meditation.name,
-    pictureuri: meditation.pictureuri,
+    url: data.audiouri,
+    title: data.name,
+    artist: data.author,
+    artwork: data.image,
   });
   return true;
 };
@@ -56,21 +57,25 @@ export const ContentScreen = ({ route, navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const {position, duration} = useTrackPlayerProgress(500);
+  const {position, duration} = useTrackPlayerProgress(1000);
 
-  // let { testingdata } = useContext(ResourcePlayContext);
   // const testingdata =  props.navigation.getParam('data', 'nothing sent')
   const { data } = route.params;
   
   // console.log("ResourcePlayContext here", data);
+  console.log("isTrackPlayerInit 1", isTrackPlayerInit);
+  // console.log("STATE_PLAYING, STATE_STOPPED", STATE_PLAYING, STATE_STOPPED); // STATE_PLAYING == 3, STATE_STOPPED == 1
 
   useEffect(() => {
     const startPlayer = async () => {
-       let isInit =  await trackPlayerInit();
+       let isInit =  await trackPlayerInit(data);
        setIsTrackPlayerInit(isInit);
-       crossAppNotification.emit('ResourcePlayDone');
-       console.log('successfully finished playing');
-
+      //  await TrackPlayer.add({
+      //   url: data.audiouri,
+      //   title: data.name,
+      //   artist: data.author,
+      //   artwork: data.image,
+      // });
     }
     startPlayer();
   }, []);
@@ -83,6 +88,7 @@ export const ContentScreen = ({ route, navigation }) => {
   }, [position, duration]);
  
   useTrackPlayerEvents([TrackPlayerEvents.PLAYBACK_STATE], event => {
+    console.log("event", event.state);
     if (event.state === STATE_PLAYING) {
       setIsPlaying(true);
     } else {
@@ -164,19 +170,19 @@ export const ContentScreen = ({ route, navigation }) => {
   return ( 
     <>  
       <View style={ styles.container}>
-        <ImageBackground source={{uri: meditation.pictureuri}} style={styles.image} blurRadius={1}>
+        <ImageBackground source={{uri: data.backgroundImage}} style={styles.image} blurRadius={1}>
           <View style={styles.overlay} >
 
             <View style={styles.header}>
               <View style={{position: 'absolute', left: 20}}>
                 <Icon raised name='chevron-left' size={32} onPress={() => navigation.goBack()} style={{color:'white'}}/>
               </View>
-              <Text style = {styles.title}> {meditation.type} </Text>
+              <Text style = {styles.title}> {data.type} </Text>
             </View>
 
             <View style={{alignItems: 'stretch'}}>
-              <Text style = {styles.text}> {meditation.name} </Text> 
-              <Text style = {styles.smalltext}> by {meditation.author} </Text>
+              <Text style = {styles.text}> {data.name} </Text> 
+              <Text style = {styles.smalltext}> by {data.author} </Text>
             </View>
 
             <View style={{flexDirection: "row", justifyContent:'space-around', marginTop: 120, marginHorizontal: 50, padding:15}}>

@@ -9,7 +9,7 @@ import { ResourcePlayContext } from "../../context";
 
 interface Props {
   key: number;
-  text: string;
+  name: string;
   label: Label[];  // <- string <- Label[] 
   resourceImage: string;
   type: string;
@@ -23,9 +23,9 @@ interface Label {
   abouttext: [];
 }
 
-const ResourceCard = (props: Props) => {
-  // console.log("Resource Card Props", { text, label, resourceImage, type, author, audiouri, backgroundImage });
-  const { text, label, resourceImage, type, author, audiouri, backgroundImage } = props;
+export const ResourceCard = (props: Props) => {
+  console.log("Resource Card Props", props);
+  const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
 
   const navigation = useNavigation();
   // console.log('Resource Card', props);
@@ -35,16 +35,16 @@ const ResourceCard = (props: Props) => {
           style={{ borderRadius: 20, overflow: "hidden" }}
           onPress={() => {
             navigation.navigate("ContentDetails", {data: {
-              audiouri
+              type, name, author, audiouri, backgroundImage
             }});
           }}>
           <ImageBackground source={{uri: resourceImage}} style={styles.imageStyle} />
-          <Text style={styles.textStyle}>{text}</Text>
+          <Text style={styles.textStyle}>{name}</Text>
           <View style={styles.footer}>
             <View style={styles.labels}>
               { 
-                label.map(({ abouttext, category }, id) => {
-                  return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={id}>{abouttext}</Text>
+                label.map(({ abouttext, category }, key) => {
+                  return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={key}>{abouttext}</Text>
                 })
               }
             </View>
@@ -55,7 +55,7 @@ const ResourceCard = (props: Props) => {
   )
 };
 
-export default ResourceCard;
+// export default 123345;
 
 const styles = StyleSheet.create({
   container: {

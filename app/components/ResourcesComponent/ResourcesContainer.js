@@ -6,14 +6,13 @@ import { useNavigation } from "@react-navigation/native";
 const ResourcesContainer = (props) => {
   // const navigation = useContext(NavigationContext);
   const navigation = useNavigation();
+  console.log("ResourcesContainer props",)
   return (
     <React.Fragment>
       <View style={styles.titleContainer}>
         <Text style={styles.titleTextStyle}>{props.title}</Text>
         <TouchableOpacity onPress={() => {
-          navigation.navigate("Resources", {
-            category: props.title
-          });
+          navigation.navigate("Resources");
         }}>
           <Text style={{ fontFamily: "Poppins-Medium", color: "#3E41A8" }}>See All</Text>
         </TouchableOpacity>

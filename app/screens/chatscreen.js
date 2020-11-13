@@ -14,6 +14,7 @@ import BackButton from "../components/HeaderComponents/BackButton";
 import SendButton from '../components/ChatComponents/SendButton';
 import { WorkflowRunner, GreetingNode } from "./chatWorkflow/workflow";
 import { SessionContext } from "../context";
+import { categories } from '../constant';
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -27,6 +28,10 @@ const textInputReducer = (state, action) => {
       return state;
   }
 }
+
+let RandomIndex = Math.floor(Math.random() * 3 );
+const playerdata = categories[RandomIndex];
+console.log(playerdata);
 
 const initialState = {
   tutorial: false,
@@ -579,7 +584,30 @@ export const ChatScreen = (props) => {
 
       // show resource image
       if (props.currentMessage.type == 'ShowResource') {
-        return <ResourceImage />; 
+        return (
+          <ResourceImage 
+            key={playerdata.id}
+            name={playerdata.name}
+            label={[
+            {
+                category: playerdata.category,
+                abouttext: playerdata.about,
+            },
+            ]}
+            resourceImage={playerdata.image}
+            type={playerdata.type}
+            author={playerdata.author}
+            audiouri={playerdata.audiouri}
+            backgroundImage={playerdata.pictureuri}
+        />
+        ); 
+      }
+
+      // show resource image
+      if (props.currentMessage.type == 'ShowRating') {
+        return (
+          <ChatRating />
+        ); 
       }
 
       return (

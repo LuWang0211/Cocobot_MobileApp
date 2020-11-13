@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 export const ResourceScreen = (props) =>  {
 
   const [sortBy, setSortBy] = useState("name");
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const data = {
     Resources: categories

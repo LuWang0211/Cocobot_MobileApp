@@ -42,8 +42,8 @@ export const ResourceListCard = (props: Props) => {
           </View>
           <View style={styles.footer}>
             <View style={styles.labels}>
-              {label.map(({ abouttext, category }, id) => {
-                return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={id}>{abouttext}</Text>
+              {label.map(({ abouttext, category }, key) => {
+                return <Text style={{ ...styles.labelText, backgroundColor: labelBackground[category] }} key={key}>{abouttext}</Text>
               })}
             </View>
           </View>
@@ -52,6 +52,8 @@ export const ResourceListCard = (props: Props) => {
     </TouchableOpacity>
   )
 };
+
+export default ResourceListCard;
 
 const styles = StyleSheet.create({
   shadowStyle: {
