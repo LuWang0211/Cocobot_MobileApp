@@ -11,9 +11,11 @@ import { checkBoxOff, checkBoxOn } from '../../../assets/icons/chatSelectIcons';
 import { reminderHeaderImg } from '../../../assets/icons/chatComponentHeaderIcons';
 import heartIcon from '../../../assets/icons/heart-filled-icon';
 import { calendarIcon, clockIcon, repeatIcon } from '../../../assets/icons/chatReminderIcons';
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import { NavigationContainer } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import { crossAppNotification, EventsNames } from "../../../config";
 
 interface ChatWidgetsProps {
   text: string;
@@ -84,13 +86,18 @@ export const Reminder = ({ text, reminder, onCancel, onSetReminder }: ChatWidget
 };
 
 export const ResourceImage = (props: ResourceImage) => {
-  console.log("Chat ResourceImage Props", props);
+  // console.log("Chat ResourceImage Props", props);
   const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
-  console.log("uri", props);
+  // console.log("uri", props);
   const navigation = useNavigation();
+
+  const [Touchablestate, setTouchablestate] = useState(false);
+
   return (
-    <TouchableOpacity 
+    <TouchableOpacity disabled={Touchablestate}
       onPress={() => {
+        setTouchablestate(true);
+        crossAppNotification.emit('ResourcePlayStarted'),
         navigation.navigate("ContentDetails", {data: {
           type, name, author, audiouri, backgroundImage
         }});
@@ -99,25 +106,30 @@ export const ResourceImage = (props: ResourceImage) => {
       {/* <Text> testing </Text> */}
       <View>
         <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
-        <Icon name ='play' style={styles.icon} size={30} />
+        <Icon name ='play' style={styles.playicon} size={30} />
+
       </View>
     </TouchableOpacity>
   )
 }
 
 export const ChatRating = () => {
-  const [rating, setRating] = useState(0);
-  const [disable, setDisable] = useState(false);
+  const [Rating, setRating] = useState(0);
+  const [Disable, setDisable] = useState(false);
   return (
-    <View>
+    <View style={styles.rating}>
       <AirbnbRating
-        defaultRating={rating}
-        isDisabled={disable}
+        defaultRating={Rating}
+        isDisabled={Disable}
         showRating={false}
         selectedColor="#3E41A8"
+        size={25}
         onFinishRating={(value) => {
             setRating(value);
-            setDisable(true);
+            setDisable(false);
+            // console.log("rating", Rating);
+            // console.log("rating", value);
+            crossAppNotification.emit('RatingDone', value);
           }
         }
         />
@@ -125,6 +137,24 @@ export const ChatRating = () => {
     </View>
   )
 }
+
+
+export const SkipSession = () => {
+  const [Touchablestate, setTouchablestate] = useState(false);
+  return (
+    <TouchableOpacity disabled={Touchablestate}
+      onPress={() => {
+        setTouchablestate(true);
+      }}
+    >
+      <View style={{flexDirection: "row", justifyContent:'space-around', left: 20}}>
+        <Icon name ='corner-up-right' style={styles.skipicon} size={20} />
+        <Text style={styles.skiptext}> Skip this step </Text>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -174,15 +204,34 @@ const styles = StyleSheet.create({
     height: 108,
     borderRadius: 20,
   },
-  icon: {
+  playicon: {
     position: 'absolute', 
     color: "white", 
     left: 81,  // tinyLogo, width / 2
     bottom: 40, // tinyLogo, wiheightdth / 2
+    // backgroundColor: 'red',
+    // borderRadius: 100,
+  },
+  rating: {
+    alignItems: 'flex-start',
+    left: 25,
   },
   ratingtext: {
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
     fontFamily: 'Poppins-Regular',
-    fontSize: 12,
+    fontSize: 13,
     color: "lightgray"
+  },
+  skipicon: {
+    color: "#3E41A8"
+  },
+  skiptext: {
+    padding: 5,
+    fontFamily: 'Poppins-Regular',
+    fontStyle: 'italic',
+    fontSize: 13,
+    color: "#3E41A8",
   },
 });

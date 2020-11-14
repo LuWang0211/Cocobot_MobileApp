@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from "../components/AppHeader/AppHeader";
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message, SystemMessage } from 'react-native-gifted-chat';
-import { Reminder, ChatRating, ResourceImage } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
+import { Reminder, ChatRating, ResourceImage, SkipSession } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { crossAppNotification, EventsNames } from "../config";
@@ -30,7 +30,8 @@ const textInputReducer = (state, action) => {
 }
 
 let RandomIndex = Math.floor(Math.random() * 3 );
-const playerdata = categories[RandomIndex];
+// const playerdata = categories[RandomIndex];
+const playerdata = categories[2];
 console.log(playerdata);
 
 const initialState = {
@@ -576,12 +577,10 @@ export const ChatScreen = (props) => {
           zIndex: 5000,
         }
       }
-
       // Bubble Defaul Props when quick reply
       if (props.currentMessage.type == 'QuickReply') {
         return <Bubble {...props} />; 
       }
-
       // show resource image
       if (props.currentMessage.type == 'ShowResource') {
         return (
@@ -607,6 +606,22 @@ export const ChatScreen = (props) => {
       if (props.currentMessage.type == 'ShowRating') {
         return (
           <ChatRating />
+        ); 
+      }
+
+      // skip session
+      if (props.currentMessage.type == 'SkipSession') {
+        return (
+          <SkipSession />
+        ); 
+      }
+
+      // end chating session
+      if (props.currentMessage.type == 'EndSession') {
+        return (
+          <View>
+            <Text style={styles.smalltext}> Chatting Session Ended </Text>
+          </View>
         ); 
       }
 
@@ -651,10 +666,6 @@ export const ChatScreen = (props) => {
           return <MessageText { ...props } />;
         // case 'reminder':
         //   return <Reminder { ...props.currentMessage } message={props.currentMessage} />
-        case 'ShowResource':
-          return <ResourceImage imageURI={{imageURI: "https://reactnative.dev/img/tiny_logo.png"}}/>
-        case 'rating':
-          return <ChatRating />
         default:
           return (
             <View>
@@ -736,15 +747,6 @@ export const HeaderComponent = () => {
       centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
       headerStyle={styles.header}
     />
-
-
-
-  // return <View style={styles.header}>
-  //     <View style={{position: 'absolute', left: 0}}>
-  //       <BackButton onPress={() => navigation.navigate("Today")} />
-  //     </View>
-  //     <SVGIcon height="40" width="40" src={cocobotIcon} />
-  // </View>
 }
 
 const styles = StyleSheet.create({
@@ -839,5 +841,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 12,
     color: 'black'
+  },
+  smalltext: {
+    padding: 15,
+    left: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    color: "lightgray"
   },
 })

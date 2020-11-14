@@ -63,7 +63,7 @@ export const ContentScreen = ({ route, navigation }) => {
   const { data } = route.params;
   
   // console.log("ResourcePlayContext here", data);
-  console.log("isTrackPlayerInit 1", isTrackPlayerInit);
+  // console.log("isTrackPlayerInit 1", isTrackPlayerInit);
   // console.log("STATE_PLAYING, STATE_STOPPED", STATE_PLAYING, STATE_STOPPED); // STATE_PLAYING == 3, STATE_STOPPED == 1
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export const ContentScreen = ({ route, navigation }) => {
   }, [position, duration]);
  
   useTrackPlayerEvents([TrackPlayerEvents.PLAYBACK_STATE], event => {
-    console.log("event", event.state);
+    // console.log("event", event.state);
     if (event.state === STATE_PLAYING) {
       setIsPlaying(true);
     } else {
@@ -107,7 +107,7 @@ export const ContentScreen = ({ route, navigation }) => {
   };
 
   const jumpForwardPressed =() => {
-    console.log('playforward')
+    // console.log('playforward')
     let newPosition = position;
     // console.log(newPosition, duration);
     newPosition += 15;
@@ -118,7 +118,7 @@ export const ContentScreen = ({ route, navigation }) => {
   };
 
   const jumpBackwardPressed =() => {
-    console.log('playback')
+    // console.log('playback')
     let newPosition = position;
     newPosition -= 15;
     if (newPosition < 0) {
@@ -128,13 +128,13 @@ export const ContentScreen = ({ route, navigation }) => {
   };
 
   const stepforwarddPressed =() => {
-    console.log('stepforward')
+    // console.log('stepforward')
     let newPosition = duration;
     TrackPlayer.seekTo(newPosition);
   };
 
   const stepBackwardPressed =() => {
-    console.log('stepBackward')
+    // console.log('stepBackward')
     let newPosition = 0;
     TrackPlayer.seekTo(newPosition);
   };
@@ -147,6 +147,8 @@ export const ContentScreen = ({ route, navigation }) => {
     await TrackPlayer.seekTo( value * duration);
     setSliderValue(value);
     setIsSeeking(false);
+    
+    console.log('successfully finished playing');
   };
 
   const resumePressed =() => {
@@ -226,7 +228,14 @@ export const ContentScreen = ({ route, navigation }) => {
               { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
                 <>
                 <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
-                <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
+                <TouchableOpacity 
+                  activeOpacity={0.6}
+                  style={styles.card}
+                  onPress={() => {
+                    crossAppNotification.emit('ResourcePlayDone');
+                    navigation.goBack()
+                  }}
+                >
                   <Text style={styles.btntext}>Go gack</Text>
                 </TouchableOpacity> 
                 </>

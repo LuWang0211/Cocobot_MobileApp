@@ -13,6 +13,8 @@ export const crossAppNotification = new NativeEventEmitter();
 
 export const EventsNames = {
     NotificationScheduled: 'NotificationScheduled',
+    ResourcePlayStarted: 'ResourcePlayStarted',
     ResourcePlayDone: 'ResourcePlayDone',
+    RatingDone: 'RatingDone',
     ModalClose: 'ModalClose'
 }
