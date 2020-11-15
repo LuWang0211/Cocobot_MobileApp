@@ -15,6 +15,7 @@ import { WorkflowRunner, GreetingNode } from "./chatWorkflow/workflow";
 import { SessionContext } from "../context";
 import { color } from '../assets/constant';
 import Icon from "react-native-vector-icons/Entypo";
+import * as Animatable from 'react-native-animatable';
 
 const textInputReducer = (state, action) => {
   switch (action.type) {
@@ -237,30 +238,40 @@ export const ChatScreen = (props) => {
         ); 
       }
 
+      const fadeIn = {
+        from: {
+          opacity: 0,
+        },
+        to: {
+          opacity: 1,
+        },
+      };
       return (
-        <Bubble
-         {...props}
-         wrapperStyle={{
-           left: {
-             ...styles.wrapperStyle,
-             width: props.currentMessage.fullWidth? "84%" :null,
-             backgroundColor: props.currentMessage.background ? props.currentMessage.background : '#EDEDED',
-             marginLeft: 5,
-             padding: props.currentMessage.type === 'chatResource' ? 0 : 5,
-             ...stretchBubbleStyle,
-             ...shadowStyle
-           },
-           right: {
-             ...styles.wrapperStyle,
-             overflow: 'hidden',
-             backgroundColor: props.currentMessage.type === 'userSelection' ? 'transparent' : '#E9ECFF',
-           }
-         }}
-         textStyle={{
-           left: styles.messageTextStyle,
-           right: styles.messageTextStyle,
-         }}
-         />
+        // <Animatable.View animation={fadeIn} duration={200}>
+          <Bubble
+          {...props}
+          wrapperStyle={{
+            left: {
+              ...styles.wrapperStyle,
+              width: props.currentMessage.fullWidth? "84%" :null,
+              backgroundColor: props.currentMessage.background ? props.currentMessage.background : '#EDEDED',
+              marginLeft: 5,
+              padding: props.currentMessage.type === 'chatResource' ? 0 : 5,
+              ...stretchBubbleStyle,
+              ...shadowStyle
+            },
+            right: {
+              ...styles.wrapperStyle,
+              overflow: 'hidden',
+              backgroundColor: props.currentMessage.type === 'userSelection' ? 'transparent' : '#E9ECFF',
+            }
+          }}
+          textStyle={{
+            left: styles.messageTextStyle,
+            right: styles.messageTextStyle,
+          }}
+          />
+          // </Animatable.View>
       )
     };
 

@@ -60,6 +60,7 @@ export class PopupNode extends ResponseNodeLogic {
       });
 
       await waitForClose;
+      this.control = 'end';
       return false;
     } 
 

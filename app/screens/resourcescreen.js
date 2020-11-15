@@ -28,14 +28,13 @@ export const ResourceScreen = (props) =>  {
         return (
         <ResourceListCard 
           key={resource.id}
-          text={resource.name}
-          src={resource.author}
+          name={resource.name}
           label={[
-            {
+          {
               category: resource.category,
               abouttext: resource.about,
-            },
-            ]}
+          },
+          ]}
           resourceImage={resource.image}
           type={resource.type}
           author={resource.author}

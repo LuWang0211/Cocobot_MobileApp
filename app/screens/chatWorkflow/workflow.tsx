@@ -354,7 +354,7 @@ export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
     }
 }
 
-// na
+// Navigate to Player page and Play Again 
 export class PracticeAgainNode extends ResponseNodeLogic {
     control: string;
 
@@ -397,14 +397,45 @@ export class PracticeAgainNode extends ResponseNodeLogic {
     }
 }
 
-//
+// Navigate to Resource page and End Session 
 export class ExploreOtherNode extends ResponseNodeLogic {
     
-    async step(): Promise<boolean> {
-        this.sendMessage(['navigation to resource pages']);
+    // control: string;
 
-        return true;
+    // constructor() {
+    //     super();
+    //     this.control = 'start';
+    // }
+    
+    async step(): Promise<boolean> {
+
+        // if (this.control == 'start') {
+            console.log("go to resources page")
+            this.abilities.navigate("Resources", ()=>{});
+            this.sendEndMessage();
+            // this.control = 'wait';
+        // }
+        return true; 
     }
+
+    sendEndMessage() {
+        const msgId = this.abilities.generateMsgId();
+    
+        const message = {
+            _id: msgId,
+            text: "",
+            createdAt: new Date(),
+            type: "EndSession",
+            user: {
+                _id: 2,
+                name: 'React Native',
+                avatar: 'https://placeimg.com/140/140/any',
+            },
+        };
+
+        this.abilities.sendMessage([message]);
+    }
+
     getNextNode(): ChatWorkflowNode {
         return null;
     }

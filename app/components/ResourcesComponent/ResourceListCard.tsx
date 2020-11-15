@@ -7,7 +7,7 @@ import { labelBackground } from '../../constant';
 
 interface Props {
   key: number;
-  text: string;
+  name: string;
   label: Label[];  // <- string <- Label[] 
   resourceImage: string;
   type: string;
@@ -22,14 +22,16 @@ interface Label {
 }
 
 export const ResourceListCard = (props: Props) => {
-  const { text, label, resourceImage, type, author, audiouri, backgroundImage } = props;
+  const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
       style={styles.shadowStyle}
       onPress={() => {
-        navigation.navigate("ContentDetails");
+        navigation.navigate("ContentDetails", {data: {
+          type, name, author, audiouri, backgroundImage
+        }});
       }}>
       <View style={styles.container}>
         <View style={{ width: "35%", backgroundColor: "transparent" }}>
@@ -37,7 +39,7 @@ export const ResourceListCard = (props: Props) => {
         </View>
         <View style={{justifyContent: "space-between", flex: 1, padding: 15}}>
           <View style={styles.contentStyle}>
-            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.textStyle}>{text}</Text>
+            <Text numberOfLines={2} ellipsizeMode='tail' style={styles.textStyle}>{name}</Text>
             <Text style={styles.srcTextStyle}>{author}</Text>
           </View>
           <View style={styles.footer}>
