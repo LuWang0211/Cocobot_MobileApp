@@ -1,71 +1,12 @@
 import { IMessage } from 'react-native-gifted-chat';
-import { Value } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import { ChatRating } from '../../components/ChatComponents/ChatWidgets/ChatWidgets';
 import { crossAppNotification, EventsNames } from "../../config";
-
-type Abilities =  {
-    sendMessage: (messages: IMessage[]) => void;
-    generateMsgId: () => number;
-
-    // showResourceImage: (image: ShowImage[])  => Promise<any>;
-    showQuickReply: (quickReplies: QuickReply[], questionKey: string) => Promise<any>;
-};
-
-export interface ChatWorkflowNode {
-    step(): Promise<boolean>;
-
-    getNextNode(): ChatWorkflowNode;
-
-    assignAbilities(abilities: Abilities): void;
-
-}
-
-export interface QuickReply {
-    text: string;
-}
+import { ResponseNodeLogic, ChatWorkflowNode, CategoryType, NavigateFunction, ShowModelFunction, QuickReply, Abilities} from "./common";
+import { categories } from '../../constant';
+import { PopupNode } from './nodes/PopupNode';
 
 // add show image: uses interface for type checking
 export interface ShowImage {
     imageURI: string | HTMLImageElement;
-}
-
-export abstract class ResponseNodeLogic implements ChatWorkflowNode {
-    abilities: Abilities;
-
-    abstract step(): Promise<boolean>;
-
-    abstract getNextNode(): ChatWorkflowNode;
-
-    assignAbilities(abilities: Abilities) {
-        this.abilities = abilities;
-    }
-
-    sendMessage(messages: string[] | string) {
-        let messageText: string;
-
-        if (messages instanceof Array) {
-            messageText = messages[Math.floor(Math.random() * messages.length)];
-        } else {
-            messageText = messages;
-        }
-
-        const msgId = this.abilities.generateMsgId();
-    
-        const message = {
-            _id: msgId,
-            text: messageText,
-            createdAt: new Date(),
-            type: "ResponseNode",
-            user: {
-                _id: 2,
-                name: 'React Native',
-                avatar: 'https://placeimg.com/140/140/any',
-            },
-        };
-
-        this.abilities.sendMessage([message]);
-    }
 }
 
 export class GreetingNode extends ResponseNodeLogic {
@@ -161,10 +102,16 @@ export class AlexaSelectedNode extends ResponseNodeLogic {
 // Choose Phone && Show Resource
 export class PhoneSelectedNode extends ResponseNodeLogic {
     control: string;
+    playerdata: CategoryType;
 
     constructor() {
         super()
         this.control = 'showResource';
+
+        let RandomIndex = Math.floor(Math.random() * 3 );
+        // const playerdata = categories[RandomIndex];
+        this.playerdata = categories[2];
+        console.log(this.playerdata);
     }
 
     // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"    
@@ -201,6 +148,8 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
                     console.log('ResourcePlayDone captured');        
                     this.control = 'finish';        
                     subscription.remove();
+
+                    this.abilities.saveResourcePlayed(this.playerdata);
                     resolve();
                 });
             });
@@ -225,6 +174,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
             text: "",
             createdAt: new Date(),
             type: "ShowResource",
+            data: this.playerdata,
             user: {
                 _id: 2,
                 name: 'React Native',
@@ -406,14 +356,44 @@ export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
 
 // na
 export class PracticeAgainNode extends ResponseNodeLogic {
+    control: string;
+
+    constructor() {
+        super();
+        this.control = 'start';
+    }
     
     async step(): Promise<boolean> {
-        this.sendMessage(['navigation to PracticeAgain']);
 
-        return true;
+        if (this.control == 'start') {
+            const playedResource = this.abilities.getResourcePlayed();
+            const { type, name, author, audiouri, pictureuri: backgroundImage } = playedResource;
+
+            this.abilities.navigate("ContentDetails", {data: {
+                type, name, author, audiouri, backgroundImage
+            }});
+
+            this.control = 'wait';
+            return false;
+        } else if (this.control == 'wait') {
+            const waitForFinish = new Promise((resolve, reject) => {
+                const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
+                    console.log('ResourcePlayDone captured');        
+                    subscription.remove();
+                    resolve();
+                });
+            });
+
+            await waitForFinish;
+            this.control = 'end';        
+
+            return false;
+        }
+
+        return true;     
     }
     getNextNode(): ChatWorkflowNode {
-        return null;
+        return new EndChatingSessionNode();
     }
 }
 
@@ -465,43 +445,7 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
 
 
     getNextNode(): ChatWorkflowNode {
-        return null;
-    }
-}
-
-
-
-export class BaobaoCuteUtteranceNode extends ChoiceUtteranceNode {
-    constructor() {
-        super();
-        this.quickReplies = [{
-            text: 'Baobao is cute'
-        },{
-            text: 'Baobao not cute'
-        }];
-
-        this.questionKey = 'BaobaoCuteness';
-    }
-
-    getNextNode(): ChatWorkflowNode {
-        console.log(this.selected);
-        if (this.selected.text == 'Baobao is cute') {
-            return new Greeting2Node();
-        } else {
-            return new WrongAnswerNode();
-        }
-        
-    }
-}
-
-export class Greeting2Node extends ResponseNodeLogic {
-    async step(): Promise<boolean> {
-        this.sendMessage(['Hi wo shi guai bao bao.']);
-
-        return true;
-    }
-    getNextNode(): ChatWorkflowNode {
-        return null;
+        return new PopupNode();
     }
 }
 
@@ -516,13 +460,13 @@ export class WrongAnswerNode extends ResponseNodeLogic {
     }
 }
 
-
-
 // Run workflow
 export class WorkflowRunner {
     stepId: number;
     node: ChatWorkflowNode;
     sendMessageFunc: (messages: IMessage[]) => void
+    navigateFunc: NavigateFunction;
+    showModalFunc: ShowModelFunction;
     messageId: number;
     control: string;
 
@@ -539,10 +483,15 @@ export class WorkflowRunner {
         [questionId: string]: QuickReply
     }
 
-    constructor(firstNode: ChatWorkflowNode, sendMessage: (messages: IMessage[]) => void) {
+    resourcePlayed: CategoryType;
+
+    constructor(firstNode: ChatWorkflowNode, sendMessage: (messages: IMessage[]) => void, 
+        navigate: NavigateFunction, showModal: any) {
         this.node = firstNode;
         this.stepId = 0;
         this.sendMessageFunc = sendMessage;
+        this.navigateFunc = navigate;
+        this.showModalFunc = showModal;
         this.messageId = 1;
         this.quickReplyMessages = {};
         this.questionAnswer = {};
@@ -582,6 +531,8 @@ export class WorkflowRunner {
     assignNodeAbiilities(node: ChatWorkflowNode): void {
         node.assignAbilities({
             sendMessage : this.sendMessageFunc,
+            navigate: this.navigateFunc,
+            showModal: this.showModalFunc,
             generateMsgId: () => {
                 return this.generateMsgId();
             },
@@ -629,42 +580,15 @@ export class WorkflowRunner {
                 this.sendMessageFunc([message]);
 
                 return replyResultPromise;
+            },
+
+            saveResourcePlayed: (playerdata: CategoryType) => {
+                this.resourcePlayed = playerdata;
+            },
+
+            getResourcePlayed: (): CategoryType => {
+                return this.resourcePlayed;
             }
-
-            // showResourceImage: (image: ShowImage[]) => {
-            //     console.log("showResourceImage");
-            //     const msgId = this.generateMsgId();
-
-            //     const message = {
-            //         _id: msgId,
-            //         text: '',
-            //         createdAt: new Date(),
-            //         user: {
-            //           _id: 1,
-            //           name: 'React Native',
-            //           avatar: 'https://placeimg.com/140/140/any',
-            //         },
-            //         type: "ShowResource",
-            //         imageURI: 'https://reactnative.dev/img/tiny_logo.png',
-            //     };
-
-            //     this.showResourceImage[msgId] = {
-            //         options: image,
-            //         selectionResolver: undefined,
-            //         selection: undefined
-            //     }
-
-            //     const replyResultPromise = new Promise<string>((resolve) => {
-            //         this.showResourceImage[msgId].selectionResolver = resolve;
-            //     });
-
-            //     this.showResourceImage[msgId].selection = replyResultPromise;
-                
-
-            //     this.sendMessageFunc([message]);
-
-            //     return replyResultPromise;
-            // }
         });
     }
 
