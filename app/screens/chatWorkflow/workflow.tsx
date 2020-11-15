@@ -349,7 +349,7 @@ export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
 
     getNextNode(): ChatWorkflowNode {
         if (this.selected.text == 'Why') {
-            return new PracticeAgainNode();
+            return new ShowAnotherResourceNode();
         } 
     }
 }
@@ -396,6 +396,132 @@ export class PracticeAgainNode extends ResponseNodeLogic {
         return new EndChatingSessionNode();
     }
 }
+
+
+export class ShowAnotherResourceNode extends ResponseNodeLogic {
+    control: string;
+    playerdata: CategoryType;
+
+    constructor() {
+        super()
+        this.control = 'showResource';
+
+        let RandomIndex = Math.floor(Math.random() * 3 );
+        // const playerdata = categories[RandomIndex];
+        this.playerdata = categories[2];
+        console.log(this.playerdata);
+    }
+
+    // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"    
+    async step(): Promise<boolean> {
+        // console.log("this.control", this.control);
+
+        if (this.control == 'showResource') {
+            this.sendMessage(['Thank you for sharing. Whould you like to try second recommended practice today?']);
+            this.sendResourceMessage();
+
+            this.control = 'waitForClick';
+            return false;
+        } else if (this.control == 'waitForClick') {
+            console.log("waitForClick");
+            console.log('ResourcePlayStarted uncaptured');
+
+            const waitForClickSingal = new Promise((resolve, reject) => {
+                const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayStarted, () => {
+                    console.log('ResourcePlayStarted captured');
+                    subscription.remove();
+                    this.control = 'waitForFinish';
+                    resolve();
+                });
+            });
+
+            await waitForClickSingal;
+
+            return false;
+        } else if (this.control == 'waitForFinish') {
+            console.log("control status", this.control);
+
+            const waitForFinish = new Promise((resolve, reject) => {
+                const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
+                    console.log('ResourcePlayDone captured');        
+                    this.control = 'finish';        
+                    subscription.remove();
+
+                    this.abilities.saveResourcePlayed(this.playerdata);
+                    resolve();
+                });
+            });
+
+            await waitForFinish;
+
+            console.log("haha");
+            return false;
+        } else if (this.control == 'finish') {
+            console.log("finish");
+
+            return true;
+        }
+        return true;
+    }
+
+    sendResourceMessage() {
+        const msgId = this.abilities.generateMsgId();
+    
+        const message = {
+            _id: msgId,
+            text: "",
+            createdAt: new Date(),
+            type: "ShowResource",
+            data: this.playerdata,
+            user: {
+                _id: 2,
+                name: 'React Native',
+                avatar: 'https://placeimg.com/140/140/any',
+            },
+        };
+
+        this.abilities.sendMessage([message]);
+    }
+
+    getNextNode(): ChatWorkflowNode {
+        return new AnotherResourceUtteranceNode(); 
+    }
+}
+
+
+export class AnotherResourceUtteranceNode extends ChoiceUtteranceNode {
+    constructor() {
+        super();
+        this.quickReplies = [{
+            text: 'Yes, start now'
+        },{
+            text: 'No, end this session'
+        },{
+            text: 'Try it next time'
+        },{
+            text: 'Explor other resources'
+        },];
+
+        this.questionKey = 'UnSatisfiedFollowUp';
+    }
+
+    getNextNode(): ChatWorkflowNode {
+        console.log(this.selected);
+        if (this.selected.text == 'Yes, start now') {
+            return new PracticeAgainNode();  // need to replace
+        } else if (this.selected.text == 'No, end this session'){
+            return new EndChatingSessionNode_2();
+        } else if (this.selected.text == 'Try it next time'){
+            return new TryNextTimeNode();
+        } else if (this.selected.text == 'Explore other resources'){
+            return new ExploreOtherNode();
+        }
+    }
+}
+
+
+
+
 
 // Navigate to Resource page and End Session 
 export class ExploreOtherNode extends ResponseNodeLogic {
@@ -477,6 +603,84 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
 
     getNextNode(): ChatWorkflowNode {
         return new PopupNode();
+    }
+}
+
+// End Session_2
+export class EndChatingSessionNode_2 extends ResponseNodeLogic {
+
+    control: string;
+    constructor() {
+        super()
+        this.control = 'EndSession';
+    }
+
+    async step(): Promise<boolean> {
+        this.sendMessage(['Thank you, Lisa. I look forward to our next session and explore other solutions might help relieve your stress. Hope you have a wonderful day.']);
+        this.sendEndMessage();
+        return true;
+    }
+
+    sendEndMessage() {
+        const msgId = this.abilities.generateMsgId();
+    
+        const message = {
+            _id: msgId,
+            text: "",
+            createdAt: new Date(),
+            type: "EndSession",
+            user: {
+                _id: 2,
+                name: 'React Native',
+                avatar: 'https://placeimg.com/140/140/any',
+            },
+        };
+
+        this.abilities.sendMessage([message]);
+    }
+
+
+    getNextNode(): ChatWorkflowNode {
+        return null;
+    }
+}
+
+// End Session_2
+export class TryNextTimeNode extends ResponseNodeLogic {
+
+    control: string;
+    constructor() {
+        super()
+        this.control = 'EndSession';
+    }
+
+    async step(): Promise<boolean> {
+        this.sendMessage(['Sounds good! {second recommended practice} is scheduled. See you tomorrow at {same time as previous time} !']);
+        this.sendEndMessage();
+        return true;
+    }
+
+    sendEndMessage() {
+        const msgId = this.abilities.generateMsgId();
+    
+        const message = {
+            _id: msgId,
+            text: "",
+            createdAt: new Date(),
+            type: "EndSession",
+            user: {
+                _id: 2,
+                name: 'React Native',
+                avatar: 'https://placeimg.com/140/140/any',
+            },
+        };
+
+        this.abilities.sendMessage([message]);
+    }
+
+
+    getNextNode(): ChatWorkflowNode {
+        return null;
     }
 }
 
