@@ -24,9 +24,21 @@ export const TodayScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
     const navigation = useNavigation();
     const [checked, setChecked] = useState(new Set());
+    const [currentDate, setCurrentDate] = useState("");
+
     const data = {
         Resources: categories,
     };
+
+    useEffect(() => {
+        let day = new Date(); //Current Date, 
+        let day_tostring = day.toDateString(); // e.g "Sun Nov 8 2020"
+        // console.log("date:", date)
+        // console.log("time-", day.getHours(), day.getMinutes(), day.getDay())
+        let date = day_tostring.slice(0, 3) + ', '+ day_tostring.slice(4, 7) + ' '+ day_tostring.slice(7, 10) ;
+        setCurrentDate( date );
+
+      }, []);
 
     const renderResources = () => {
         console.log("Start to Play Resources");
@@ -52,8 +64,6 @@ export const TodayScreen = (props) => {
         });
         }
 
-
-
     return (
         <View style={styles.container}>
             <AppHeader
@@ -78,7 +88,7 @@ export const TodayScreen = (props) => {
                     </View>
                     <View style={{ flexDirection: "column", padding: 10 }}>
                         <Text style={styles.cardTitle}>You have a scheduled meditation on</Text>
-                        <Text style={styles.cardhighlightText}>Tuesday, Oct 10</Text>
+                        <Text style={styles.cardhighlightText}>{currentDate}</Text>
                         <Text style={styles.cardhighlightText}>8:00 AM</Text>
                     </View>
                 </View>
@@ -88,15 +98,6 @@ export const TodayScreen = (props) => {
                     <SVGIcon width="18" height="18" src={talkIcon} />
                 </View>
             </TouchableOpacity>
-
-            {/* <View style={styles.titleContainer}>
-                <Text style={styles.titleTextStyle}>Resources</Text>
-                <TouchableOpacity onPress={() => {
-                navigation.navigate("Resources");
-                }}>
-                <Text style={{ fontFamily: "Poppins-Medium", color: "#3E41A8" }}>See All</Text>
-                </TouchableOpacity>
-            </View> */}
 
             <ResourcesContainer title="Resources">{renderResources()}</ResourcesContainer>
 

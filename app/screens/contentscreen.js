@@ -57,7 +57,7 @@ export const ContentScreen = ({ route, navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const {position, duration} = useTrackPlayerProgress(1000);
+  const {position, duration} = useTrackPlayerProgress(500);
 
   // const testingdata =  props.navigation.getParam('data', 'nothing sent')
   const { data } = route.params;
@@ -88,7 +88,7 @@ export const ContentScreen = ({ route, navigation }) => {
   }, [position, duration]);
  
   useTrackPlayerEvents([TrackPlayerEvents.PLAYBACK_STATE], event => {
-    // console.log("event", event.state);
+    console.log("event", event.state);
     if (event.state === STATE_PLAYING) {
       setIsPlaying(true);
     } else {
@@ -177,7 +177,7 @@ export const ContentScreen = ({ route, navigation }) => {
 
             <View style={styles.header}>
               <View style={{position: 'absolute', left: 20}}>
-                <Icon raised name='chevron-left' size={32} onPress={() => navigation.goBack()} style={{color:'white'}}/>
+                <Icon raised name='chevron-left' size={32} onPress={() => {crossAppNotification.emit('ResourcePlayDone'); navigation.goBack()}} style={{color:'white'}}/>
               </View>
               <Text style = {styles.title}> {data.type} </Text>
             </View>

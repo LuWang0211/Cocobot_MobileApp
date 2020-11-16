@@ -2,6 +2,7 @@ import React from "react";
 import { ChatWorkflowNode, ResponseNodeLogic } from "../common";
 import { StyleSheet, View, Text, Image } from 'react-native';
 import { color } from '../../../assets/constant';
+import { AnimatedCircularProgress, } from 'react-native-circular-progress';
 
 function generateDogsAndCats(size) {
   const dd = ["🐈", "🐕", "🐎", "🐼"];
@@ -41,13 +42,28 @@ export class PopupNode extends ResponseNodeLogic {
       const content = contentChoices[Math.floor(Math.random() * contentChoices.length)]
       const gif = gifs[Math.floor(Math.random() * gifs.length)];
       const title = "Exercise session ended";
-
+      
       const modelContent =
         (<>
-            <Image
+            {/* <Image
               source={{ uri: gif }}
               style={{ width: 100, height: 100 }}
-            />
+            /> */}
+            <AnimatedCircularProgress
+              duration= {1500}
+              size={150}
+              width={10}
+              fill={80}
+              tintColor="#00e0ff"
+              backgroundColor="#3d5875">
+              {
+                (fill) => (
+                  <Text style={{color:"#00e0ff",fontSize:25}}>
+                    { "5/7" }
+                  </Text>
+                )
+              }
+            </AnimatedCircularProgress>
             <Text style={styles.modalContentBody}>{content}</Text>
             <Text style={styles.modalContentMaoGouMa}>{generateDogsAndCats(10)}</Text>
           </>

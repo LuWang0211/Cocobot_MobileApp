@@ -79,11 +79,13 @@ export const ChatScreen = (props) => {
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState(null);
 
+
     const [chatMsgId, setChatMsgId] = useState(1);
 
     const [showModal, setShowModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modelContent, setModelContent] = useState(<View/>);
+
    
     const tellSceduleMessage = useCallback((mesageText) => {
       const message = {
