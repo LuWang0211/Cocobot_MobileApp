@@ -84,6 +84,7 @@ export const ContentScreen = ({ route, navigation }) => {
   useEffect(() => {
     if (!isSeeking && position && duration) {
       setSliderValue( position / duration);
+      setIsTrackPlayerInit(false);
     }
   }, [position, duration]);
  
@@ -99,10 +100,10 @@ export const ContentScreen = ({ route, navigation }) => {
   const onButtonPressed = () => {
     if (!isPlaying) {
       TrackPlayer.play();
-      //setIsPlaying(true);
+      // setIsPlaying(true);
     } else {
       TrackPlayer.pause();
-      //setIsPlaying(false);
+      // setIsPlaying(false);
     }
   };
 
@@ -144,6 +145,7 @@ export const ContentScreen = ({ route, navigation }) => {
   };
  
   const slidingCompleted = async value => {
+    console.log("value", value);
     await TrackPlayer.seekTo( value * duration);
     setSliderValue(value);
     setIsSeeking(false);
@@ -177,7 +179,7 @@ export const ContentScreen = ({ route, navigation }) => {
 
             <View style={styles.header}>
               <View style={{position: 'absolute', left: 20}}>
-                <Icon raised name='chevron-left' size={32} onPress={() => {crossAppNotification.emit('ResourcePlayDone'); navigation.goBack()}} style={{color:'white'}}/>
+                <Icon raised name='chevron-left' size={32} onPress={() => {crossAppNotification.emit('ResourcePlayDone'); navigation.goBack(); TrackPlayer.stop();}} style={{color:'white'}}/>
               </View>
               <Text style = {styles.title}> {data.type} </Text>
             </View>
@@ -189,14 +191,21 @@ export const ContentScreen = ({ route, navigation }) => {
 
             <View style={{flexDirection: "row", justifyContent:'space-around', marginTop: 120, marginHorizontal: 50, padding:15}}>
               {Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
-                <Icon raised name='rotate-ccw' size={30} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
+                <Icon raised name='rotate-ccw' size={35} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
               :
                 <>
                 {/* <Icon raised name='skip-back' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
-                <Icon raised name='rotate-ccw' size={30} onPress={jumpBackwardPressed} disabled={!isTrackPlayerInit} style={{color:'white',padding: -25}} />
-                {/* <Badge value="15" containerStyle={{ backgroundColor:'transparent', top: 5, left: -25}}/> */}
-                <Icon raised name={isPlaying ? 'pause' : 'play'} size={30} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
-                <Icon raised name='rotate-cw' size={30} onPress={jumpForwardPressed} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
+                <TouchableOpacity onPress={jumpBackwardPressed} >
+                  <Icon raised name='rotate-ccw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+                </TouchableOpacity>
+
+                <Icon raised name={isPlaying ? 'pause' : 'play'} size={35} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+
+                <TouchableOpacity onPress={jumpForwardPressed} >
+                  <Icon raised name='rotate-cw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
+                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+                </TouchableOpacity>
 
                 {/* <Icon raised name='skip-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
                 </>

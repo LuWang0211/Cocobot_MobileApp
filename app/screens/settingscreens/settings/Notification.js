@@ -16,6 +16,7 @@ import AppHeader from "../../../components/AppHeader/AppHeader";
 import SVGIcon from '../../../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../../../assets/icons/cocobot-icon';
 import { color } from '../../../constant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // const showNotification = (title, message) => {
 //     PushNotification.localNotification({
@@ -33,13 +34,16 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
       return;
         // date = new Date(Date.now() + 10 * 1000);
     }
+
+    // const when = new Date().getTime() + 10000;
+    const when = date;
     PushNotification.localNotificationSchedule({
         channelId: notificationChannelId,
         id: id,
         title,
         message,
         date,
-        when: new Date().getTime() + 10000,
+        when,
         invokeApp: false,
         smallIcon: "../../../assets/coco.png",
         color: "lightgray",
@@ -48,6 +52,12 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
         repeatTime: freq.time,
         actions: ["Start Now", "Remind Later", "Skip This Session"], // (Android only) See the doc for notification actions to know more
     });
+
+    console.log('setItem', when.getTime().toString());
+
+    AsyncStorage.setItem('scheduledTime', when.getTime().toString());
+
+    crossAppNotification.emit(EventsNames.NotificationScheduled);
 };
 
 const handlerCancelNotification = () => {
@@ -56,21 +66,7 @@ const handlerCancelNotification = () => {
 
 export const Notification = (props) => {
     const {session, dispatch} = useContext(SessionContext);
-    // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-    // const showDatePicker = () => {
-    //   setDatePickerVisibility(true);
-    // };
-
-    // const hideDatePicker = () => {
-    //   setDatePickerVisibility(false);
-    // };
-
-    // const handleConfirm = (date) => {
-    //   console.warn("A date has been picked: ", date);
-    //   hideDatePicker();
-    // };
-
+    
     useEffect(() => {
       PushNotification.configure({
         onNotification: (notification) => {
@@ -119,7 +115,6 @@ export const Notification = (props) => {
     }, [setDate]);
 
     const dateDisplayString = useMemo(() => {
-        console.log('Notification time', dateDisplayString)
         return moment(date).format('ll LT');
     }, [date]);
 
@@ -197,14 +192,6 @@ export const Notification = (props) => {
         </View>
     );
 }
-
-// export const HeaderComponent = () => {
-//     const navigation = useNavigation();
-
-//     return <View style={styles.header}>
-//         <BackButton onPress={() => navigation.navigate("Home")} />
-//     </View>
-// }
 
 export const HeaderComponent = () => {
     const navigation = useNavigation();

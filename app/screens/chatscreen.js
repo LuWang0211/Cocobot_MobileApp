@@ -17,60 +17,6 @@ import { color } from '../assets/constant';
 import Icon from "react-native-vector-icons/Entypo";
 import * as Animatable from 'react-native-animatable';
 
-const textInputReducer = (state, action) => {
-  switch (action.type) {
-    case "showQuickReply":
-      return { ...state, showInput: false, options: action.options }
-    case "hideQuickReply":
-      return { ...state, showInput: true, option: [] }
-    case "setTextInput":
-      return { ...state, textInput: action.textInput };
-    default:
-      return state;
-  }
-}
-
-const initialState = {
-  tutorial: false,
-  tooltip: false,
-  position: 'footer',
-  textInput: "",
-  tooltipType: null,
-  showInput: true,
-  options: []
-}
-
-
-
-function processSurpriseStep(step, setStep, moveNextStep, tellMessage, setShowModal, setModelContent) {
-  const { data, control} = step;
-
-  if (control == 'unstarted') {
-    const {title, content, gifs} = data;
-
-    const gif = gifs[Math.floor(Math.random() * gifs.length)];
-
-    const modelContent =
-      (<View style={styles.modalContent}>
-        <Image
-            source={{uri: gif}}
-            style={{width: 100, height: 100 }}
-        />
-        <Text style={styles.modalContentTitle}>{title}</Text>
-        <Text style={styles.modalContentBody}>{content}</Text>
-        <Text style={styles.modalContentBody}>{generateDogsAndCats(10)}</Text>
-      </View>);
-
-    setModelContent(modelContent);
-    setShowModal(true);
-
-    setStep({
-      ...step,
-      control: 'shown'
-    });
-  }
-}
-
 export const ChatScreen = (props) => {
     const navigation = useNavigation();
 
@@ -164,12 +110,32 @@ export const ChatScreen = (props) => {
     const onRenderQuickReplies = useCallback((props) => {
       const messgeId = props.currentMessage._id;      
       const selection = quickReplySelections[messgeId];
-      return <ChatQuickReplies {...props} selection={selection} /> ;
+      const fadeIn = {
+        from: {
+          opacity: 0,
+        },
+        to: {
+          opacity: 1,
+        },
+      };
+      return (
+        <Animatable.View animation={fadeIn} duration={200}>
+          <ChatQuickReplies {...props} selection={selection} />
+        </Animatable.View>
+        );
     }, [quickReplySelections]);
 
     const renderBubble = (props) => {
       let stretchBubbleStyle = {};
       let shadowStyle = {};
+      const fadeIn = {
+        from: {
+          opacity: 0,
+        },
+        to: {
+          opacity: 1,
+        },
+      };
 
       // console.log('renderBubble', props.currentMessage);
       if (props.currentMessage.type !== 'text' && props.currentMessage.stretch) {
@@ -192,28 +158,31 @@ export const ChatScreen = (props) => {
       }
       // Bubble Defaul Props when quick reply
       if (props.currentMessage.type == 'QuickReply') {
-        return <Bubble {...props} />; 
+        return (
+          <Bubble {...props} />
+          ); 
       }
       // show resource image
       if (props.currentMessage.type == 'ShowResource') {
         const playerdata = props.currentMessage.data;
-
         return (
-          <ResourceImage 
-            key={playerdata.id}
-            name={playerdata.name}
-            label={[
-            {
-                category: playerdata.category,
-                abouttext: playerdata.about,
-            },
-            ]}
-            resourceImage={playerdata.image}
-            type={playerdata.type}
-            author={playerdata.author}
-            audiouri={playerdata.audiouri}
-            backgroundImage={playerdata.pictureuri}
-        />
+          // <Animatable.View animation={fadeIn} duration={50}>
+            <ResourceImage 
+              key={playerdata.id}
+              name={playerdata.name}
+              label={[
+              {
+                  category: playerdata.category,
+                  abouttext: playerdata.about,
+              },
+              ]}
+              resourceImage={playerdata.image}
+              type={playerdata.type}
+              author={playerdata.author}
+              audiouri={playerdata.audiouri}
+              backgroundImage={playerdata.pictureuri}
+          />
+        // </Animatable.View>
         ); 
       }
 
@@ -234,22 +203,15 @@ export const ChatScreen = (props) => {
       // end chating session
       if (props.currentMessage.type == 'EndSession') {
         return (
-          <View>
-            <Text style={styles.smalltext}> Chatting Session Ended </Text>
-          </View>
+          <Animatable.View animation={fadeIn} duration={100}>
+            <View>
+              <Text style={styles.smalltext}> Chatting Session Ended </Text>
+            </View>
+          </Animatable.View>
         ); 
       }
-
-      const fadeIn = {
-        from: {
-          opacity: 0,
-        },
-        to: {
-          opacity: 1,
-        },
-      };
       return (
-        // <Animatable.View animation={fadeIn} duration={200}>
+        <Animatable.View animation={fadeIn} duration={100}>
           <Bubble
           {...props}
           wrapperStyle={{
@@ -273,7 +235,7 @@ export const ChatScreen = (props) => {
             right: styles.messageTextStyle,
           }}
           />
-          // </Animatable.View>
+        </Animatable.View>
       )
     };
 

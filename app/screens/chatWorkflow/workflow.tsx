@@ -3,6 +3,7 @@ import { crossAppNotification, EventsNames } from "../../config";
 import { ResponseNodeLogic, ChatWorkflowNode, CategoryType, NavigateFunction, ShowModelFunction, QuickReply, Abilities} from "./common";
 import { categories } from '../../constant';
 import { PopupNode } from './nodes/PopupNode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // add show image: uses interface for type checking
 export interface ShowImage {
@@ -108,15 +109,23 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
         super()
         this.control = 'showResource';
 
-        let RandomIndex = Math.floor(Math.random() * 3 );
-        // const playerdata = categories[RandomIndex];
-        this.playerdata = categories[2];
-        console.log(this.playerdata);
     }
 
     // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"    
     async step(): Promise<boolean> {
         // console.log("this.control", this.control);
+        let RandomIndex = Math.floor(Math.random() * 3 );
+        // this.playerdata = categories[RandomIndex];
+        // this.playerdata = categories[2]; // for Testing
+        const  jsonValue  = await AsyncStorage.getItem('HighRatingResource');
+
+        if ( jsonValue !=null) {
+            this.playerdata = JSON.parse(jsonValue);
+        } else {
+            this.playerdata = categories[RandomIndex];
+        };
+
+        console.log("HighRatingResource", this.playerdata);
 
         if (this.control == 'showResource') {
             this.sendMessage(['Okay! Please find a comfortable position and click the video below to start.']);
@@ -150,6 +159,8 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
                     subscription.remove();
 
                     this.abilities.saveResourcePlayed(this.playerdata);
+                    const jsonValue = JSON.stringify(this.playerdata)
+                    AsyncStorage.setItem('HighRatingResource', jsonValue);
                     resolve();
                 });
             });
@@ -386,25 +397,6 @@ export class SatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
     }
 }
 
-// Rating <= 3  => Provide follow up question answer -----
-// export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
-//     constructor() {
-//         super();
-//         this.quickReplies = [{
-//             text: 'Why'
-//         }];
-
-//         this.questionKey = 'UnsatisfiedFollowUp';
-//     }
-
-//     getNextNode(): ChatWorkflowNode {
-//         if (this.selected.text == 'Why') {
-//             return new ShowAnotherResourceNode();
-//         }
-//         return new ShowAnotherResourceNode();
-//     }
-// }
-
 // Navigate to Player page and Play Again 
 export class PracticeAgainNode extends ResponseNodeLogic {
     control: string;
@@ -451,16 +443,28 @@ export class PracticeAgainNode extends ResponseNodeLogic {
 export class ShowAnotherResourceNode extends ResponseNodeLogic {
     control: string;
     playerdata: CategoryType;
+    // RandomIndex: number;
 
     constructor() {
         super()
         this.control = 'showResource';
-
-        // let RandomIndex = Math.floor(Math.random() * 3 );
-        // const playerdata = categories[RandomIndex];
-        this.playerdata = categories[2];
-        console.log(this.playerdata);
+        // const playedResource = this.abilities.getResourcePlayed();
+        // const { id } = playedResource;
+        // // console.log("Another resource", this.playerdata);
+        // const RandomIndex = Math.floor(Math.random() * 3 );
+        // console.log("Another resource", id);
+        // if (id == RandomIndex && id == 3) {
+        //     let RandomIndex = Math.floor(Math.random() * 2 );
+        //     this.playerdata = categories[RandomIndex];
+        // } else if ( id == RandomIndex && id == 0 ) {
+        //     this.playerdata = categories[RandomIndex + 1 ];
+        // } else {
+        //     this.playerdata = categories[RandomIndex];
+        // }
+        this.playerdata = categories[3]; // For testing
+        console.log("Another resource", this.playerdata);
     }
+
 
     // control : 'showImage'
     async step(): Promise<boolean> {
@@ -468,6 +472,9 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
         if (this.control == 'showResource') {
             this.sendMessage(['Thank you for sharing. Whould you like to try second recommended practice today?']);
             this.sendResourceMessage();
+            this.abilities.saveResourcePlayed(this.playerdata);
+            const jsonValue = JSON.stringify(this.playerdata)
+            AsyncStorage.setItem('HighRatingResource', jsonValue);
             return true;
         }
     }
@@ -547,7 +554,7 @@ export class PracticeAnotherNowNode extends ResponseNodeLogic {
             this.control = 'wait';
             return false;
         } else if (this.control == 'wait') {
-            const waitForFinish = new Promise((resolve, reject) => {
+            const waitForFinish = new Promise((resolve) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
                     console.log('ResourcePlayDone captured');        
                     subscription.remove();

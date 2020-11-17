@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { NotificationContext } from "../assets/context";
 // import GHeader from '../components/GHeader';
@@ -18,31 +18,37 @@ import { SessionContext } from "../context";
 import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
 // import * as baobao from "../components/ResourcesComponent/ResourceCard";
 import { ResourceCard }  from "../components/ResourcesComponent/ResourceCard";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { crossAppNotification, EventsNames } from '../../app/config';
 
 
 export const TodayScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
     const navigation = useNavigation();
-    const [checked, setChecked] = useState(new Set());
     const [currentDate, setCurrentDate] = useState("");
+    const [currentTime, setCurrentTime] = useState("");
+    const [scheduledTime, setScheduledTime] = useState(0);
 
     const data = {
         Resources: categories,
     };
 
     useEffect(() => {
-        let day = new Date(); //Current Date, 
+        if (!scheduledTime) {
+            return;
+        }
+        let day = new Date(scheduledTime); 
         let day_tostring = day.toDateString(); // e.g "Sun Nov 8 2020"
-        // console.log("date:", date)
-        // console.log("time-", day.getHours(), day.getMinutes(), day.getDay())
+        let hours = day.getHours();
+        let mins = day.getMinutes();
         let date = day_tostring.slice(0, 3) + ', '+ day_tostring.slice(4, 7) + ' '+ day_tostring.slice(7, 10) ;
+        let time = hours + ':' + mins
         setCurrentDate( date );
-
-      }, []);
+        setCurrentTime( time );
+      }, [scheduledTime]);
 
     const renderResources = () => {
         console.log("Start to Play Resources");
-        // const Lulu = baobao.ResourceCard;
         return data.Resources.map((resource) => {
             return (
             <ResourceCard
@@ -62,7 +68,42 @@ export const TodayScreen = (props) => {
             />
             );
         });
-        }
+    }
+    
+    const checkLocalStorageValeAndUpdate = useCallback(() => {
+        (async () => {
+            try {
+                const value = await AsyncStorage.getItem('scheduledTime')
+                if(value !== null) {
+                    // value previously stored
+                    console.log("AsyncStorage get @ScheduledTime", value);
+                    const dateValue = parseInt(value);
+
+                    if (dateValue != scheduledTime) {
+                        setScheduledTime(dateValue);
+                    }                    
+                }
+            } catch(e) {
+                // error reading value
+                console.log("AsyncStorage get @ScheduledTime error",e);
+            }
+        })();
+    }, [scheduledTime,, setScheduledTime]);
+
+    useEffect(() => {
+        checkLocalStorageValeAndUpdate();
+    });
+    
+    useEffect(() => {
+        const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
+            checkLocalStorageValeAndUpdate();
+        });
+    
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
 
     return (
         <View style={styles.container}>
@@ -82,14 +123,13 @@ export const TodayScreen = (props) => {
               navigation.navigate("Chat");
             }}>
                 <View style={{flexDirection: "row"}}>
-                    {/* <SVGIcon height="45" width="45" src={cocobotIcon} /> */}
                     <View style={{ padding: 15 }}>
                         <SVGIcon width="45" height="45" src={cocobotIcon} />
                     </View>
                     <View style={{ flexDirection: "column", padding: 10 }}>
                         <Text style={styles.cardTitle}>You have a scheduled meditation on</Text>
                         <Text style={styles.cardhighlightText}>{currentDate}</Text>
-                        <Text style={styles.cardhighlightText}>8:00 AM</Text>
+                        <Text style={styles.cardhighlightText}>{currentTime}</Text>
                     </View>
                 </View>
 
@@ -112,7 +152,6 @@ const styles = StyleSheet.create({
         height: '100%'
       },
       cardhighlightText: {
-        // fontFamily: "Poppins-Medium",
         fontSize: 14,
         color: "#FF796E"
     },
@@ -149,16 +188,6 @@ const styles = StyleSheet.create({
         ]
     },
     card: {
-        // flex: 3,
-        // flexDirection: 'row',
-        // padding: 60,
-        // alignItems: "center",
-        // backgroundColor: '#F1F3FE',
-        // borderRadius: 20,
-        // justifyContent: "space-between",
-        // left: 16,
-        // width:370,
-        // alignItems: "center",
         backgroundColor: "#F1F3FE",
         padding: 15,
         marginHorizontal: 25,
@@ -172,8 +201,6 @@ const styles = StyleSheet.create({
     cardTitle: {
         color: '#454545',
         fontSize: 16,
-        // right: 150,
-        // alignItems: "center",
     },
     cardboby: {
         color: color.brandPurple,
