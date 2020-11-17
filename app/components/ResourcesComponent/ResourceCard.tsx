@@ -24,7 +24,7 @@ interface Label {
 }
 
 export const ResourceCard = (props: Props) => {
-  console.log("Resource Card Props", props);
+  // console.log("Resource Card Props", props);
   const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
 
   const navigation = useNavigation();

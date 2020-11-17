@@ -16,5 +16,7 @@ export const EventsNames = {
     ResourcePlayStarted: 'ResourcePlayStarted',
     ResourcePlayDone: 'ResourcePlayDone',
     RatingDone: 'RatingDone',
+    SkipReasonDone: 'SkipReasonDone',
+    TypingReasonDone: 'TypingReasonDone',
     ModalClose: 'ModalClose'
 }

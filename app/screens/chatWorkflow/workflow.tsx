@@ -277,12 +277,55 @@ export class SatisfiedChatingNode extends ResponseNodeLogic {
     }
 }
 
-// Rating <= 3
+// Rating <= 3 => Provide follow up question and Answer -----
 export class UnsatisfiedChatingNode extends ResponseNodeLogic {
+
+    control:  string;
+    feedback: string;
+
+    constructor() {
+        super();
+        this.control = 'start';
+        this.feedback = '';
+    }
+    
+    
     async step(): Promise<boolean> {
-        this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why?']);
-        this.sendSkipMessage();  // 
-        return true;
+
+        if (this.control == 'start') {
+            this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why?']);
+            this.sendSkipMessage(); 
+            this.control = 'waitforClick';
+            return false;
+        } else if (this.control == 'waitforClick') {
+            // Wait for clicking skip button;
+            const waitForClick = new Promise((resolve) => {
+                const subscription = crossAppNotification.addListener(EventsNames.SkipReasonDone, () => {
+                    console.log('Click captured');        
+                    subscription.remove();
+                    resolve('SkipReasonDone');
+                });
+            });
+
+            // Wait for typing Reason and sending;
+            const waitForClick2 = new Promise((resolve) => {
+                const subscription = crossAppNotification.addListener(EventsNames.TypingReasonDone, () => {
+                    console.log('Typing captured');        
+                    subscription.remove();
+                    resolve('TypingReasonDone');  
+                });
+            });
+
+            // 
+            const result = await Promise.race([waitForClick, waitForClick2]);
+            console.log('result', result); 
+            if (!!result) {
+                this.control = 'end';
+                this.feedback = result.toString();
+            }
+            return false;
+        }
+        return true;     
     }
 
     sendSkipMessage() {
@@ -304,7 +347,14 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
     }
 
     getNextNode(): ChatWorkflowNode {
-        return new UnsatisfiedFollowUpUtteranceNode();
+        if (this.feedback == "SkipReasonDone") {
+            return new EndChatingSessionNode_2();
+        } else if (this.feedback == "TypingReasonDone") {
+            return new ShowAnotherResourceNode();
+        } else {
+            return new EndChatingSessionNode();
+        }
+        
     }
 }
 
@@ -337,22 +387,23 @@ export class SatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
 }
 
 // Rating <= 3  => Provide follow up question answer -----
-export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
-    constructor() {
-        super();
-        this.quickReplies = [{
-            text: 'Why'
-        }];
+// export class UnsatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
+//     constructor() {
+//         super();
+//         this.quickReplies = [{
+//             text: 'Why'
+//         }];
 
-        this.questionKey = 'UnsatisfiedFollowUp';
-    }
+//         this.questionKey = 'UnsatisfiedFollowUp';
+//     }
 
-    getNextNode(): ChatWorkflowNode {
-        if (this.selected.text == 'Why') {
-            return new ShowAnotherResourceNode();
-        } 
-    }
-}
+//     getNextNode(): ChatWorkflowNode {
+//         if (this.selected.text == 'Why') {
+//             return new ShowAnotherResourceNode();
+//         }
+//         return new ShowAnotherResourceNode();
+//     }
+// }
 
 // Navigate to Player page and Play Again 
 export class PracticeAgainNode extends ResponseNodeLogic {
@@ -364,7 +415,7 @@ export class PracticeAgainNode extends ResponseNodeLogic {
     }
     
     async step(): Promise<boolean> {
-
+    
         if (this.control == 'start') {
             const playedResource = this.abilities.getResourcePlayed();
             const { type, name, author, audiouri, pictureuri: backgroundImage } = playedResource;

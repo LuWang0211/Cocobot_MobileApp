@@ -145,6 +145,7 @@ export const SkipSession = () => {
     <TouchableOpacity disabled={Touchablestate}
       onPress={() => {
         setTouchablestate(true);
+        crossAppNotification.emit('SkipReasonDone');
       }}
     >
       <View style={{flexDirection: "row", justifyContent:'space-around', left: 20}}>

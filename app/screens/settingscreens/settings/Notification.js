@@ -12,17 +12,21 @@ import Modal from 'react-native-modal';
 import BackButton from "../../../components/HeaderComponents/BackButton";
 import { SessionContext } from "../../../context";
 import RNPickerSelect from 'react-native-picker-select';
+import AppHeader from "../../../components/AppHeader/AppHeader";
+import SVGIcon from '../../../components/SVGIcon/SVGIcon';
+import cocobotIcon from '../../../assets/icons/cocobot-icon';
+import { color } from '../../../constant';
 
-const showNotification = (title, message) => {
-    PushNotification.localNotification({
-        channelId: notificationChannelId,
-        largeIcon: "ic_launcher", // (optional) default: "ic_launcher". Use "" for no large icon.
-        title,
-        message,
-        when: new Date().getTime() + 10000,
-        actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
-    });
-};
+// const showNotification = (title, message) => {
+//     PushNotification.localNotification({
+//         channelId: notificationChannelId,
+//         largeIcon: cocobotIcon, // (optional) default: "ic_launcher". Use "" for no large icon.
+//         title,
+//         message,
+//         when: new Date().getTime() + 10000,
+//         actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
+//     });
+// };
 
 const handlerScheduleNotification = (title, message, date, id, freq) => {
     if (date == undefined) {
@@ -35,8 +39,10 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
         title,
         message,
         date,
+        when: new Date().getTime() + 10000,
         invokeApp: false,
-        largeIcon: "",
+        smallIcon: "../../../assets/coco.png",
+        color: "lightgray",
         tag: notificationAction1,
         repeatType: freq.type === "once" ? null : freq.type,
         repeatTime: freq.time,
@@ -72,7 +78,7 @@ export const Notification = (props) => {
         },
         onAction: (notification) => {
           const { title, message } = notification;
-          console.log(notification)
+        //   console.log(notification)
           switch (notification.action) {
             case "Start Now":
               PushNotification.invokeApp(notification);
@@ -113,6 +119,7 @@ export const Notification = (props) => {
     }, [setDate]);
 
     const dateDisplayString = useMemo(() => {
+        console.log('Notification time', dateDisplayString)
         return moment(date).format('ll LT');
     }, [date]);
 
@@ -161,7 +168,8 @@ export const Notification = (props) => {
                           marginRight: 10,
                           paddingVertical: 8,
                           borderWidth: 2,
-                          borderColor: 'pink',
+                          borderRadius: 15,
+                          borderColor: color.brandPurple,
                           color: 'black',
                           paddingRight: 30,
                         }
@@ -174,7 +182,7 @@ export const Notification = (props) => {
                     />
                     {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
                         <View style={styles.button}>
-                            <Text style={styles.buttonTitle}>{`Tap to get notification at ${dateDisplayString}`}</Text>
+                            <Text style={styles.buttonTitle}>{`Tap to set notification at ${dateDisplayString}`}</Text>
                         </View>
                     </TouchableOpacity>}
                     <View>
@@ -190,13 +198,23 @@ export const Notification = (props) => {
     );
 }
 
+// export const HeaderComponent = () => {
+//     const navigation = useNavigation();
+
+//     return <View style={styles.header}>
+//         <BackButton onPress={() => navigation.navigate("Home")} />
+//     </View>
+// }
+
 export const HeaderComponent = () => {
     const navigation = useNavigation();
-
-    return <View style={styles.header}>
-        <BackButton onPress={() => navigation.navigate("Home")} />
-    </View>
-}
+  
+    return <AppHeader
+        leftComponent={<BackButton onPress={() => navigation.navigate("Home")} />}
+        centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
+        headerStyle={styles.header}
+      />
+  }
 
 const styles = StyleSheet.create({
     container: {
@@ -216,7 +234,8 @@ const styles = StyleSheet.create({
         color: "black",
         fontSize: 25,
         fontWeight: "bold",
-        textAlign: "center"
+        textAlign: "center",
+        padding: 30,
     },
     reminders: {
         marginVertical: 48,
@@ -241,7 +260,7 @@ const styles = StyleSheet.create({
     button: {
         marginBottom: 15,
         padding: 16,
-        backgroundColor: 'pink',
+        backgroundColor: color.brandPurple,
         borderRadius: 24,
         marginTop: 16,
     },
@@ -262,10 +281,15 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     header: {
-        display: 'flex',
-        flexDirection: "column",
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        padding: 4
+        alignItems: 'center',
+        backgroundColor: 'white',
+        height: Platform.OS === 'ios' ? 80 : 80,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        shadowColor: 'rgba(199, 199, 199, 0.75)',
+        shadowOffset: {width: 2, height: 2},
+        shadowOpacity: 1,
+        elevation: 5,
+        zIndex: 999,
     },
 });
