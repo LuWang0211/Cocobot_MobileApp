@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { NavigationContainer } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { crossAppNotification, EventsNames } from "../../../config";
+import { db } from './../../../config';
 
 interface ChatWidgetsProps {
   text: string;
@@ -89,6 +90,9 @@ export const ResourceImage = (props: ResourceImage) => {
   // console.log("Chat ResourceImage Props", props);
   const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
   // console.log("uri", props);
+  const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+  // console.log("resourceRef", resourceRef);
+  
   const navigation = useNavigation();
 
   const [Touchablestate, setTouchablestate] = useState(false);
@@ -97,6 +101,7 @@ export const ResourceImage = (props: ResourceImage) => {
     <TouchableOpacity disabled={Touchablestate}
       onPress={() => {
         setTouchablestate(true);
+        resourceRef.update(props); // update data to firebase
         crossAppNotification.emit('ResourcePlayStarted'),
         navigation.navigate("ContentDetails", {data: {
           type, name, author, audiouri, backgroundImage

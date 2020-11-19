@@ -45,7 +45,7 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
         date,
         when,
         invokeApp: false,
-        smallIcon: "../../../assets/coco.png",
+        largeIcon:"coco",
         color: "lightgray",
         tag: notificationAction1,
         repeatType: freq.type === "once" ? null : freq.type,

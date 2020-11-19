@@ -4,6 +4,7 @@ import { ResponseNodeLogic, ChatWorkflowNode, CategoryType, NavigateFunction, Sh
 import { categories } from '../../constant';
 import { PopupNode } from './nodes/PopupNode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { db } from './../../config';
 
 // add show image: uses interface for type checking
 export interface ShowImage {
@@ -114,15 +115,23 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
     // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"    
     async step(): Promise<boolean> {
         // console.log("this.control", this.control);
-        let RandomIndex = Math.floor(Math.random() * 3 );
+        // let RandomIndex = Math.floor(Math.random() * 3 ); // for init random choose resource
         // this.playerdata = categories[RandomIndex];
         // this.playerdata = categories[2]; // for Testing
         const  jsonValue  = await AsyncStorage.getItem('HighRatingResource');
+        /*
+        // db.ref('LastRecommendedResource').once('value') return Promise;
+        const datafromfirebase = db.ref('LastRecommendedResource').once('value').then((snapshot) => { console.log(snapshot.val())});
+        */
+        const datafromfirebase = await db.ref('LastRecommendedResource').once('value');
+        // console.log("datafromfirebase", datafromfirebase.val());
 
         if ( jsonValue !=null) {
+            console.log('read from local async storage')
             this.playerdata = JSON.parse(jsonValue);
         } else {
-            this.playerdata = categories[RandomIndex];
+            console.log('read from firebase')
+            this.playerdata = datafromfirebase.val();
         };
 
         console.log("HighRatingResource", this.playerdata);
