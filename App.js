@@ -7,6 +7,7 @@ import { LoginScreen }  from './app/loginscreen';
 import { HomeScreen } from './app/homestack';
 // import { SettingsStack } from './app/screens/settingscreens/settingstack';
 import { Notification } from './app/screens/settingscreens/settings/Notification';
+import { ContentScreen } from './app/screens/contentscreen';
 import { navigationRef } from "./app/config"
 import { SessionContext } from "./app/context";
 
@@ -44,6 +45,7 @@ export function App() {
           <Stack.Screen name={"Home"} component={HomeScreen} />
           {/* <Stack.Screen name="Settings" component={SettingsStack} /> */}
           <Stack.Screen name="notification" component={Notification} />
+          <Stack.Screen name="ContentDetails" component={ContentScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionContext.Provider>

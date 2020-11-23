@@ -74,4 +74,4 @@ PushNotification.createChannel(
 AppRegistry.registerComponent(appName, () => App);
 
 //add this line to register the TrackPlayer
-TrackPlayer.registerPlaybackService(() => require('./service.js'));
+TrackPlayer.registerPlaybackService(() => require('./service.js')); 

@@ -1,38 +1,38 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext, useMemo } from 'react';
 import {StyleSheet, Dimensions, SafeAreaView, View, Text, Button, ImageBackground, Animated, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import Sound from 'react-native-sound';
-import MediaControls, {PLAYER_STATES} from 'react-native-media-controls';  //Media Controls to control Play/Pause/Seek and full screen
+// import Sound from 'react-native-sound';
+// import MediaControls, {PLAYER_STATES} from 'react-native-media-controls';  //Media Controls to control Play/Pause/Seek and full screen
 
-import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING } from 'react-native-track-player';
+import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING, STATE_STOPPED, STATE_PAUSED, STATE_BUFFERING, STATE_NONE, STATE_READY, STATE_CONNECTING } from 'react-native-track-player';
 import { useTrackPlayerProgress, useTrackPlayerEvents } from 'react-native-track-player/lib/hooks';
 import { Slider, Badge } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 // import Slider from "react-native-slider";
-
 import { useNavigation } from "@react-navigation/native";
 
-import { crossAppNotification } from "../config";
+import { crossAppNotification, ResourcePlayDone } from "../config";
 
-const meditationResources = [
-  {type:"Meditation", name:"Breathing Meditation", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-  // {type:"Meditation", name:"4-min Meditation", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
-  // {{type:"Testing", name:"Ding Test", duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
-  // {type:"Testing", name:"Youtube", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+// const meditationResources = [
+//   //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
+//   //{type:"Meditation", name:"4-min Meditation", author: "?author", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
+//   {type:"Testing", name:"Ding Test",author: "?author",  duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
+//   // {type:"Testing", name:"Youtube", author: "?author", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
 
-]
+// ]
 
-let RandomIndex = Math.floor(Math.random() * meditationResources.length);
-const meditation = meditationResources[RandomIndex];
+// let RandomIndex = Math.floor(Math.random() * meditationResources.length);
+// const meditation = meditationResources[RandomIndex];
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-
-const trackPlayerInit = async () => {
+//Initialize the Track Player
+const trackPlayerInit = async (data) => {
   await TrackPlayer.setupPlayer();
   TrackPlayer.updateOptions({
     stopWithApp: true,
+    // An array of media controls capabilities
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
@@ -41,59 +41,116 @@ const trackPlayerInit = async () => {
     ],
   });
   await TrackPlayer.add({
-    url: meditation.audiouri,
-    type: 'default',
-    name: meditation.name,
-    pictureuri: meditation.pictureuri,
+    url: data.audiouri,
+    title: data.name,
+    artist: data.author,
+    artwork: data.image,
   });
   return true;
 };
 
+function debugPlayerState(state)  {
+  switch (state) {
+    case STATE_STOPPED:
+      return 'STATE_STOPPED';
+    case STATE_PLAYING:
+      return 'STATE_PLAYING';
+    case STATE_PAUSED:
+      return 'STATE_PAUSED';
+    case STATE_STOPPED:
+      return 'STATE_STOPPED';
+    case STATE_BUFFERING:
+      return 'STATE_BUFFERING';
+    case STATE_READY:
+      return 'STATE_READY';
+    case STATE_NONE:
+      return 'STATE_NONE';
+    case STATE_CONNECTING:
+      return 'STATE_CONNECTING'
+    default:
+      return state;
+  }
+}
 
-export const ContentScreen = (props) => {
-  const navigation = useNavigation();
+
+export const ContentScreen = ({ route, navigation }) => {
+  // const navigation = useNavigation();
 
   const [isTrackPlayerInit, setIsTrackPlayerInit] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const {position, duration} = useTrackPlayerProgress(1000);
+  const {position, duration} = useTrackPlayerProgress(500);
+
+  const [sessionEnd, setSessionEnd] = useState(false);
+  const hasPlayerPlayed = useRef(false);;
+  const sliderCompleteValue = useRef(1);;
+
+  const { data } = route.params;
+  
+  // console.log("ResourcePlayContext here", data);
+  // console.log("isTrackPlayerInit 1", isTrackPlayerInit);
+  // console.log("STATE_PLAYING, STATE_STOPPED", STATE_PLAYING, STATE_STOPPED); // STATE_PLAYING == 3, STATE_STOPPED == 1
 
   useEffect(() => {
     const startPlayer = async () => {
-       let isInit =  await trackPlayerInit();
+       let isInit =  await trackPlayerInit(data);
        setIsTrackPlayerInit(isInit);
+
+       play();
     }
     startPlayer();
   }, []);
  
    //this hook updates the value of the slider whenever the current position of the song changes
   useEffect(() => {
+    console.log('player progress', position, duration);
     if (!isSeeking && position && duration) {
       setSliderValue( position / duration);
+      // setIsTrackPlayerInit(false);
     }
   }, [position, duration]);
+
+  const onPlayStopped = useCallback(() => {
+    if (hasPlayerPlayed.current) {
+      console.log('player stopped', sliderCompleteValue.current);
+      setSliderValue(1);
+      setSessionEnd(true);
+    } 
+  }, [setSessionEnd, setSliderValue])
  
   useTrackPlayerEvents([TrackPlayerEvents.PLAYBACK_STATE], event => {
+    console.log("event", debugPlayerState(event.state));
     if (event.state === STATE_PLAYING) {
       setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
+      return;
     }
+    if (event.state === STATE_STOPPED) {
+      onPlayStopped();      
+    }
+    
+    setIsPlaying(false);
   });
  
-  const onButtonPressed = () => {
+  const onButtonPressed = useCallback(() => {
+    console.log('onButtonPressed', isPlaying);
     if (!isPlaying) {
-      TrackPlayer.play();
-      //setIsPlaying(true);
+      play();
+      setIsPlaying(true);
     } else {
       TrackPlayer.pause();
-      //setIsPlaying(false);
+      setIsPlaying(false);
     }
-  };
+  }, [isPlaying, setIsPlaying]);
+
+  const play = useCallback(() => {
+    TrackPlayer.play();
+    hasPlayerPlayed.current = true;
+  }, [TrackPlayer.play]);
+
 
   const jumpForwardPressed =() => {
-    console.log('playforward')
+    // console.log('playforward')
     let newPosition = position;
     // console.log(newPosition, duration);
     newPosition += 15;
@@ -104,7 +161,7 @@ export const ContentScreen = (props) => {
   };
 
   const jumpBackwardPressed =() => {
-    console.log('playback')
+    // console.log('playback')
     let newPosition = position;
     newPosition -= 15;
     if (newPosition < 0) {
@@ -113,26 +170,26 @@ export const ContentScreen = (props) => {
     TrackPlayer.seekTo(newPosition);
   };
 
-  const stepforwarddPressed =() => {
-    console.log('stepforward')
-    let newPosition = duration;
-    TrackPlayer.seekTo(newPosition);
-  };
-
-  const stepBackwardPressed =() => {
-    console.log('stepBackward')
-    let newPosition = 0;
-    TrackPlayer.seekTo(newPosition);
-  };
- 
   const slidingStarted = () => {
     setIsSeeking(true);
   };
  
   const slidingCompleted = async value => {
+    console.log("value", value);
     await TrackPlayer.seekTo( value * duration);
     setSliderValue(value);
     setIsSeeking(false);
+
+    sliderCompleteValue.current == value;
+    
+    console.log('successfully finished playing');
+  };
+
+  const resumePressed =() => {
+    console.log('resumePressed')
+    let newPosition = 0;
+    TrackPlayer.seekTo(newPosition);
+    TrackPlayer.play();
   };
 
   const convertMS = (value) => {
@@ -146,41 +203,91 @@ export const ContentScreen = (props) => {
     return minutes+':'+ seconds; // Return is MM : SS
   };
 
+  const goBackSection = useMemo(() => {
+    console.log('render go back session', sessionEnd);
+    if (!sessionEnd) {
+      return null;
+    }
+
+    //  <View style = { styles.btn }>
+    //   { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
+    //     <>
+    //     <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
+    //     <TouchableOpacity 
+    //       activeOpacity={0.6}
+    //       style={styles.card}
+    //       onPress={() => {
+    //         crossAppNotification.emit('ResourcePlayDone');
+    //         navigation.goBack()
+    //       }}
+    //     >
+    //       <Text style={styles.btntext}>Go gack</Text>
+    //     </TouchableOpacity> 
+    //     </>
+    //   : 
+    //     <TouchableOpacity style = {{...styles.btn, color: "transprants"}}>
+    //       {/* <Text style={styles.btntext}>haha</Text> */}
+    //     </TouchableOpacity> }
+    // </View>
+
+    return <View style = { styles.btn }>
+      <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
+        <TouchableOpacity 
+          activeOpacity={0.6}
+          style={styles.card}
+          onPress={() => {
+            crossAppNotification.emit('ResourcePlayDone');
+            navigation.goBack()
+          }}
+        >
+          <Text style={styles.btntext}>Go gack</Text>
+        </TouchableOpacity> 
+      </View>
+  }, [sessionEnd, navigation, crossAppNotification]);
+
   return ( 
     <>  
       <View style={ styles.container}>
-        <ImageBackground source={{uri: meditation.pictureuri}} style={styles.image} blurRadius={1}>
+        <ImageBackground source={{uri: data.backgroundImage}} style={styles.image} blurRadius={1}>
           <View style={styles.overlay} >
 
             <View style={styles.header}>
-              <View style={{position: 'absolute', left: 0}}>
-                <Icon raised name='chevron-left' size={30} onPress={() => navigation.goBack()} style={{color:'white'}}/>
+              <View style={{position: 'absolute', left: 20}}>
+                <Icon raised name='chevron-left' size={32} onPress={() => {crossAppNotification.emit('ResourcePlayDone'); navigation.goBack(); TrackPlayer.stop();}} style={{color:'white'}}/>
               </View>
-              <Text style = {styles.smalltext}> {meditation.type} </Text>
+              <Text style = {styles.title}> {data.type} </Text>
             </View>
 
-            <View style={{alignItems: 'stretch', }}>
-              <Text style = {styles.text}> {meditation.name} </Text> 
-              <Text style = {styles.smalltext}> {meditation.duration} </Text>
+            <View style={{alignItems: 'stretch'}}>
+              <Text style = {styles.text}> {data.name} </Text> 
+              <Text style = {styles.smalltext}> by {data.author} </Text>
             </View>
 
-            <View style={{flex:3, flexDirection: "row",justifyContent:'space-around'}}>
-              {/* <Icon raised name='step-backward' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+            <View style={{flexDirection: "row", justifyContent:'space-around', marginTop: 120, marginHorizontal: 50, padding:15}}>
+              {Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
+                <Icon raised name='rotate-ccw' size={35} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
+              :
+                <>
+                {/* <Icon raised name='skip-back' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                <TouchableOpacity onPress={jumpBackwardPressed} >
+                  <Icon raised name='rotate-ccw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+                </TouchableOpacity>
 
-              <Icon raised name='rotate-ccw' size={30} onPress={jumpBackwardPressed} disabled={!isTrackPlayerInit} style={{color:'white',padding: -25}} />
-              {/* <Badge value="15" containerStyle={{ backgroundColor:'transparent', top: 5, left: -25}}/> */}
+                <Icon raised name={isPlaying ? 'pause' : 'play'} size={35} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
 
-              <Icon raised name={isPlaying ? 'pause' : 'play'} size={30} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+                <TouchableOpacity onPress={jumpForwardPressed} >
+                  <Icon raised name='rotate-cw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
+                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+                </TouchableOpacity>
 
-              <Icon raised name='rotate-cw' size={30} onPress={jumpForwardPressed} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
-              {/* <Badge value="15" containerStyle={{top: 5, left: -25}}/> */}
-
-              {/* <Icon raised name='step-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                {/* <Icon raised name='skip-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+                </>
+              }
             </View>
 
-            <View style={{alignItems: 'stretch', padding:15, justifyContent:'space-around' }}>
+            <View style={{alignItems: 'stretch', padding: 15}}>
               <Slider
-                onValueChange={(value) => this.setState({ value })}
                 minimumValue={0}
                 maximumValue={1}
                 value={sliderValue}
@@ -190,19 +297,18 @@ export const ContentScreen = (props) => {
                 minimumTrackTintColor="white"
                 maximumTrackTintColor="lightgray"
               />
-              <Text style={styles.smalltext}>{convertMS(position)}  {convertMS(duration-position)}</Text>
+              <View style={{flexDirection: "row", justifyContent:'space-between'} }>
+                <Text style = {styles.smalltext}>{convertMS(position)}</Text>
+                {/* <Text style = {styles.smalltext} >{convertMS(duration-position)}</Text> */}
+                <Text style = {styles.smalltext} >{convertMS(duration)}</Text>
+              </View>
+              
             </View>
 
-            <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) ? 'Exercise Session Has Ended ' : ''}</Text>
+            {/* <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0 ? 'Session ended ' : ''}</Text> */}
 
-            <View style = { styles.btn }>
-                {/* <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.goBack()}>
-                      <Text style={styles.cardboby}>Go back</Text>
-              </TouchableOpacity>  */}
-              <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={() => navigation.navigate("Chat")}>
-                      <Text style={styles.cardboby}>testing back to chat</Text>
-              </TouchableOpacity> 
-            </View>
+            {goBackSection}
+
           </View>
         </ImageBackground>
       </View>
@@ -233,58 +339,41 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
+    padding: 40,
   },
-  toolbar: {
-    marginTop: 30,
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 5,
-  },
-  mediaPlayer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-  },
-
-
-  text: {
+  title: {
     color: "white",
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 200,
+  },
+  text: {
+    color: "white",
+    fontSize: 24,
+    textAlign: "center",
+    marginTop: 80,
     marginBottom: 20,
   },
   smalltext: {
     color: "white",
-    fontSize: 20,
-    textAlign: "center"
+    fontSize: 14,
+    fontWeight: "800",
+    textAlign: "center",
   },
   btn: {
-    flex: 1,
     justifyContent: 'flex-end',
-    marginBottom: 50,
+    marginBottom: 120,
     marginHorizontal: 100,
+    // backgroundColor:"pink",
   },
-
-  progressBar: {
-    height: 150,
-    paddingBottom: 90,
-  },
-
   card: {
-    padding: 10,
+    padding: 5,
     alignItems: 'center',
     borderRadius: 20,
     borderColor:"white",
     borderWidth: 2,
   },
-  cardboby: {
+  btntext: {
       color: "white",
       fontSize: 15,
   },

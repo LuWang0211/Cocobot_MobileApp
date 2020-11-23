@@ -10,10 +10,11 @@
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
-      android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round"
+      android:icon="@mipmap/coco"
+      android:roundIcon="@mipmap/coco"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+        <!--ic_launcher_round-->>
 
       <!-- Notification -->
       <!-- Change the value to true to enable pop-up for in foreground (remote-only, for local use ignoreInForeground) -->

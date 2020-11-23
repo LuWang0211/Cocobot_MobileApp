@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { NotificationContext } from "../assets/context";
 // import GHeader from '../components/GHeader';
@@ -9,68 +9,97 @@ import SOSButton from "../components/HeaderComponents/SOSButton";
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import { redBgAuth, blueBgAuth } from '../assets/icons/authBgIcons';
 import backgroundImg from "../assets/icons/today-background-img";
-import { color } from '../assets/constant';
-// import { Card, ListItem } from 'react-native-elements';
+import { color, categories } from '../constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import talkIcon from "../assets/icons/chevron-right-icon";
 import { createNavigatorFactory, useNavigation } from "@react-navigation/native";
 import { SessionContext } from "../context";
 import ResourcesContainer from "../components/ResourcesComponent/ResourcesContainer";
-import ResourceCard from "../components/ResourcesComponent/ResourceCard";
+// import * as baobao from "../components/ResourcesComponent/ResourceCard";
+import { ResourceCard }  from "../components/ResourcesComponent/ResourceCard";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { crossAppNotification, EventsNames } from '../../app/config';
+
 
 export const TodayScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
     const navigation = useNavigation();
-    // const navigation = useContext(NavigationContext);
-    const [checked, setChecked] = useState(new Set());
+    const [currentDate, setCurrentDate] = useState("");
+    const [currentTime, setCurrentTime] = useState("");
+    const [scheduledTime, setScheduledTime] = useState(0);
+
     const data = {
-      Resources: [
-        {
-          id: 0,
-          title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-          category: "SymptomManagement",
-          about: ["ANXIOUS"],
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-        {
-          id: 1,
-          title: "Caregiver Stress and Burnout",
-          category: "SymptomManagement",
-          about: "TIRED",
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-        {
-          id: 2,
-          title: "Want to Stay Hydrated? Drink Before You’re Thirsty",
-          category: "SymptomManagement",
-          about: "health",
-          image: "https://images.unsplash.com/photo-1584444262846-e2716db1294b",
-          favored: false,
-        },
-      ],
+        Resources: categories,
     };
 
-    const renderResources = () => {
-        return data.Resources.map((resource) => {
-            return (
+    useEffect(() => {
+        if (!scheduledTime) {
+            return;
+        }
+        let day = new Date(scheduledTime); 
+        let day_tostring = day.toDateString(); // e.g "Sun Nov 8 2020"
+        let hours = day.getHours();
+        let mins = day.getMinutes();
+        let date = day_tostring.slice(0, 3) + ', '+ day_tostring.slice(4, 7) + ' '+ day_tostring.slice(7, 10) ;
+        let time = hours + ':' + mins
+        setCurrentDate( date );
+        setCurrentTime( time );
+      }, [scheduledTime]);
+
+    const resourcesList = useMemo(() => {
+        const fileredResources = data.Resources.filter(r => r.type == 'Meditation' || r.type == 'Testing');
+        return fileredResources.map((resource) =>
             <ResourceCard
                 key={resource.id}
-                text={resource.title}
+                name={resource.name}
                 label={[
                 {
                     category: resource.category,
-                    text: resource.about,
+                    abouttext: resource.about,
                 },
                 ]}
                 resourceImage={resource.image}
-            />
-            );
-        });
-        }
+                type={resource.type}
+                author={resource.author}
+                audiouri={resource.audiouri}
+                backgroundImage={resource.pictureuri}
+            />);
+    }, [data.Resources]);
+    
+    const checkLocalStorageValeAndUpdate = useCallback(() => {
+        (async () => {
+            try {
+                const value = await AsyncStorage.getItem('scheduledTime')
+                if(value !== null) {
+                    // value previously stored
+                    console.log("AsyncStorage get @ScheduledTime", value);
+                    const dateValue = parseInt(value);
 
+                    if (dateValue != scheduledTime) {
+                        setScheduledTime(dateValue);
+                    }                    
+                }
+            } catch(e) {
+                // error reading value
+                console.log("AsyncStorage get @ScheduledTime error",e);
+            }
+        })();
+    }, [scheduledTime,, setScheduledTime]);
+
+    useEffect(() => {
+        checkLocalStorageValeAndUpdate();
+    });
+    
+    useEffect(() => {
+        const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
+            checkLocalStorageValeAndUpdate();
+        });
+    
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
 
     return (
@@ -91,14 +120,13 @@ export const TodayScreen = (props) => {
               navigation.navigate("Chat");
             }}>
                 <View style={{flexDirection: "row"}}>
-                    {/* <SVGIcon height="45" width="45" src={cocobotIcon} /> */}
                     <View style={{ padding: 15 }}>
                         <SVGIcon width="45" height="45" src={cocobotIcon} />
                     </View>
                     <View style={{ flexDirection: "column", padding: 10 }}>
                         <Text style={styles.cardTitle}>You have a scheduled meditation on</Text>
-                        <Text style={styles.cardhighlightText}>Tuesday, Oct 10</Text>
-                        <Text style={styles.cardhighlightText}>8:00 AM</Text>
+                        <Text style={styles.cardhighlightText}>{currentDate}</Text>
+                        <Text style={styles.cardhighlightText}>{currentTime}</Text>
                     </View>
                 </View>
 
@@ -108,7 +136,7 @@ export const TodayScreen = (props) => {
                 </View>
             </TouchableOpacity>
 
-            <ResourcesContainer title="Resources">{renderResources()}</ResourcesContainer>
+            <ResourcesContainer title="Resources">{resourcesList}</ResourcesContainer>
 
         </View>
 
@@ -121,7 +149,6 @@ const styles = StyleSheet.create({
         height: '100%'
       },
       cardhighlightText: {
-        // fontFamily: "Poppins-Medium",
         fontSize: 14,
         color: "#FF796E"
     },
@@ -158,16 +185,6 @@ const styles = StyleSheet.create({
         ]
     },
     card: {
-        // flex: 3,
-        // flexDirection: 'row',
-        // padding: 60,
-        // alignItems: "center",
-        // backgroundColor: '#F1F3FE',
-        // borderRadius: 20,
-        // justifyContent: "space-between",
-        // left: 16,
-        // width:370,
-        // alignItems: "center",
         backgroundColor: "#F1F3FE",
         padding: 15,
         marginHorizontal: 25,
@@ -181,8 +198,6 @@ const styles = StyleSheet.create({
     cardTitle: {
         color: '#454545',
         fontSize: 16,
-        // right: 150,
-        // alignItems: "center",
     },
     cardboby: {
         color: color.brandPurple,

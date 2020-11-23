@@ -10,7 +10,7 @@ import medal from '../../assets/icons/medal';
 const ProgressHeader = (props) => {
     const headerStyle = {
         backgroundColor: color.chatPurple,
-        height: Platform.OS === 'ios' ? 110 : 110,
+        height: Platform.OS === 'ios' ? 80 : 80,
         zIndex: 999,
         borderBottomWidth: 0,
     }

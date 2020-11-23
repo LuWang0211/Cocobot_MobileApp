@@ -18,10 +18,14 @@ module.exports = async function() {
     TrackPlayer.pause();
   });
 
+  // TrackPlayer.addEventListener('remote-stop', () => {
+  //   TrackPlayer.destroy();
+  // });
+
   TrackPlayer.addEventListener('remote-jump-forward', async () => {
     let newPosition = await TrackPlayer.getPosition();
     let duration = await TrackPlayer.getDuration();
-    newPosition += 10;
+    newPosition += 15;
     if (newPosition > duration) {
       newPosition = duration;
     }
@@ -30,7 +34,7 @@ module.exports = async function() {
 
   TrackPlayer.addEventListener('remote-jump-backward', async () => {
     let newPosition = await TrackPlayer.getPosition();
-    newPosition -= 10;
+    newPosition -= 15;
     if (newPosition < 0) {
       newPosition = 0;
     }

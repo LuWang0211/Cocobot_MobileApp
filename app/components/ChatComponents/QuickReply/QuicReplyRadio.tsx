@@ -28,7 +28,7 @@ const ChatQuickReplies = (props) => {
             onPress={handleSend(reply)}
             style={[
             styles.quickReply,
-            { borderColor: color },
+            { borderColor: '#3E41A8' },
                 selected && styles.quickReplySelected
             ]}
             key={reply.value}
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     container: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      maxWidth: 300,
+      maxWidth: 250,
       borderWidth: 0,
       borderRadius: 20,
       backgroundColor: 'rgb(233,236,255)',
@@ -63,13 +63,13 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 1,
-      maxWidth: 160,
+      maxWidth: 200,
       paddingVertical: 7,
       paddingHorizontal: 12,
       height: 31,
       borderRadius: 15,
       margin: 3,
-      color: color.brandPurple,
+    //   color: color.brandPurple,
       fontWeight: "500"
     },
     quickReplySelected: {

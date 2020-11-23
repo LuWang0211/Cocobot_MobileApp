@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import Picker from "../ReactNativeWheelPicker";
+import { color } from '../../constant';
+
 const PickerItem = Picker.Item;
 
 export default DateTimePicker = ({
@@ -75,8 +77,9 @@ const GenericPickerComponent = ({
     }, [setSelectedItem]);
 
     return <View style={{
-        borderColor: 'pink',
+        borderColor: color.brandPurple,
         borderWidth: 2,
+        borderRadius: 15,
         marginRight: 10
     }}>
         <Picker style={{width: width, height: 45}}
