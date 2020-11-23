@@ -21,13 +21,18 @@ DerivedData
 *.ipa
 *.xcuserstate
 
+
+# firebase
+google-services.json
+app/config.js
+
 # Android/IntelliJ
 #
 build/
 .idea
 .gradle
 local.properties
-# gradle.properties
+gradle.properties
 *.iml
 
 # node.js
