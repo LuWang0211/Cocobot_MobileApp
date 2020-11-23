@@ -14,7 +14,7 @@ export interface ShowImage {
 export class GreetingNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
         // console.log('Greeting: Hi Lisa');
-        this.sendMessage(['Hi Lisa, where would you like me to start the session?']);
+        this.sendMessage(['Hi Lisa, where would you like me to start the session?']);  // need to confirm?
         return true;
     }
     getNextNode(): ChatWorkflowNode {
@@ -93,7 +93,7 @@ export class DeviceChoiceUtteranceNode extends ChoiceUtteranceNode {
 // Choose Alexa
 export class AlexaSelectedNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
-        this.sendMessage(['Please say: Alexa, tell cocobot to start the {scheduled practice} session.']);
+        this.sendMessage(['Please say: Alexa, tell cocobot to start the scheduled practice session.']);
         return true;
     }
     getNextNode(): ChatWorkflowNode {
@@ -105,6 +105,7 @@ export class AlexaSelectedNode extends ResponseNodeLogic {
 export class PhoneSelectedNode extends ResponseNodeLogic {
     control: string;
     playerdata: CategoryType;
+    lastrating: string;
 
     constructor() {
         super()
@@ -119,6 +120,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
         // this.playerdata = categories[RandomIndex];
         // this.playerdata = categories[2]; // for Testing
         const  jsonValue  = await AsyncStorage.getItem('HighRatingResource');
+        const  lastrating  = await AsyncStorage.getItem('LastRatingScore');
         /*
         // db.ref('LastRecommendedResource').once('value') return Promise;
         const datafromfirebase = db.ref('LastRecommendedResource').once('value').then((snapshot) => { console.log(snapshot.val())});
@@ -126,29 +128,37 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
         const datafromfirebase = await db.ref('LastRecommendedResource').once('value');
         // console.log("datafromfirebase", datafromfirebase.val());
 
-        if ( jsonValue !=null) {
-            console.log('read from local async storage')
-            this.playerdata = JSON.parse(jsonValue);
+        if (lastrating in ['4', '5']){
+            if ( jsonValue !=null) {
+                console.log('read from local async storage')
+                this.playerdata = JSON.parse(jsonValue);
+            } else {
+                console.log('read from firebase')
+                this.playerdata = datafromfirebase.val();
+            };
         } else {
-            console.log('read from firebase')
-            this.playerdata = datafromfirebase.val();
-        };
+            let RandomIndex = Math.floor(Math.random() * categories.length ); // for init random choose resource
+            this.playerdata = categories[RandomIndex];
+        }
 
         console.log("HighRatingResource", this.playerdata);
 
         if (this.control == 'showResource') {
             this.sendMessage(['Okay! Please find a comfortable position and click the video below to start.']);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 150);    
+            });
             this.sendResourceMessage();
 
             this.control = 'waitForClick';
             return false;
         } else if (this.control == 'waitForClick') {
-            console.log("waitForClick");
-            console.log('ResourcePlayStarted uncaptured');
+            // console.log("waitForClick");
+            // console.log('ResourcePlayStarted uncaptured');
 
             const waitForClickSingal = new Promise((resolve, reject) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayStarted, () => {
-                    console.log('ResourcePlayStarted captured');
+                    // console.log('ResourcePlayStarted captured');
                     subscription.remove();
                     this.control = 'waitForFinish';
                     resolve();
@@ -163,7 +173,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
 
             const waitForFinish = new Promise((resolve, reject) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
-                    console.log('ResourcePlayDone captured');        
+                    // console.log('ResourcePlayDone captured');        
                     this.control = 'finish';        
                     subscription.remove();
 
@@ -176,10 +186,10 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
 
             await waitForFinish;
 
-            console.log("haha");
+            // console.log("haha");
             return false;
         } else if (this.control == 'finish') {
-            console.log("finish");
+            // console.log("finish");
 
             return true;
         }
@@ -206,7 +216,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
     }
 
     getNextNode(): ResponseNodeLogic {
-        return new RatingNode(); // Will Replace by Rating
+        return new RatingNode();
     }
 }
 
@@ -287,9 +297,24 @@ export class RatingNode extends ResponseNodeLogic {
 
 // Rating > 3
 export class SatisfiedChatingNode extends ResponseNodeLogic {
+    control: string;
+
+    constructor() {
+        super();
+        this.control = 'start';
+    }
     async step(): Promise<boolean> {
-        this.sendMessage(['I’m glad you like the exercise! I will recommend similar exercises for you in the future!']);
-        this.sendMessage(['Anything else I can help with you today,Lisa?']);
+        if (this.control == 'start') {
+            this.sendMessage(['I’m glad you like the exercise! I will recommend similar exercises for you in the future!']);
+            this.sendMessage(['Anything else I can help with you today,Lisa?']);
+            this.control = 'wait';
+            return false;
+        } if (this.control == 'wait') {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 500);    
+            });
+            return true;    
+        }
         return true;
     }
     getNextNode(): ChatWorkflowNode {
@@ -313,7 +338,10 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
 
         if (this.control == 'start') {
-            this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why?']);
+            this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why?  Please Typing the reason, Thank you!']);
+            // await new Promise((resolve) => {
+            //     setTimeout(resolve, 150);    
+            // });
             this.sendSkipMessage(); 
             this.control = 'waitforClick';
             return false;
@@ -321,7 +349,7 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
             // Wait for clicking skip button;
             const waitForClick = new Promise((resolve) => {
                 const subscription = crossAppNotification.addListener(EventsNames.SkipReasonDone, () => {
-                    console.log('Click captured');        
+                    console.log('Click skip captured');        
                     subscription.remove();
                     resolve('SkipReasonDone');
                 });
@@ -336,16 +364,16 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
                 });
             });
 
-            // 
+            // Resolve "skip" or "typing"
             const result = await Promise.race([waitForClick, waitForClick2]);
-            console.log('result', result); 
+            // console.log('result', result); 
             if (!!result) {
                 this.control = 'end';
                 this.feedback = result.toString();
             }
             return false;
-        }
-        return true;     
+        } 
+        return true; 
     }
 
     sendSkipMessage() {
@@ -394,7 +422,7 @@ export class SatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
     }
 
     getNextNode(): ChatWorkflowNode {
-        console.log(this.selected);
+        // console.log(this.selected);
         if (this.selected.text == 'Practice again now') {
             return new PracticeAgainNode();
         } else if (this.selected.text == 'Explore other resources'){
@@ -457,29 +485,23 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
     constructor() {
         super()
         this.control = 'showResource';
-        // const playedResource = this.abilities.getResourcePlayed();
-        // const { id } = playedResource;
-        // // console.log("Another resource", this.playerdata);
-        // const RandomIndex = Math.floor(Math.random() * 3 );
-        // console.log("Another resource", id);
-        // if (id == RandomIndex && id == 3) {
-        //     let RandomIndex = Math.floor(Math.random() * 2 );
-        //     this.playerdata = categories[RandomIndex];
-        // } else if ( id == RandomIndex && id == 0 ) {
-        //     this.playerdata = categories[RandomIndex + 1 ];
-        // } else {
-        //     this.playerdata = categories[RandomIndex];
-        // }
-        this.playerdata = categories[3]; // For testing
-        console.log("Another resource", this.playerdata);
     }
-
 
     // control : 'showImage'
     async step(): Promise<boolean> {
         // console.log("this.control", this.control);
         if (this.control == 'showResource') {
-            this.sendMessage(['Thank you for sharing. Whould you like to try second recommended practice today?']);
+            const playedResource = this.abilities.getResourcePlayed();
+            let RandomIndex = Math.floor(Math.random() * (categories.length-1) ); // for init random choose resource
+            this.playerdata = categories[RandomIndex];
+            if (this.playerdata.id == playedResource.id) {
+                let RandomIndex = Math.floor(Math.random() * (categories.length-1) ); // for init random choose resource
+                this.playerdata = categories[RandomIndex];
+            }
+            this.sendMessage(['Thank you for sharing. Whould you like to try second recommended practice today? Click the video below to start']);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 150);    
+            });
             this.sendResourceMessage();
             this.abilities.saveResourcePlayed(this.playerdata);
             const jsonValue = JSON.stringify(this.playerdata)
@@ -495,7 +517,7 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
             _id: msgId,
             text: "",
             createdAt: new Date(),
-            type: "ShowResource",
+            type: "ShowResource2",
             data: this.playerdata,
             user: {
                 _id: 2,
@@ -515,15 +537,17 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
 export class AnotherResourceUtteranceNode extends ChoiceUtteranceNode {
     constructor() {
         super();
-        this.quickReplies = [{
-            text: 'Yes, start now'
-        },{
-            text: 'No, end this session'
-        },{
-            text: 'Try it next time'
-        },{
-            text: 'Explor other resources'
-        },];
+        this.quickReplies = [
+            {
+                text: 'Yes, start now'
+            },{
+                text: 'No, end this session'
+            },{
+                text: 'Try it next time'
+            },{
+                text: 'Explore other resources'
+            },
+        ];
 
         this.questionKey = 'UnSatisfiedFollowUp';
     }
@@ -531,7 +555,7 @@ export class AnotherResourceUtteranceNode extends ChoiceUtteranceNode {
     getNextNode(): ChatWorkflowNode {
         console.log(this.selected);
         if (this.selected.text == 'Yes, start now') {
-            return new PracticeAnotherNowNode();  // need to replace
+            return new PracticeAnotherNowNode();
         } else if (this.selected.text == 'No, end this session'){
             return new EndChatingSessionNode_2();
         } else if (this.selected.text == 'Try it next time'){
@@ -587,21 +611,22 @@ export class PracticeAnotherNowNode extends ResponseNodeLogic {
 // Navigate to Resource page and End Session 
 export class ExploreOtherNode extends ResponseNodeLogic {
     
-    // control: string;
+    control: string;
 
-    // constructor() {
-    //     super();
-    //     this.control = 'start';
-    // }
+    constructor() {
+        super();
+        this.control = 'start';
+    }
     
     async step(): Promise<boolean> {
 
-        // if (this.control == 'start') {
-            console.log("go to resources page")
-            this.abilities.navigate("Resources", ()=>{});
+        if (this.control == 'start') {
             this.sendEndMessage();
-            // this.control = 'wait';
-        // }
+            // console.log("go to resources page")
+            this.abilities.navigate("Resources", ()=>{});
+            this.control = 'wait';
+            return false;
+        }
         return true; 
     }
 
@@ -634,13 +659,21 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
     control: string;
     constructor() {
         super()
-        this.control = 'EndSession';
+        this.control = 'StartEndSession';
     }
 
     async step(): Promise<boolean> {
-        this.sendMessage(['Okay, hope to see you soon!']);
-        this.sendEndMessage();
-        return true;
+        if (this.control == 'StartEndSession') {
+            this.sendMessage(['Okay, hope to see you soon!']);
+            this.sendEndMessage();
+            this.control = 'WaitforReading';
+            return false;
+        } else if (this.control == 'WaitforReading') {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 3000);    
+            });
+            return true;
+        }
     }
 
     sendEndMessage() {
@@ -661,7 +694,6 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
         this.abilities.sendMessage([message]);
     }
 
-
     getNextNode(): ChatWorkflowNode {
         return new PopupNode();
     }
@@ -673,13 +705,21 @@ export class EndChatingSessionNode_2 extends ResponseNodeLogic {
     control: string;
     constructor() {
         super()
-        this.control = 'EndSession';
+        this.control = 'StartEndSession';
     }
 
     async step(): Promise<boolean> {
-        this.sendMessage(['Thank you, Lisa. I look forward to our next session and explore other solutions might help relieve your stress. Hope you have a wonderful day.']);
-        this.sendEndMessage();
-        return true;
+        if (this.control == 'StartEndSession') {
+            this.sendMessage(['Thank you, Lisa. I look forward to our next session and explore other solutions might help relieve your stress. Hope you have a wonderful day.']);
+            this.sendEndMessage();
+            this.control = 'WaitforReading';
+            return false;
+        } else if (this.control == 'WaitforReading') {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 5000);    
+            });
+            return true;
+        }
     }
 
     sendEndMessage() {
@@ -712,13 +752,21 @@ export class TryNextTimeNode extends ResponseNodeLogic {
     control: string;
     constructor() {
         super()
-        this.control = 'EndSession';
+        this.control = 'StartEndSession';
     }
 
     async step(): Promise<boolean> {
-        this.sendMessage(['Sounds good! {second recommended practice} is scheduled. See you tomorrow at {same time as previous time} !']);
-        this.sendEndMessage();
-        return true;
+        if (this.control == 'StartEndSession') {
+            this.sendMessage(['Sounds good! The second recommended practice is scheduled. See you tomorrow at the same time as the previous time !']);
+            this.sendEndMessage();
+            this.control = 'WaitforReading';
+            return false;
+        } else if (this.control == 'WaitforReading') {
+            await new Promise((resolve) => {
+                setTimeout(resolve, 5000);    
+            });
+            return true;
+        }
     }
 
     sendEndMessage() {
@@ -742,17 +790,6 @@ export class TryNextTimeNode extends ResponseNodeLogic {
 
     getNextNode(): ChatWorkflowNode {
         return new PopupNode();
-    }
-}
-
-export class WrongAnswerNode extends ResponseNodeLogic {
-    async step(): Promise<boolean> {
-        this.sendMessage(['Hu shuo ba dao.']);
-
-        return true;
-    }
-    getNextNode(): ChatWorkflowNode {
-        return null;
     }
 }
 

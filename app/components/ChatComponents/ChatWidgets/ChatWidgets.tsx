@@ -17,6 +17,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { crossAppNotification, EventsNames } from "../../../config";
 import { db } from './../../../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface ChatWidgetsProps {
   text: string;
@@ -111,10 +112,27 @@ export const ResourceImage = (props: ResourceImage) => {
       {/* <Text> testing </Text> */}
       <View>
         <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
+        {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>         */}
         <Icon name ='play' style={styles.playicon} size={30} />
 
       </View>
     </TouchableOpacity>
+  )
+}
+
+export const ResourceImage2 = (props: ResourceImage) => {
+  // console.log("Chat ResourceImage Props", props);
+  const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
+  // console.log("uri", props);
+  const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+  // console.log("resourceRef", resourceRef);
+  return (
+      <View>
+        <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
+        {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>  */}
+        <Text style={styles.playtext}> {name} </Text>
+
+      </View>
   )
 }
 
@@ -123,21 +141,22 @@ export const ChatRating = () => {
   const [Disable, setDisable] = useState(false);
   return (
     <View style={styles.rating}>
-      <AirbnbRating
-        defaultRating={Rating}
-        isDisabled={Disable}
-        showRating={false}
-        selectedColor="#3E41A8"
-        size={25}
-        onFinishRating={(value) => {
-            setRating(value);
-            setDisable(false);
-            // console.log("rating", Rating);
-            // console.log("rating", value);
-            crossAppNotification.emit('RatingDone', value);
-          }
-        }
-        />
+            <AirbnbRating
+              defaultRating={Rating}
+              isDisabled={Disable}
+              showRating={false}
+              selectedColor="#3E41A8"
+              size={25}
+              onFinishRating={(value) => {
+                  setRating(value);
+                  setDisable(true);
+                  AsyncStorage.setItem('LastRatingScore', value.toString());
+                  // console.log("rating", Rating);
+                  // console.log("rating", value);
+                  crossAppNotification.emit('RatingDone', value);
+                }
+              }
+              />
         <Text style={styles.ratingtext}> Please rate the exercise to help coco learn your preferences! </Text>
     </View>
   )
@@ -157,6 +176,7 @@ export const SkipSession = () => {
         <Icon name ='corner-up-right' style={styles.skipicon} size={20} />
         <Text style={styles.skiptext}> Skip this step </Text>
       </View>
+      
     </TouchableOpacity>
   )
 }
@@ -217,6 +237,13 @@ const styles = StyleSheet.create({
     bottom: 40, // tinyLogo, wiheightdth / 2
     // backgroundColor: 'red',
     // borderRadius: 100,
+  },
+  playtext: {
+    position: 'absolute', 
+    color: "white", 
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 16,
   },
   rating: {
     alignItems: 'flex-start',

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext, useMemo } from 'react';
 import {StyleSheet, Dimensions, SafeAreaView, View, Text, Button, ImageBackground, Animated, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import Sound from 'react-native-sound';
-import MediaControls, {PLAYER_STATES} from 'react-native-media-controls';  //Media Controls to control Play/Pause/Seek and full screen
+// import Sound from 'react-native-sound';
+// import MediaControls, {PLAYER_STATES} from 'react-native-media-controls';  //Media Controls to control Play/Pause/Seek and full screen
 
-import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING, STATE_STOPPED } from 'react-native-track-player';
+import TrackPlayer, { TrackPlayerEvents, STATE_PLAYING, STATE_STOPPED, STATE_PAUSED, STATE_BUFFERING, STATE_NONE, STATE_READY, STATE_CONNECTING } from 'react-native-track-player';
 import { useTrackPlayerProgress, useTrackPlayerEvents } from 'react-native-track-player/lib/hooks';
 import { Slider, Badge } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
@@ -49,6 +49,29 @@ const trackPlayerInit = async (data) => {
   return true;
 };
 
+function debugPlayerState(state)  {
+  switch (state) {
+    case STATE_STOPPED:
+      return 'STATE_STOPPED';
+    case STATE_PLAYING:
+      return 'STATE_PLAYING';
+    case STATE_PAUSED:
+      return 'STATE_PAUSED';
+    case STATE_STOPPED:
+      return 'STATE_STOPPED';
+    case STATE_BUFFERING:
+      return 'STATE_BUFFERING';
+    case STATE_READY:
+      return 'STATE_READY';
+    case STATE_NONE:
+      return 'STATE_NONE';
+    case STATE_CONNECTING:
+      return 'STATE_CONNECTING'
+    default:
+      return state;
+  }
+}
+
 
 export const ContentScreen = ({ route, navigation }) => {
   // const navigation = useNavigation();
@@ -59,7 +82,10 @@ export const ContentScreen = ({ route, navigation }) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const {position, duration} = useTrackPlayerProgress(500);
 
-  // const testingdata =  props.navigation.getParam('data', 'nothing sent')
+  const [sessionEnd, setSessionEnd] = useState(false);
+  const hasPlayerPlayed = useRef(false);;
+  const sliderCompleteValue = useRef(1);;
+
   const { data } = route.params;
   
   // console.log("ResourcePlayContext here", data);
@@ -70,42 +96,58 @@ export const ContentScreen = ({ route, navigation }) => {
     const startPlayer = async () => {
        let isInit =  await trackPlayerInit(data);
        setIsTrackPlayerInit(isInit);
-      //  await TrackPlayer.add({
-      //   url: data.audiouri,
-      //   title: data.name,
-      //   artist: data.author,
-      //   artwork: data.image,
-      // });
+
+       play();
     }
     startPlayer();
   }, []);
  
    //this hook updates the value of the slider whenever the current position of the song changes
   useEffect(() => {
+    console.log('player progress', position, duration);
     if (!isSeeking && position && duration) {
       setSliderValue( position / duration);
-      setIsTrackPlayerInit(false);
+      // setIsTrackPlayerInit(false);
     }
   }, [position, duration]);
+
+  const onPlayStopped = useCallback(() => {
+    if (hasPlayerPlayed.current) {
+      console.log('player stopped', sliderCompleteValue.current);
+      setSliderValue(1);
+      setSessionEnd(true);
+    } 
+  }, [setSessionEnd, setSliderValue])
  
   useTrackPlayerEvents([TrackPlayerEvents.PLAYBACK_STATE], event => {
-    console.log("event", event.state);
+    console.log("event", debugPlayerState(event.state));
     if (event.state === STATE_PLAYING) {
       setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
+      return;
     }
+    if (event.state === STATE_STOPPED) {
+      onPlayStopped();      
+    }
+    
+    setIsPlaying(false);
   });
  
-  const onButtonPressed = () => {
+  const onButtonPressed = useCallback(() => {
+    console.log('onButtonPressed', isPlaying);
     if (!isPlaying) {
-      TrackPlayer.play();
-      // setIsPlaying(true);
+      play();
+      setIsPlaying(true);
     } else {
       TrackPlayer.pause();
-      // setIsPlaying(false);
+      setIsPlaying(false);
     }
-  };
+  }, [isPlaying, setIsPlaying]);
+
+  const play = useCallback(() => {
+    TrackPlayer.play();
+    hasPlayerPlayed.current = true;
+  }, [TrackPlayer.play]);
+
 
   const jumpForwardPressed =() => {
     // console.log('playforward')
@@ -128,18 +170,6 @@ export const ContentScreen = ({ route, navigation }) => {
     TrackPlayer.seekTo(newPosition);
   };
 
-  const stepforwarddPressed =() => {
-    // console.log('stepforward')
-    let newPosition = duration;
-    TrackPlayer.seekTo(newPosition);
-  };
-
-  const stepBackwardPressed =() => {
-    // console.log('stepBackward')
-    let newPosition = 0;
-    TrackPlayer.seekTo(newPosition);
-  };
-
   const slidingStarted = () => {
     setIsSeeking(true);
   };
@@ -149,6 +179,8 @@ export const ContentScreen = ({ route, navigation }) => {
     await TrackPlayer.seekTo( value * duration);
     setSliderValue(value);
     setIsSeeking(false);
+
+    sliderCompleteValue.current == value;
     
     console.log('successfully finished playing');
   };
@@ -170,6 +202,48 @@ export const ContentScreen = ({ route, navigation }) => {
     if (seconds < 10) {seconds = "0"+seconds;}
     return minutes+':'+ seconds; // Return is MM : SS
   };
+
+  const goBackSection = useMemo(() => {
+    console.log('render go back session', sessionEnd);
+    if (!sessionEnd) {
+      return null;
+    }
+
+    //  <View style = { styles.btn }>
+    //   { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
+    //     <>
+    //     <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
+    //     <TouchableOpacity 
+    //       activeOpacity={0.6}
+    //       style={styles.card}
+    //       onPress={() => {
+    //         crossAppNotification.emit('ResourcePlayDone');
+    //         navigation.goBack()
+    //       }}
+    //     >
+    //       <Text style={styles.btntext}>Go gack</Text>
+    //     </TouchableOpacity> 
+    //     </>
+    //   : 
+    //     <TouchableOpacity style = {{...styles.btn, color: "transprants"}}>
+    //       {/* <Text style={styles.btntext}>haha</Text> */}
+    //     </TouchableOpacity> }
+    // </View>
+
+    return <View style = { styles.btn }>
+      <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
+        <TouchableOpacity 
+          activeOpacity={0.6}
+          style={styles.card}
+          onPress={() => {
+            crossAppNotification.emit('ResourcePlayDone');
+            navigation.goBack()
+          }}
+        >
+          <Text style={styles.btntext}>Go gack</Text>
+        </TouchableOpacity> 
+      </View>
+  }, [sessionEnd, navigation, crossAppNotification]);
 
   return ( 
     <>  
@@ -214,7 +288,6 @@ export const ContentScreen = ({ route, navigation }) => {
 
             <View style={{alignItems: 'stretch', padding: 15}}>
               <Slider
-                onValueChange={(value) => this.setState({ value })}
                 minimumValue={0}
                 maximumValue={1}
                 value={sliderValue}
@@ -226,33 +299,15 @@ export const ContentScreen = ({ route, navigation }) => {
               />
               <View style={{flexDirection: "row", justifyContent:'space-between'} }>
                 <Text style = {styles.smalltext}>{convertMS(position)}</Text>
-                <Text style = {styles.smalltext} >{convertMS(duration-position)}</Text>
+                {/* <Text style = {styles.smalltext} >{convertMS(duration-position)}</Text> */}
+                <Text style = {styles.smalltext} >{convertMS(duration)}</Text>
               </View>
               
             </View>
 
             {/* <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0 ? 'Session ended ' : ''}</Text> */}
 
-            <View style = { styles.btn }>
-              { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
-                <>
-                <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
-                <TouchableOpacity 
-                  activeOpacity={0.6}
-                  style={styles.card}
-                  onPress={() => {
-                    crossAppNotification.emit('ResourcePlayDone');
-                    navigation.goBack()
-                  }}
-                >
-                  <Text style={styles.btntext}>Go gack</Text>
-                </TouchableOpacity> 
-                </>
-              : 
-                <TouchableOpacity style = {{...styles.btn, color: "transprants"}}>
-                  {/* <Text style={styles.btntext}>haha</Text> */}
-                </TouchableOpacity> }
-            </View>
+            {goBackSection}
 
           </View>
         </ImageBackground>

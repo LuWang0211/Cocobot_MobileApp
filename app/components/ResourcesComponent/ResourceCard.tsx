@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     resizeMode: "cover",
-    height: 80
+    height: 100
   },
   textStyle: {
     fontFamily: 'Poppins-Medium',

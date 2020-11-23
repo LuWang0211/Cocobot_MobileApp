@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from "../components/AppHeader/AppHeader";
 import { GiftedChat, Bubble, Send, InputToolbar, MessageText, Composer, IMessage, Message, SystemMessage } from 'react-native-gifted-chat';
-import { Reminder, ChatRating, ResourceImage, SkipSession } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
+import { Reminder, ChatRating, ResourceImage, SkipSession, ResourceImage2 } from '../components/ChatComponents/ChatWidgets/ChatWidgets';
 import SVGIcon from '../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../assets/icons/cocobot-icon';
 import { crossAppNotification, EventsNames } from "../config";
@@ -159,14 +159,17 @@ export const ChatScreen = (props) => {
       // Bubble Defaul Props when quick reply
       if (props.currentMessage.type == 'QuickReply') {
         return (
-          <Bubble {...props} />
+          <Animatable.View animation={fadeIn} duration={150}>
+            <Bubble {...props} />
+          </Animatable.View>
           ); 
       }
       // show resource image
       if (props.currentMessage.type == 'ShowResource') {
         const playerdata = props.currentMessage.data;
+        console.log('ShowResource', playerdata)
+
         return (
-          // <Animatable.View animation={fadeIn} duration={50}>
             <ResourceImage 
               key={playerdata.id}
               name={playerdata.name}
@@ -182,11 +185,34 @@ export const ChatScreen = (props) => {
               audiouri={playerdata.audiouri}
               backgroundImage={playerdata.pictureuri}
           />
-        // </Animatable.View>
         ); 
       }
 
       // show resource image
+      if (props.currentMessage.type == 'ShowResource2') {
+        const playerdata = props.currentMessage.data;
+        console.log('ShowResource2', playerdata)
+
+        return (
+            <ResourceImage2 
+              key={playerdata.id}
+              name={playerdata.name}
+              label={[
+              {
+                  category: playerdata.category,
+                  abouttext: playerdata.about,
+              },
+              ]}
+              resourceImage={playerdata.image}
+              type={playerdata.type}
+              author={playerdata.author}
+              audiouri={playerdata.audiouri}
+              backgroundImage={playerdata.pictureuri}
+          />
+        ); 
+      }
+
+      // show rating
       if (props.currentMessage.type == 'ShowRating') {
         return (
           <ChatRating />
@@ -196,14 +222,16 @@ export const ChatScreen = (props) => {
       // skip session
       if (props.currentMessage.type == 'SkipSession') {
         return (
-          <SkipSession />
+          <Animatable.View animation={fadeIn} duration={150}>
+            <SkipSession />
+          </Animatable.View>
         ); 
       }
 
       // end chating session
       if (props.currentMessage.type == 'EndSession') {
         return (
-          <Animatable.View animation={fadeIn} duration={100}>
+          <Animatable.View animation={fadeIn} duration={150}>
             <View>
               <Text style={styles.smalltext}> Chatting Session Ended </Text>
             </View>
@@ -211,7 +239,7 @@ export const ChatScreen = (props) => {
         ); 
       }
       return (
-        <Animatable.View animation={fadeIn} duration={100}>
+        <Animatable.View animation={fadeIn} duration={150}>
           <Bubble
           {...props}
           wrapperStyle={{
@@ -288,8 +316,6 @@ export const ChatScreen = (props) => {
         subscription.remove();
       };
     }, [tellSceduleMessage]);
-
-    console.log('modelTitle', modalTitle );
 
     return (
       <>

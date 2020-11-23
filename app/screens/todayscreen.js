@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { NotificationContext } from "../assets/context";
 // import GHeader from '../components/GHeader';
@@ -47,10 +47,9 @@ export const TodayScreen = (props) => {
         setCurrentTime( time );
       }, [scheduledTime]);
 
-    const renderResources = () => {
-        console.log("Start to Play Resources");
-        return data.Resources.map((resource) => {
-            return (
+    const resourcesList = useMemo(() => {
+        const fileredResources = data.Resources.filter(r => r.type == 'Meditation' || r.type == 'Testing');
+        return fileredResources.map((resource) =>
             <ResourceCard
                 key={resource.id}
                 name={resource.name}
@@ -65,10 +64,8 @@ export const TodayScreen = (props) => {
                 author={resource.author}
                 audiouri={resource.audiouri}
                 backgroundImage={resource.pictureuri}
-            />
-            );
-        });
-    }
+            />);
+    }, [data.Resources]);
     
     const checkLocalStorageValeAndUpdate = useCallback(() => {
         (async () => {
@@ -139,7 +136,7 @@ export const TodayScreen = (props) => {
                 </View>
             </TouchableOpacity>
 
-            <ResourcesContainer title="Resources">{renderResources()}</ResourcesContainer>
+            <ResourcesContainer title="Resources">{resourcesList}</ResourcesContainer>
 
         </View>
 

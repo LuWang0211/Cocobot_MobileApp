@@ -133,7 +133,7 @@ export const Notification = (props) => {
             <HeaderComponent />
             <ScrollView>
                 <View style={styles.body}>
-                    <Text style={styles.Title}>Notification</Text>
+                    <Text style={styles.Title}>Set Reminder</Text>
                     {/* <TouchableOpacity activeOpacity={0.6} onPress={() => showNotification('coco is here', 'Hi, Lisa, Are you ready for our meditation today?')}>
                         <View style={styles.button}>
                             <Text style={styles.buttonTitle}>Tap to get notification </Text>
@@ -177,13 +177,13 @@ export const Notification = (props) => {
                     />
                     {!!isDateChanged && <TouchableOpacity activeOpacity={0.6} onPress={sendNotificationAtScheduledTime}>
                         <View style={styles.button}>
-                            <Text style={styles.buttonTitle}>{`Tap to set notification at ${dateDisplayString}`}</Text>
+                            <Text style={styles.buttonTitle}>{`Tap to set reminder at ${dateDisplayString}`}</Text>
                         </View>
                     </TouchableOpacity>}
                     <View>
                         <Modal isVisible={showNotificationConfirm}  onBackdropPress={() => setShowNotificationConfirm(false)}>
                             <View style={styles.content}>
-                                <Text style={styles.contentTitle}>{`You have scheduled a notification at ${dateDisplayString}`}</Text>
+                                <Text style={styles.contentTitle}>{`You have scheduled a reminder at ${dateDisplayString}`}</Text>
                             </View>
                         </Modal>
                     </View>

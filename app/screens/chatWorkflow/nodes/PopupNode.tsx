@@ -3,6 +3,7 @@ import { ChatWorkflowNode, ResponseNodeLogic } from "../common";
 import { StyleSheet, View, Text, Image } from 'react-native';
 import { color } from '../../../assets/constant';
 import { AnimatedCircularProgress, } from 'react-native-circular-progress';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function generateDogsAndCats(size) {
   const dd = ["🐈", "🐕", "🐎", "🐼"];
@@ -17,30 +18,46 @@ function generateDogsAndCats(size) {
   return out;
 }
 
-const contentChoices = [
-  '3-day streak!',
-  'Keep up the good work!',
-  '4 more days to complete this week’s plan and unlock more resources!'
+const contentChoices_4_5 = [
+  'Congratulations on a 3-day streak!',
+  'You\'ve completed 3/7 of the planned practice! Good job!',
+  '4 more days to complete this week\'s plan and unlock more resources!',
+  'Great job taking care of yourself!',
+  '4 more sessions to reach your goal!'
 ];
 
-const gifs = [
-  'https://media.giphy.com/media/cKoHrJDJq0RSof5PIV/giphy.gif',
-  'https://media.giphy.com/media/Y0nfCLTb1T5C4XvE54/giphy.gif'
+const contentChoices_1_3 = [
+  'Don\'t give up! Keep exploring next time!',
+  'Great job tryin out the solution. Don\'t give up!'
 ];
+
+// const gifs = [
+//   'https://media.giphy.com/media/cKoHrJDJq0RSof5PIV/giphy.gif',
+//   'https://media.giphy.com/media/Y0nfCLTb1T5C4XvE54/giphy.gif'
+// ];
 
 export class PopupNode extends ResponseNodeLogic {
   control: string;
+  content: string;
 
   constructor() {
     super();
     this.control = 'start';
+    this.content = '';
   }
 
   async step(): Promise<boolean> {
 
     if (this.control == 'start') {
-      const content = contentChoices[Math.floor(Math.random() * contentChoices.length)]
-      const gif = gifs[Math.floor(Math.random() * gifs.length)];
+      const  lastrating  = await AsyncStorage.getItem('LastRatingScore');
+      console.log('lastrating',lastrating);
+      if (lastrating in ['1', '2', '3']){
+        this.content = contentChoices_1_3[Math.floor(Math.random() * contentChoices_1_3.length)]
+      } else {
+        this.content = contentChoices_4_5[Math.floor(Math.random() * contentChoices_4_5.length)]
+      }
+      
+      // const gif = gifs[Math.floor(Math.random() * gifs.length)];
       const title = "Exercise session ended";
       
       const modelContent =
@@ -53,19 +70,19 @@ export class PopupNode extends ResponseNodeLogic {
               duration= {1500}
               size={150}
               width={10}
-              fill={80}
+              fill={47}
               tintColor="#00e0ff"
               backgroundColor="#3d5875">
               {
                 (fill) => (
                   <Text style={{color:"#00e0ff",fontSize:25}}>
-                    { "5/7" }
+                    { "3/7" }
                   </Text>
                 )
               }
             </AnimatedCircularProgress>
-            <Text style={styles.modalContentBody}>{content}</Text>
-            <Text style={styles.modalContentMaoGouMa}>{generateDogsAndCats(10)}</Text>
+            <Text style={styles.modalContentBody}>{this.content}</Text>
+            {/* <Text style={styles.modalContentMaoGouMa}>{generateDogsAndCats(10)}</Text> */}
           </>
         );
 
