@@ -55,7 +55,7 @@ export abstract class ResponseNodeLogic implements ChatWorkflowNode {
         }
 
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: messageText,
@@ -70,4 +70,32 @@ export abstract class ResponseNodeLogic implements ChatWorkflowNode {
 
         this.abilities.sendMessage([message]);
     }
+
+    sendSystemMessage(messageText: string) {
+      const message = {
+        _id: this.abilities.generateMsgId(),
+        text: messageText,
+        createdAt: new Date(),
+        system: true
+      }
+      this.abilities.sendMessage(message);
+    }
+
+    sendSkipMessage(text: string) {
+        const msgId = this.abilities.generateMsgId();
+
+        const message = {
+            _id: msgId,
+            text: text,
+            createdAt: new Date(),
+            type: "SkipSession",
+            user: {
+                _id: 2,
+                name: 'React Native',
+                avatar: 'https://placeimg.com/140/140/any',
+            },
+        };
+
+        this.abilities.sendMessage([message]);
+      }
 }

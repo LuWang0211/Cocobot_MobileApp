@@ -20,7 +20,7 @@ import ResourcesContainer from "../components/ResourcesComponent/ResourcesContai
 import { ResourceCard }  from "../components/ResourcesComponent/ResourceCard";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { crossAppNotification, EventsNames } from '../../app/config';
-
+import { clearAllNotifications } from '../util';
 
 export const TodayScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
@@ -37,7 +37,7 @@ export const TodayScreen = (props) => {
         if (!scheduledTime) {
             return;
         }
-        let day = new Date(scheduledTime); 
+        let day = new Date(scheduledTime);
         let day_tostring = day.toDateString(); // e.g "Sun Nov 8 2020"
         let hours = day.getHours();
         let mins = day.getMinutes();
@@ -66,7 +66,7 @@ export const TodayScreen = (props) => {
                 backgroundImage={resource.pictureuri}
             />);
     }, [data.Resources]);
-    
+
     const checkLocalStorageValeAndUpdate = useCallback(() => {
         (async () => {
             try {
@@ -78,7 +78,7 @@ export const TodayScreen = (props) => {
 
                     if (dateValue != scheduledTime) {
                         setScheduledTime(dateValue);
-                    }                    
+                    }
                 }
             } catch(e) {
                 // error reading value
@@ -90,12 +90,12 @@ export const TodayScreen = (props) => {
     useEffect(() => {
         checkLocalStorageValeAndUpdate();
     });
-    
+
     useEffect(() => {
         const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
             checkLocalStorageValeAndUpdate();
         });
-    
+
         return () => {
             subscription.remove();
         };
@@ -117,13 +117,14 @@ export const TodayScreen = (props) => {
               if (!session.inSession) {
                 dispatch({ type: "inSession" });
               }
+              clearAllNotifications();
               navigation.navigate("Chat");
             }}>
                 <View style={{flexDirection: "row"}}>
                     <View style={{ padding: 15 }}>
                         <SVGIcon width="45" height="45" src={cocobotIcon} />
                     </View>
-                    <View style={{ flexDirection: "column", padding: 10 }}>
+                    <View style={{ flexDirection: "column", padding: 5, flex: 1 }}>
                         <Text style={styles.cardTitle}>You have a scheduled meditation on</Text>
                         <Text style={styles.cardhighlightText}>{currentDate}</Text>
                         <Text style={styles.cardhighlightText}>{currentTime}</Text>

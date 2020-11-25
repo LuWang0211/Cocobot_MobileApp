@@ -46,7 +46,7 @@ interface Reminder {
 interface ResourceImage {
   key: number;
   name: string;
-  label: Label[];  // <- string <- Label[] 
+  label: Label[];  // <- string <- Label[]
   resourceImage: string;
   type: string;
   author: string;
@@ -93,7 +93,7 @@ export const ResourceImage = (props: ResourceImage) => {
   // console.log("uri", props);
   const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
   // console.log("resourceRef", resourceRef);
-  
+
   const navigation = useNavigation();
 
   const [Touchablestate, setTouchablestate] = useState(false);
@@ -157,13 +157,12 @@ export const ChatRating = () => {
                 }
               }
               />
-        <Text style={styles.ratingtext}> Please rate the exercise to help coco learn your preferences! </Text>
     </View>
   )
 }
 
 
-export const SkipSession = () => {
+export const SkipSession = ({ text }: ChatWidgetsProps) => {
   const [Touchablestate, setTouchablestate] = useState(false);
   return (
     <TouchableOpacity disabled={Touchablestate}
@@ -174,9 +173,9 @@ export const SkipSession = () => {
     >
       <View style={{flexDirection: "row", justifyContent:'space-around', left: 20}}>
         <Icon name ='corner-up-right' style={styles.skipicon} size={20} />
-        <Text style={styles.skiptext}> Skip this step </Text>
+        <Text style={styles.skiptext}>{text}</Text>
       </View>
-      
+
     </TouchableOpacity>
   )
 }
@@ -231,16 +230,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   playicon: {
-    position: 'absolute', 
-    color: "white", 
+    position: 'absolute',
+    color: "white",
     left: 81,  // tinyLogo, width / 2
     bottom: 40, // tinyLogo, wiheightdth / 2
     // backgroundColor: 'red',
     // borderRadius: 100,
   },
   playtext: {
-    position: 'absolute', 
-    color: "white", 
+    position: 'absolute',
+    color: "white",
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: 16,
@@ -248,14 +247,6 @@ const styles = StyleSheet.create({
   rating: {
     alignItems: 'flex-start',
     left: 25,
-  },
-  ratingtext: {
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 13,
-    color: "lightgray"
   },
   skipicon: {
     color: "#3E41A8"
