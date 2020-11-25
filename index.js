@@ -10,21 +10,22 @@ import PushNotification from 'react-native-push-notification';
 import { Platform } from 'react-native';
 import { notificationChannelId, notificationAction1, navigationRef } from "./app/config";
 import TrackPlayer from 'react-native-track-player';
+import { clearAllNotifications } from "./app/util";
 
 PushNotification.configure({
     // (optional) Called when Token is generated (iOS and Android)
     onRegister: function (token) {
       console.log("TOKEN:", token);
     },
-  
+
     // (required) Called when a remote is received or opened, or local notification is opened
     onNotification: function (notification) {
       console.log("NOTIFICATION:", notification);
-
+      clearAllNotifications();
       if (notification.tag === notificationAction1) {
         // navigationRef.current?.navigate("Settings", {});
         navigationRef.current?.navigate("Home", {activateRoute: "Chat"});
-      }  
+      }
       /* else if (notification.data === notificationAction2) {
         lastReceivedNotifictionInstruction = notificationAction2;
       } */
@@ -32,21 +33,30 @@ PushNotification.configure({
       // process the notification
       // (required) Called when a remote is received or opened, or local notification is opened
     //   notification.finish(PushNotificationIOS.FetchResult.NoData);
-      notification.finish(1);
     },
-  
+
     // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
-    onAction: function (notification) {
-      console.log("ACTION:", notification.action);
-      console.log("NOTIFICATION:", notification);
-      // process the action
+    onAction: (notification) => {
+      const { title, message } = notification;
+      console.log(notification.action)
+      switch (notification.action) {
+        case "Start Now":
+          clearAllNotifications()
+          PushNotification.invokeApp(notification);
+          navigationRef.current?.navigate("Home", { screen: "Chat" });
+          break;
+        case "Skip This Session":
+          clearAllNotifications();
+        default:
+          return;
+      }
     },
-  
+
     // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
     onRegistrationError: function(err) {
       console.error(err.message, err);
     },
-  
+
     // // IOS ONLY (optional): default: all - Permissions to register.
     // permissions: {
     //   alert: true,
@@ -74,4 +84,4 @@ PushNotification.createChannel(
 AppRegistry.registerComponent(appName, () => App);
 
 //add this line to register the TrackPlayer
-TrackPlayer.registerPlaybackService(() => require('./service.js')); 
+TrackPlayer.registerPlaybackService(() => require('./service.js'));

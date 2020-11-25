@@ -36,7 +36,7 @@ export const Stack = createStackNavigator();
 
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, { inSession: false, reset: false });
-  
+
   return (
     <SessionContext.Provider value={{ session: session, dispatch: dispatch }}>
       <NavigationContainer ref={navigationRef} theme={MyTheme}>

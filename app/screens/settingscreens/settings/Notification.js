@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect, useContext } from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import { AppState, View, StyleSheet, Text, Button } from 'react-native';
 // import { color } from '../../.././assets/constant';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification';
@@ -10,7 +10,7 @@ import { crossAppNotification, EventsNames } from '../../../config';
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 import BackButton from "../../../components/HeaderComponents/BackButton";
-import { SessionContext } from "../../../context";
+// import { SessionContext } from "../../../context";
 import RNPickerSelect from 'react-native-picker-select';
 import AppHeader from "../../../components/AppHeader/AppHeader";
 import SVGIcon from '../../../components/SVGIcon/SVGIcon';
@@ -38,6 +38,7 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
     // const when = new Date().getTime() + 10000;
     const when = date;
     PushNotification.localNotificationSchedule({
+        autoCancel: true,
         channelId: notificationChannelId,
         id: id,
         title,
@@ -65,36 +66,7 @@ const handlerCancelNotification = () => {
 };
 
 export const Notification = (props) => {
-    const {session, dispatch} = useContext(SessionContext);
-    
-    useEffect(() => {
-      PushNotification.configure({
-        onNotification: (notification) => {
-
-        },
-        onAction: (notification) => {
-          const { title, message } = notification;
-        //   console.log(notification)
-          switch (notification.action) {
-            case "Start Now":
-              PushNotification.invokeApp(notification);
-              if (!session.inSession) {
-                console.log("yes")
-                dispatch({ type: "inSession" });
-              }
-              props.navigation.navigate("Home", { screen: "Chat" });
-              break;
-            case "Skip This Session":
-              PushNotification.cancelLocalNotifications({id: 2});
-              PushNotification.cancelLocalNotifications({id: 3});
-            default:
-              return;
-          }
-        },
-        popInitialNotification: true,
-        requestPermissions: Platform.OS === 'ios',
-      })
-    }, []);
+    // const {session, dispatch} = useContext(SessionContext);
 
     const navigation = useNavigation();
 
@@ -120,9 +92,10 @@ export const Notification = (props) => {
 
     const sendNotificationAtScheduledTime = useCallback(() => {
         let d = Date.parse(date);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's almost time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000), 1, freq);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, 2, freq);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's past time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), 3, freq);
+        if (Date.now() )
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's almost time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000 + (d - Date.now() < 10 * 60 * 1000 ? 24 * 60 * 60 * 1000 : 0)), '1', freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, '2', freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, it's past time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), '3', freq);
         setShowNotificationConfirm(true);
     }, [date, freq]);
 
@@ -195,7 +168,7 @@ export const Notification = (props) => {
 
 export const HeaderComponent = () => {
     const navigation = useNavigation();
-  
+
     return <AppHeader
         leftComponent={<BackButton onPress={() => navigation.navigate("Home")} />}
         centerComponent={<SVGIcon height="40" width="40" src={cocobotIcon} />}
@@ -270,7 +243,7 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         backgroundColor: 'white',
-        height: Platform.OS === 'ios' ? 80 : 80,
+        height: Platform.OS === 'ios' ? 80 : 110,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         shadowColor: 'rgba(199, 199, 199, 0.75)',

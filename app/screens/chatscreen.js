@@ -32,8 +32,8 @@ export const ChatScreen = (props) => {
     const [modalTitle, setModalTitle] = useState("");
     const [modelContent, setModelContent] = useState(<View/>);
 
-   
-    const tellSceduleMessage = useCallback((mesageText) => {
+
+    const tellScheduleMessage = useCallback((mesageText) => {
       const message = {
         _id: chatMsgId,
         text: mesageText,
@@ -55,7 +55,7 @@ export const ChatScreen = (props) => {
 
     const onQuickReply = useCallback((selection) => {
       const {msgId, selection: selected} = workflowRunner.current.onQuickReply(selection);
-     
+
       console.log('onQuickReply chat screen', msgId, selected);
 
       setQuickReplySelections({
@@ -79,9 +79,9 @@ export const ChatScreen = (props) => {
       onModelCloseCallback.current = onClose;
     }, []);
 
-    const workflowRunner = useRef(new WorkflowRunner(new GreetingNode(), onSend, 
+    const workflowRunner = useRef(new WorkflowRunner(new GreetingNode(), onSend,
       navigation.navigate, showModelAbility));
-   
+
     const [stepCounter, setStepCounter] = useState();
 
     useEffect(() => {
@@ -108,7 +108,7 @@ export const ChatScreen = (props) => {
 
 
     const onRenderQuickReplies = useCallback((props) => {
-      const messgeId = props.currentMessage._id;      
+      const messgeId = props.currentMessage._id;
       const selection = quickReplySelections[messgeId];
       const fadeIn = {
         from: {
@@ -162,7 +162,7 @@ export const ChatScreen = (props) => {
           <Animatable.View animation={fadeIn} duration={150}>
             <Bubble {...props} />
           </Animatable.View>
-          ); 
+          );
       }
       // show resource image
       if (props.currentMessage.type == 'ShowResource') {
@@ -170,7 +170,7 @@ export const ChatScreen = (props) => {
         console.log('ShowResource', playerdata)
 
         return (
-            <ResourceImage 
+            <ResourceImage
               key={playerdata.id}
               name={playerdata.name}
               label={[
@@ -185,7 +185,7 @@ export const ChatScreen = (props) => {
               audiouri={playerdata.audiouri}
               backgroundImage={playerdata.pictureuri}
           />
-        ); 
+        );
       }
 
       // show resource image
@@ -194,7 +194,7 @@ export const ChatScreen = (props) => {
         console.log('ShowResource2', playerdata)
 
         return (
-            <ResourceImage2 
+            <ResourceImage2
               key={playerdata.id}
               name={playerdata.name}
               label={[
@@ -209,14 +209,14 @@ export const ChatScreen = (props) => {
               audiouri={playerdata.audiouri}
               backgroundImage={playerdata.pictureuri}
           />
-        ); 
+        );
       }
 
       // show rating
       if (props.currentMessage.type == 'ShowRating') {
         return (
           <ChatRating />
-        ); 
+        );
       }
 
       // skip session
@@ -225,7 +225,7 @@ export const ChatScreen = (props) => {
           <Animatable.View animation={fadeIn} duration={150}>
             <SkipSession />
           </Animatable.View>
-        ); 
+        );
       }
 
       // end chating session
@@ -236,7 +236,7 @@ export const ChatScreen = (props) => {
               <Text style={styles.smalltext}> Chatting Session Ended </Text>
             </View>
           </Animatable.View>
-        ); 
+        );
       }
       return (
         <Animatable.View animation={fadeIn} duration={150}>
@@ -304,18 +304,18 @@ export const ChatScreen = (props) => {
       )
     };
 
-    useEffect(() => {
-      // subscribe to random message request
-      const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
-        console.log('NotificationScheduled captured', eventData);
-
-        tellSceduleMessage(`You have a notification scheduled at ${eventData.scheduledTime}`);
-      });
-
-      return () => {
-        subscription.remove();
-      };
-    }, [tellSceduleMessage]);
+    // useEffect(() => {
+    //   // subscribe to random message request
+    //   const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
+    //     console.log('NotificationScheduled captured', eventData);
+    //
+    //     tellScheduleMessage(`You have a notification scheduled at ${eventData.scheduledTime}`);
+    //   });
+    //
+    //   return () => {
+    //     subscription.remove();
+    //   };
+    // }, [tellScheduleMessage]);
 
     return (
       <>
@@ -356,7 +356,7 @@ export const ChatScreen = (props) => {
               </View>
               <View style={styles.modelContentBody}>
                 {modelContent}
-              </View>                            
+              </View>
             </View>
           </Modal>
       </View>
@@ -365,7 +365,7 @@ export const ChatScreen = (props) => {
 }
 
 /**
- 
+
  {
   <View style={{
     backgroundColor: 'yellow',
@@ -380,7 +380,7 @@ export const ChatScreen = (props) => {
       source={{ uri: "https://media.giphy.com/media/cKoHrJDJq0RSof5PIV/giphy.gif" }}
       style={{ width: 100, height: 100, backgroundColor: 'red' }}
     />
-   
+
   </View>
 }
  */
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     backgroundColor: 'white',
-    height: Platform.OS === 'ios' ? 80 : 80,
+    height: Platform.OS === 'ios' ? 80 : 110,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: 'rgba(199, 199, 199, 0.75)',
