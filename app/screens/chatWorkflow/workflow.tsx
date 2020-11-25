@@ -177,7 +177,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
                     subscription.remove();
 
                     this.abilities.saveResourcePlayed(this.playerdata);
-                    const jsonValue = JSON.stringify(this.playerdata)
+                    const jsonValue = JSON.stringify(this.playerdata);
                     AsyncStorage.setItem('HighRatingResource', jsonValue);
                     resolve();
                 });
@@ -307,6 +307,9 @@ export class SatisfiedChatingNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
         if (this.control == 'start') {
             this.sendMessage(['I’m glad you like the exercise! I will recommend similar exercises for you in the future!']);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 500);
+            });
             this.sendMessage(['Anything else I can help with you today,Lisa?']);
             this.control = 'wait';
             return false;
@@ -499,6 +502,7 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
                     console.log('Click skip captured');
                     subscription.remove();
                     this.control = "skip";
+                    AsyncStorage.setItem('SkippedResource', JSON.stringify(this.playerdata));
                     resolve('SkipReasonDone');
                 });
             });
@@ -787,8 +791,10 @@ export class TryNextTimeNode extends ResponseNodeLogic {
     }
 
     async step(): Promise<boolean> {
+        const jsonValue  = await AsyncStorage.getItem('SkippedResource');
+        const playerdata = JSON.parse(jsonValue);
         if (this.control == 'StartEndSession') {
-            this.sendMessage(['Sounds good! The second recommended practice is scheduled. See you tomorrow at the same time as the previous time !']);
+            this.sendMessage([`Sounds good! ${playerdata.name} is scheduled. See you tomorrow at the same time as the previous time !`]);
             this.sendEndMessage();
             this.control = 'WaitforReading';
             return false;

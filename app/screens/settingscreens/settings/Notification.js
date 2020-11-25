@@ -17,6 +17,7 @@ import SVGIcon from '../../../components/SVGIcon/SVGIcon';
 import cocobotIcon from '../../../assets/icons/cocobot-icon';
 import { color } from '../../../constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatAMPM } from '../../../util';
 
 // const showNotification = (title, message) => {
 //     PushNotification.localNotification({
@@ -44,14 +45,16 @@ const handlerScheduleNotification = (title, message, date, id, freq) => {
         title,
         message,
         date,
-        when,
+        subText: formatAMPM(when),
+        usesChronometer: true,
+        showWhen: true,
         invokeApp: false,
         largeIcon:"coco",
         color: "lightgray",
         tag: notificationAction1,
         repeatType: freq.type === "once" ? null : freq.type,
         repeatTime: freq.time,
-        actions: ["Start Now", "Remind Later", "Skip This Session"], // (Android only) See the doc for notification actions to know more
+        actions: ["Start", "Snooze", "Skip"], // (Android only) See the doc for notification actions to know more
     });
 
     console.log('setItem', when.getTime().toString());
