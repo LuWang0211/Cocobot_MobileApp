@@ -223,7 +223,7 @@ export const ChatScreen = (props) => {
       if (props.currentMessage.type == 'SkipSession') {
         return (
           <Animatable.View animation={fadeIn} duration={150}>
-            <SkipSession />
+            <SkipSession text={props.currentMessage.text} />
           </Animatable.View>
         );
       }
@@ -304,18 +304,22 @@ export const ChatScreen = (props) => {
       )
     };
 
-    // useEffect(() => {
-    //   // subscribe to random message request
-    //   const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
-    //     console.log('NotificationScheduled captured', eventData);
-    //
-    //     tellScheduleMessage(`You have a notification scheduled at ${eventData.scheduledTime}`);
-    //   });
-    //
-    //   return () => {
-    //     subscription.remove();
-    //   };
-    // }, [tellScheduleMessage]);
+    const renderSystemMessage = (props) => {
+
+    }
+
+    useEffect(() => {
+      // subscribe to random message request
+      const subscription = crossAppNotification.addListener(EventsNames.NotificationScheduled, (eventData) => {
+        console.log('NotificationScheduled captured', eventData);
+
+        // tellScheduleMessage(`You have a notification scheduled at ${eventData.scheduledTime}`);
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, [tellScheduleMessage]);
 
     return (
       <>
@@ -330,7 +334,11 @@ export const ChatScreen = (props) => {
           user={{
             _id: 1,
           }}
-          renderSystemMessage={(props) => <SystemMessage {...props} containerStyle={{ paddingBottom: 5}} /> }
+          renderSystemMessage={(props) => <SystemMessage
+            {...props}
+            containerStyle={{ paddingBottom: 5 }}
+            wrapperStyle={{ width: "60%" }}
+            textStyle={{ textAlign: "center" }}/>}
           renderBubble={renderBubble} // input text styles
           renderMessageText={renderMessageText}
           renderAvatar={null}

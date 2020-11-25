@@ -14,7 +14,7 @@ export interface ShowImage {
 export class GreetingNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
         // console.log('Greeting: Hi Lisa');
-        this.sendMessage(['Hi Lisa, where would you like me to start the session?']);  // need to confirm?
+        this.sendMessage(['Hi Lisa, what device do you want to use?']);  // need to confirm?
         return true;
     }
     getNextNode(): ChatWorkflowNode {
@@ -23,7 +23,7 @@ export class GreetingNode extends ResponseNodeLogic {
 }
 
 // Users' Utterance - quickreply
-export  class ChoiceUtteranceNode implements ChatWorkflowNode {
+export class ChoiceUtteranceNode implements ChatWorkflowNode {
     control: string;
     abilities: Abilities;
     waitResult: Promise<any>;
@@ -113,7 +113,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
 
     }
 
-    // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"    
+    // control : 'showImage' => "waitForClick" -> "waitForFinish" -> "finish"
     async step(): Promise<boolean> {
         // console.log("this.control", this.control);
         // let RandomIndex = Math.floor(Math.random() * 3 ); // for init random choose resource
@@ -144,12 +144,11 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
         console.log("HighRatingResource", this.playerdata);
 
         if (this.control == 'showResource') {
-            this.sendMessage(['Okay! Please find a comfortable position and click the video below to start.']);
+            this.sendMessage(['Okay! Please find a comfortable position and click the preview image below to start.']);
             await new Promise((resolve) => {
-                setTimeout(resolve, 150);    
+                setTimeout(resolve, 150);
             });
             this.sendResourceMessage();
-
             this.control = 'waitForClick';
             return false;
         } else if (this.control == 'waitForClick') {
@@ -173,8 +172,8 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
 
             const waitForFinish = new Promise((resolve, reject) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
-                    // console.log('ResourcePlayDone captured');        
-                    this.control = 'finish';        
+                    // console.log('ResourcePlayDone captured');
+                    this.control = 'finish';
                     subscription.remove();
 
                     this.abilities.saveResourcePlayed(this.playerdata);
@@ -198,7 +197,7 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
 
     sendResourceMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -232,12 +231,13 @@ export class RatingNode extends ResponseNodeLogic {
         // this.rating = 0;
     }
 
-    // control : 'ShowRating' => "waitforRating" -> "Finish: <= 3 or > 3"   
+    // control : 'ShowRating' => "waitforRating" -> "Finish: <= 3 or > 3"
     async step(): Promise<boolean> {
         console.log("this.control", this.control);
         if (this.control == 'ShowRating') {
             // this.sendMessage(['ShowRating']);
             this.sendRatingMessage();
+            this.sendSystemMessage("Please rate the exercise to help coco learn your preferences!");
 
             this.control = 'waitforRating';
             return false;
@@ -267,7 +267,7 @@ export class RatingNode extends ResponseNodeLogic {
 
     sendRatingMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -281,6 +281,7 @@ export class RatingNode extends ResponseNodeLogic {
         };
 
         this.abilities.sendMessage([message]);
+
     }
 
     getNextNode(): ResponseNodeLogic {
@@ -311,9 +312,9 @@ export class SatisfiedChatingNode extends ResponseNodeLogic {
             return false;
         } if (this.control == 'wait') {
             await new Promise((resolve) => {
-                setTimeout(resolve, 500);    
+                setTimeout(resolve, 500);
             });
-            return true;    
+            return true;
         }
         return true;
     }
@@ -333,23 +334,22 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
         this.control = 'start';
         this.feedback = '';
     }
-    
-    
+
     async step(): Promise<boolean> {
 
         if (this.control == 'start') {
-            this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why?  Please Typing the reason, Thank you!']);
+            this.sendMessage(['Hmm, I see you did not like the exercise as much. Could you tell me why by typing the reason?']);
             // await new Promise((resolve) => {
-            //     setTimeout(resolve, 150);    
+            //     setTimeout(resolve, 150);
             // });
-            this.sendSkipMessage(); 
+            this.sendSkipMessage("Skip this question");
             this.control = 'waitforClick';
             return false;
         } else if (this.control == 'waitforClick') {
             // Wait for clicking skip button;
             const waitForClick = new Promise((resolve) => {
                 const subscription = crossAppNotification.addListener(EventsNames.SkipReasonDone, () => {
-                    console.log('Click skip captured');        
+                    console.log('Click skip captured');
                     subscription.remove();
                     resolve('SkipReasonDone');
                 });
@@ -358,40 +358,22 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
             // Wait for typing Reason and sending;
             const waitForClick2 = new Promise((resolve) => {
                 const subscription = crossAppNotification.addListener(EventsNames.TypingReasonDone, () => {
-                    console.log('Typing captured');        
+                    console.log('Typing captured');
                     subscription.remove();
-                    resolve('TypingReasonDone');  
+                    resolve('TypingReasonDone');
                 });
             });
 
             // Resolve "skip" or "typing"
             const result = await Promise.race([waitForClick, waitForClick2]);
-            // console.log('result', result); 
+            // console.log('result', result);
             if (!!result) {
                 this.control = 'end';
                 this.feedback = result.toString();
             }
             return false;
-        } 
-        return true; 
-    }
-
-    sendSkipMessage() {
-        const msgId = this.abilities.generateMsgId();
-    
-        const message = {
-            _id: msgId,
-            text: "",
-            createdAt: new Date(),
-            type: "SkipSession",
-            user: {
-                _id: 2,
-                name: 'React Native',
-                avatar: 'https://placeimg.com/140/140/any',
-            },
-        };
-
-        this.abilities.sendMessage([message]);
+        }
+        return true;
     }
 
     getNextNode(): ChatWorkflowNode {
@@ -402,7 +384,7 @@ export class UnsatisfiedChatingNode extends ResponseNodeLogic {
         } else {
             return new EndChatingSessionNode();
         }
-        
+
     }
 }
 
@@ -415,7 +397,7 @@ export class SatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
         },{
             text: 'Explore other resources'
         },{
-            text: 'End this session'
+            text: "End today's session"
         },];
 
         this.questionKey = 'SatisfiedFollowUp';
@@ -427,14 +409,14 @@ export class SatisfiedFollowUpUtteranceNode extends ChoiceUtteranceNode {
             return new PracticeAgainNode();
         } else if (this.selected.text == 'Explore other resources'){
             return new ExploreOtherNode();
-        } else if (this.selected.text == 'End this session'){
+        } else if (this.selected.text == "End today's session"){
             return new EndChatingSessionNode();
         }
-        
+
     }
 }
 
-// Navigate to Player page and Play Again 
+// Navigate to Player page and Play Again
 export class PracticeAgainNode extends ResponseNodeLogic {
     control: string;
 
@@ -442,9 +424,9 @@ export class PracticeAgainNode extends ResponseNodeLogic {
         super();
         this.control = 'start';
     }
-    
+
     async step(): Promise<boolean> {
-    
+
         if (this.control == 'start') {
             const playedResource = this.abilities.getResourcePlayed();
             const { type, name, author, audiouri, pictureuri: backgroundImage } = playedResource;
@@ -458,19 +440,19 @@ export class PracticeAgainNode extends ResponseNodeLogic {
         } else if (this.control == 'wait') {
             const waitForFinish = new Promise((resolve, reject) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
-                    console.log('ResourcePlayDone captured');        
+                    console.log('ResourcePlayDone captured');
                     subscription.remove();
                     resolve();
                 });
             });
 
             await waitForFinish;
-            this.control = 'end';        
+            this.control = 'end';
 
             return false;
         }
 
-        return true;     
+        return true;
     }
     getNextNode(): ChatWorkflowNode {
         return new EndChatingSessionNode();
@@ -478,6 +460,8 @@ export class PracticeAgainNode extends ResponseNodeLogic {
 }
 
 export class ShowAnotherResourceNode extends ResponseNodeLogic {
+    lastrating: string;
+    feedback: string;
     control: string;
     playerdata: CategoryType;
     // RandomIndex: number;
@@ -498,26 +482,74 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
                 let RandomIndex = Math.floor(Math.random() * (categories.length-1) ); // for init random choose resource
                 this.playerdata = categories[RandomIndex];
             }
-            this.sendMessage(['Thank you for sharing. Whould you like to try second recommended practice today? Click the video below to start']);
+            this.sendMessage(['I see. Based on your feedback, you might like this one better. Click it if you would like try it now!']);
             await new Promise((resolve) => {
-                setTimeout(resolve, 150);    
+                setTimeout(resolve, 150);
             });
             this.sendResourceMessage();
-            this.abilities.saveResourcePlayed(this.playerdata);
-            const jsonValue = JSON.stringify(this.playerdata)
-            AsyncStorage.setItem('HighRatingResource', jsonValue);
+            this.sendSkipMessage("Skip for now");
+            this.control = 'waitForClick';
+            return false;
+        } else if (this.control == 'waitForClick') {
+            // console.log("waitForClick");
+            // console.log('ResourcePlayStarted uncaptured');
+
+            const waitForClick = new Promise((resolve) => {
+                const subscription = crossAppNotification.addListener(EventsNames.SkipReasonDone, () => {
+                    console.log('Click skip captured');
+                    subscription.remove();
+                    this.control = "skip";
+                    resolve('SkipReasonDone');
+                });
+            });
+
+            const waitForClickSignal = new Promise((resolve, reject) => {
+                const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayStarted, () => {
+                    // console.log('ResourcePlayStarted captured');
+                    subscription.remove();
+                    this.control = 'waitForFinish';
+                    resolve("ResourceFinish");
+                });
+            });
+
+            await Promise.race([waitForClick, waitForClickSignal]);
+            return false;
+        } else if (this.control == 'waitForFinish') {
+            console.log("control status", this.control);
+
+            const waitForFinish = new Promise((resolve, reject) => {
+                const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
+                    // console.log('ResourcePlayDone captured');
+                    this.control = 'finish';
+                    subscription.remove();
+
+                    this.abilities.saveResourcePlayed(this.playerdata);
+                    const jsonValue = JSON.stringify(this.playerdata)
+                    AsyncStorage.setItem('HighRatingResource', jsonValue);
+                    resolve();
+                });
+            });
+
+            await waitForFinish;
+
+            // console.log("haha");
+            return false;
+        } else if (this.control == 'finish') {
+            // console.log("finish");
+
             return true;
         }
+        return true;
     }
 
     sendResourceMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
             createdAt: new Date(),
-            type: "ShowResource2",
+            type: "ShowResource",
             data: this.playerdata,
             user: {
                 _id: 2,
@@ -530,7 +562,10 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
     }
 
     getNextNode(): ChatWorkflowNode {
-        return new AnotherResourceUtteranceNode(); 
+        if (this.control === "skip") {
+          return new AnotherResourceUtteranceNode();
+        }
+        return new RatingNode();
     }
 }
 
@@ -539,14 +574,12 @@ export class AnotherResourceUtteranceNode extends ChoiceUtteranceNode {
         super();
         this.quickReplies = [
             {
-                text: 'Yes, start now'
-            },{
-                text: 'No, end this session'
-            },{
                 text: 'Try it next time'
             },{
                 text: 'Explore other resources'
-            },
+            },{
+                text: "End today's session"
+            }
         ];
 
         this.questionKey = 'UnSatisfiedFollowUp';
@@ -554,13 +587,11 @@ export class AnotherResourceUtteranceNode extends ChoiceUtteranceNode {
 
     getNextNode(): ChatWorkflowNode {
         console.log(this.selected);
-        if (this.selected.text == 'Yes, start now') {
-            return new PracticeAnotherNowNode();
-        } else if (this.selected.text == 'No, end this session'){
+        if (this.selected.text === "End today's session"){
             return new EndChatingSessionNode_2();
-        } else if (this.selected.text == 'Try it next time'){
+        } else if (this.selected.text === 'Try it next time'){
             return new TryNextTimeNode();
-        } else if (this.selected.text == 'Explore other resources'){
+        } else if (this.selected.text === 'Explore other resources'){
             return new ExploreOtherNode();
         }
     }
@@ -573,7 +604,7 @@ export class PracticeAnotherNowNode extends ResponseNodeLogic {
         super();
         this.control = 'start';
     }
-    
+
     async step(): Promise<boolean> {
 
         if (this.control == 'start') {
@@ -589,35 +620,35 @@ export class PracticeAnotherNowNode extends ResponseNodeLogic {
         } else if (this.control == 'wait') {
             const waitForFinish = new Promise((resolve) => {
                 const subscription = crossAppNotification.addListener(EventsNames.ResourcePlayDone, () => {
-                    console.log('ResourcePlayDone captured');        
+                    console.log('ResourcePlayDone captured');
                     subscription.remove();
                     resolve();
                 });
             });
 
             await waitForFinish;
-            this.control = 'end';        
+            this.control = 'end';
 
             return false;
         }
 
-        return true;     
+        return true;
     }
     getNextNode(): ChatWorkflowNode {
         return new RatingNode();
     }
 }
 
-// Navigate to Resource page and End Session 
+// Navigate to Resource page and End Session
 export class ExploreOtherNode extends ResponseNodeLogic {
-    
+
     control: string;
 
     constructor() {
         super();
         this.control = 'start';
     }
-    
+
     async step(): Promise<boolean> {
 
         if (this.control == 'start') {
@@ -627,12 +658,12 @@ export class ExploreOtherNode extends ResponseNodeLogic {
             this.control = 'wait';
             return false;
         }
-        return true; 
+        return true;
     }
 
     sendEndMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -670,7 +701,7 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
             return false;
         } else if (this.control == 'WaitforReading') {
             await new Promise((resolve) => {
-                setTimeout(resolve, 3000);    
+                setTimeout(resolve, 3000);
             });
             return true;
         }
@@ -678,7 +709,7 @@ export class EndChatingSessionNode extends ResponseNodeLogic {
 
     sendEndMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -716,7 +747,7 @@ export class EndChatingSessionNode_2 extends ResponseNodeLogic {
             return false;
         } else if (this.control == 'WaitforReading') {
             await new Promise((resolve) => {
-                setTimeout(resolve, 5000);    
+                setTimeout(resolve, 5000);
             });
             return true;
         }
@@ -724,7 +755,7 @@ export class EndChatingSessionNode_2 extends ResponseNodeLogic {
 
     sendEndMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -763,7 +794,7 @@ export class TryNextTimeNode extends ResponseNodeLogic {
             return false;
         } else if (this.control == 'WaitforReading') {
             await new Promise((resolve) => {
-                setTimeout(resolve, 5000);    
+                setTimeout(resolve, 5000);
             });
             return true;
         }
@@ -771,7 +802,7 @@ export class TryNextTimeNode extends ResponseNodeLogic {
 
     sendEndMessage() {
         const msgId = this.abilities.generateMsgId();
-    
+
         const message = {
             _id: msgId,
             text: "",
@@ -818,7 +849,7 @@ export class WorkflowRunner {
 
     resourcePlayed: CategoryType;
 
-    constructor(firstNode: ChatWorkflowNode, sendMessage: (messages: IMessage[]) => void, 
+    constructor(firstNode: ChatWorkflowNode, sendMessage: (messages: IMessage[]) => void,
         navigate: NavigateFunction, showModal: any) {
         this.node = firstNode;
         this.stepId = 0;
@@ -828,7 +859,7 @@ export class WorkflowRunner {
         this.messageId = 1;
         this.quickReplyMessages = {};
         this.questionAnswer = {};
-        
+
         // this.showResourceImage = {}; // show resource image
 
         this.assignNodeAbiilities(this.node);
@@ -857,7 +888,7 @@ export class WorkflowRunner {
     generateMsgId(): number {
         const msgId = this.messageId;
         this.messageId++;
-        
+
         return msgId;
     }
 
@@ -908,7 +939,7 @@ export class WorkflowRunner {
                 });
 
                 this.quickReplyMessages[msgId].selection = replyResultPromise;
-                
+
 
                 this.sendMessageFunc([message]);
 
@@ -932,7 +963,7 @@ export class WorkflowRunner {
         messageId: string
     }>): {
         msgId: string,
-        selection: string  
+        selection: string
     } {
         const choice = selection[0];
         const msgId = choice.messageId;
@@ -951,4 +982,3 @@ export class WorkflowRunner {
     }
 
 }
-
