@@ -70,13 +70,14 @@ export class PopupNode extends ResponseNodeLogic {
               duration= {1500}
               size={150}
               width={10}
-              fill={47}
+              fill={43}
+              rotation={0}
               tintColor="#00e0ff"
               backgroundColor="#3d5875">
               {
                 (fill) => (
                   <Text style={{color:"#00e0ff",fontSize:25}}>
-                    { "3/7" }
+                    { "Level 1" }
                   </Text>
                 )
               }

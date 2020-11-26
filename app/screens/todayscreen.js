@@ -42,13 +42,17 @@ export const TodayScreen = (props) => {
         let hours = day.getHours();
         let mins = day.getMinutes();
         let date = day_tostring.slice(0, 3) + ', '+ day_tostring.slice(4, 7) + ' '+ day_tostring.slice(7, 10) ;
-        let time = hours + ':' + mins
+        let AmOrPm = hours >= 12 ? 'PM' : 'AM';
+        hours = (hours % 12) || 12;
+        let time = hours + ':' + mins + " " + AmOrPm;
+
         setCurrentDate( date );
         setCurrentTime( time );
       }, [scheduledTime]);
 
     const resourcesList = useMemo(() => {
-        const fileredResources = data.Resources.filter(r => r.type == 'Meditation' || r.type == 'Testing');
+        // const fileredResources = data.Resources.filter(r => r.type == 'Meditation' || r.type == 'Testing');
+        const fileredResources = data.Resources.filter(r => r.type == 'Meditation');
         return fileredResources.map((resource) =>
             <ResourceCard
                 key={resource.id}

@@ -91,7 +91,7 @@ export const ResourceImage = (props: ResourceImage) => {
   // console.log("Chat ResourceImage Props", props);
   const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
   // console.log("uri", props);
-  const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+  // const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
   // console.log("resourceRef", resourceRef);
 
   const navigation = useNavigation();
@@ -103,7 +103,7 @@ export const ResourceImage = (props: ResourceImage) => {
       <TouchableOpacity disabled={Touchablestate}
         onPress={() => {
           setTouchablestate(true);
-          resourceRef.update(props); // update data to firebase
+          // resourceRef.update(props); // update data to firebase
           crossAppNotification.emit('ResourcePlayStarted'),
           navigation.navigate("ContentDetails", {data: {
             type, name, author, audiouri, backgroundImage
@@ -123,21 +123,21 @@ export const ResourceImage = (props: ResourceImage) => {
   )
 }
 
-export const ResourceImage2 = (props: ResourceImage) => {
-  // console.log("Chat ResourceImage Props", props);
-  const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
-  // console.log("uri", props);
-  const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
-  // console.log("resourceRef", resourceRef);
-  return (
-      <View>
-        <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
-        {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>  */}
-        <Text style={styles.playtext}> {name} </Text>
+// export const ResourceImage2 = (props: ResourceImage) => {
+//   // console.log("Chat ResourceImage Props", props);
+//   const { name, label, resourceImage, type, author, audiouri, backgroundImage } = props;
+//   // console.log("uri", props);
+//   const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+//   // console.log("resourceRef", resourceRef);
+//   return (
+//       <View>
+//         <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
+//         {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>  */}
+//         <Text style={styles.playtext}> {name} </Text>
 
-      </View>
-  )
-}
+//       </View>
+//   )
+// }
 
 export const ChatRating = () => {
   const [Rating, setRating] = useState(0);
@@ -153,7 +153,7 @@ export const ChatRating = () => {
               onFinishRating={(value) => {
                   setRating(value);
                   setDisable(true);
-                  AsyncStorage.setItem('LastRatingScore', value.toString());
+                  // AsyncStorage.setItem('LastRatingScore', value.toString());
                   // console.log("rating", Rating);
                   // console.log("rating", value);
                   crossAppNotification.emit('RatingDone', value);

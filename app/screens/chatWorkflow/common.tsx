@@ -76,9 +76,14 @@ export abstract class ResponseNodeLogic implements ChatWorkflowNode {
         _id: this.abilities.generateMsgId(),
         text: messageText,
         createdAt: new Date(),
-        system: true
-      }
-      this.abilities.sendMessage(message);
+        system: true,
+        user: {
+            _id: 2,
+            name: 'React Native',
+            avatar: 'https://placeimg.com/140/140/any',
+        },
+      };
+      this.abilities.sendMessage([message]);
     }
 
     sendSkipMessage(text: string) {

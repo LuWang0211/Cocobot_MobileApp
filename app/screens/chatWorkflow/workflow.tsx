@@ -81,7 +81,7 @@ export class DeviceChoiceUtteranceNode extends ChoiceUtteranceNode {
     }
 
     getNextNode(): ChatWorkflowNode {
-        console.log(this.selected);
+        // console.log(this.selected);
         if (this.selected.text == 'Alexa') {
             return new AlexaSelectedNode();
         } else {
@@ -125,32 +125,51 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
         // db.ref('LastRecommendedResource').once('value') return Promise;
         const datafromfirebase = db.ref('LastRecommendedResource').once('value').then((snapshot) => { console.log(snapshot.val())});
         */
-        const datafromfirebase = await db.ref('LastRecommendedResource').once('value');
+        const resourceRef = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+        const datafromfirebase = await resourceRef.once('value');
         // console.log("datafromfirebase", datafromfirebase.val());
 
-        if (lastrating in ['4', '5']){
-            if ( jsonValue !=null) {
-                console.log('read from local async storage')
-                this.playerdata = JSON.parse(jsonValue);
-            } else {
-                console.log('read from firebase')
-                this.playerdata = datafromfirebase.val();
-            };
+        // get the last Resource
+        if ( jsonValue !=null) {
+            console.log('read from local async storage')
+            this.playerdata = JSON.parse(jsonValue);
         } else {
-            let RandomIndex = Math.floor(Math.random() * categories.length ); // for init random choose resource
-            this.playerdata = categories[RandomIndex];
+            console.log('read from firebase')
+            this.playerdata = datafromfirebase.val();
+        };
+
+        // check the rating for last resource, low rating => choose others
+        console.log("lastrating", lastrating);
+        if (lastrating == '1' || lastrating == '2' || lastrating == '3' ){
+            console.log("new resource")
+            // choice new resource
+            // console.log("before copye categories", categories);
+            // console.log("this.playerdata", this.playerdata);
+            let tempcategories = categories.filter( (categories) => categories.id !== this.playerdata.id );
+            // console.log("after copye categories", categories);
+            // console.log("new tempcategories", tempcategories);
+            let RandomIndex = Math.floor(Math.random() * tempcategories.length ); // for init random choose resource
+            this.playerdata = tempcategories[RandomIndex];
         }
 
-        console.log("HighRatingResource", this.playerdata);
+        console.log("HighRating Resource or New Resource", this.playerdata);
 
         if (this.control == 'showResource') {
             this.sendMessage(['Okay! Please find a comfortable position and click the preview image below to start.']);
             await new Promise((resolve) => {
-                setTimeout(resolve, 150);
+                setTimeout(resolve, 100);
             });
             this.sendResourceMessage();
+
+            // save the last resource to local
+            this.abilities.saveResourcePlayed(this.playerdata);
+            const jsonValue = JSON.stringify(this.playerdata);
+            AsyncStorage.setItem('HighRatingResource', jsonValue);
+            // save the last resource to firebase
+            resourceRef.update(this.playerdata); // update data to firebase
             this.control = 'waitForClick';
             return false;
+
         } else if (this.control == 'waitForClick') {
             // console.log("waitForClick");
             // console.log('ResourcePlayStarted uncaptured');
@@ -175,10 +194,6 @@ export class PhoneSelectedNode extends ResponseNodeLogic {
                     // console.log('ResourcePlayDone captured');
                     this.control = 'finish';
                     subscription.remove();
-
-                    this.abilities.saveResourcePlayed(this.playerdata);
-                    const jsonValue = JSON.stringify(this.playerdata);
-                    AsyncStorage.setItem('HighRatingResource', jsonValue);
                     resolve();
                 });
             });
@@ -233,7 +248,8 @@ export class RatingNode extends ResponseNodeLogic {
 
     // control : 'ShowRating' => "waitforRating" -> "Finish: <= 3 or > 3"
     async step(): Promise<boolean> {
-        console.log("this.control", this.control);
+        // console.log("this.control", this.control);
+        const resourceRef = db.ref('LastRatingScore'); // get firebase.database().ref()
         if (this.control == 'ShowRating') {
             // this.sendMessage(['ShowRating']);
             this.sendRatingMessage();
@@ -247,11 +263,16 @@ export class RatingNode extends ResponseNodeLogic {
 
             const waitForClickSingal = new Promise((resolve, reject) => {
                 const subscription = crossAppNotification.addListener(EventsNames.RatingDone, (rating) => {
-                    console.log('Rating Result', rating)
-                    console.log('Rating captured');
+                    // console.log('Rating Result', rating)
+                    // console.log('Rating captured');
                     subscription.remove();
                     this.control = 'finish';
                     this.rating = rating;
+                    console.log('rating', rating);
+                    // save the last rating to local
+                    AsyncStorage.setItem('LastRatingScore', rating.toString());
+                    // save the last resource to firebase
+                    resourceRef.set(this.rating.toString()); // update data to firebase
                     resolve();
                 });
             });
@@ -478,18 +499,32 @@ export class ShowAnotherResourceNode extends ResponseNodeLogic {
     async step(): Promise<boolean> {
         // console.log("this.control", this.control);
         if (this.control == 'showResource') {
+
+            const resourceRef_1 = db.ref('LastRecommendedResource'); // get firebase.database().ref()
+            const resourceRef_2 = db.ref('LastRatingScore'); // get firebase.database().ref()
             const playedResource = this.abilities.getResourcePlayed();
-            let RandomIndex = Math.floor(Math.random() * (categories.length-1) ); // for init random choose resource
-            this.playerdata = categories[RandomIndex];
-            if (this.playerdata.id == playedResource.id) {
-                let RandomIndex = Math.floor(Math.random() * (categories.length-1) ); // for init random choose resource
-                this.playerdata = categories[RandomIndex];
-            }
+            console.log("playedResource", playedResource);
+            let tempcategories = categories.filter( (categories) => categories.id !== playedResource.id );
+            let RandomIndex = Math.floor(Math.random() * tempcategories.length ); // for init random choose resource
+            this.playerdata = tempcategories[RandomIndex];
+
+
             this.sendMessage(['I see. Based on your feedback, you might like this one better. Click it if you would like try it now!']);
             await new Promise((resolve) => {
-                setTimeout(resolve, 150);
+                setTimeout(resolve, 100);
             });
             this.sendResourceMessage();
+
+            // save the last resource to local
+            this.abilities.saveResourcePlayed(this.playerdata);
+            const jsonValue = JSON.stringify(this.playerdata);
+            AsyncStorage.setItem('HighRatingResource', jsonValue);
+            AsyncStorage.setItem('LastRatingScore', '5');
+            // save the last resource to firebase
+            resourceRef_1.update(this.playerdata); 
+            resourceRef_2.set(JSON.stringify(5));
+
+
             this.sendSkipMessage("Skip for now");
             this.control = 'waitForClick';
             return false;
@@ -792,9 +827,19 @@ export class TryNextTimeNode extends ResponseNodeLogic {
 
     async step(): Promise<boolean> {
         const jsonValue  = await AsyncStorage.getItem('SkippedResource');
+        const scheduledTimevalue = await AsyncStorage.getItem('scheduledTime');
+        const dateValue = parseInt(scheduledTimevalue);
+        let day = new Date(dateValue);
+        let hours = day.getHours();
+        let mins = day.getMinutes();
+        let AmOrPm = hours >= 12 ? 'PM' : 'AM';
+        hours = (hours % 12) || 12;
+        let time = hours + ':' + mins + " " + AmOrPm;
+        console.log('scheduledTimevalue convert', time);
+        
         const playerdata = JSON.parse(jsonValue);
         if (this.control == 'StartEndSession') {
-            this.sendMessage([`Sounds good! ${playerdata.name} is scheduled. See you tomorrow at the same time as the previous time !`]);
+            this.sendMessage([`Sounds good! \' ${playerdata.name} \' is scheduled. See you tomorrow at ${time}  !`]);
             this.sendEndMessage();
             this.control = 'WaitforReading';
             return false;

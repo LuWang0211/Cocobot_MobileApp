@@ -23,15 +23,10 @@ export const ChatScreen = (props) => {
     const {session, dispatch} = useContext(SessionContext);
 
     const [messages, setMessages] = useState([]);
-    const [user, setUser] = useState(null);
-
-
     const [chatMsgId, setChatMsgId] = useState(1);
-
     const [showModal, setShowModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modelContent, setModelContent] = useState(<View/>);
-
 
     const tellScheduleMessage = useCallback((mesageText) => {
       const message = {
@@ -189,28 +184,28 @@ export const ChatScreen = (props) => {
       }
 
       // show resource image
-      if (props.currentMessage.type == 'ShowResource2') {
-        const playerdata = props.currentMessage.data;
-        console.log('ShowResource2', playerdata)
+      // if (props.currentMessage.type == 'ShowResource2') {
+      //   const playerdata = props.currentMessage.data;
+      //   console.log('ShowResource2', playerdata)
 
-        return (
-            <ResourceImage2
-              key={playerdata.id}
-              name={playerdata.name}
-              label={[
-              {
-                  category: playerdata.category,
-                  abouttext: playerdata.about,
-              },
-              ]}
-              resourceImage={playerdata.image}
-              type={playerdata.type}
-              author={playerdata.author}
-              audiouri={playerdata.audiouri}
-              backgroundImage={playerdata.pictureuri}
-          />
-        );
-      }
+      //   return (
+      //       <ResourceImage2
+      //         key={playerdata.id}
+      //         name={playerdata.name}
+      //         label={[
+      //         {
+      //             category: playerdata.category,
+      //             abouttext: playerdata.about,
+      //         },
+      //         ]}
+      //         resourceImage={playerdata.image}
+      //         type={playerdata.type}
+      //         author={playerdata.author}
+      //         audiouri={playerdata.audiouri}
+      //         backgroundImage={playerdata.pictureuri}
+      //     />
+      //   );
+      // }
 
       // show rating
       if (props.currentMessage.type == 'ShowRating') {
