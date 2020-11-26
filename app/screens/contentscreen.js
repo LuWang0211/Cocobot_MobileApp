@@ -190,6 +190,11 @@ export const ContentScreen = ({ route, navigation }) => {
     let newPosition = 0;
     TrackPlayer.seekTo(newPosition);
     TrackPlayer.play();
+    // setIsSeeking(true);
+    setSliderValue(0);
+    setSessionEnd(false);
+    setIsPlaying(true);
+
   };
 
   const convertMS = (value) => {
@@ -209,27 +214,6 @@ export const ContentScreen = ({ route, navigation }) => {
       return null;
     }
 
-    //  <View style = { styles.btn }>
-    //   { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
-    //     <>
-    //     <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
-    //     <TouchableOpacity 
-    //       activeOpacity={0.6}
-    //       style={styles.card}
-    //       onPress={() => {
-    //         crossAppNotification.emit('ResourcePlayDone');
-    //         navigation.goBack()
-    //       }}
-    //     >
-    //       <Text style={styles.btntext}>Go gack</Text>
-    //     </TouchableOpacity> 
-    //     </>
-    //   : 
-    //     <TouchableOpacity style = {{...styles.btn, color: "transprants"}}>
-    //       {/* <Text style={styles.btntext}>haha</Text> */}
-    //     </TouchableOpacity> }
-    // </View>
-
     return <View style = { styles.btn }>
       <Text style = {{...styles.smalltext, marginBottom: 15 }}> Session ended </Text>
         <TouchableOpacity 
@@ -244,6 +228,36 @@ export const ContentScreen = ({ route, navigation }) => {
         </TouchableOpacity> 
       </View>
   }, [sessionEnd, navigation, crossAppNotification]);
+
+  const Buttons = useMemo(() => {
+    console.log('render resume session', sessionEnd);
+    console.log('sessionEnd, sliderValue, isPlaying:', sessionEnd, sliderValue, isPlaying)
+
+    if (sessionEnd && position !== 0 ) {
+      return (
+        <Icon raised name='rotate-ccw' size={35} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
+      );
+    }
+
+    return (
+      <>
+      {/* <Icon raised name='skip-back' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+      <TouchableOpacity onPress={jumpBackwardPressed} >
+        <Icon raised name='rotate-ccw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+        <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+      </TouchableOpacity>
+
+      <Icon raised name={isPlaying ? 'pause' : 'play'} size={35} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
+
+      <TouchableOpacity onPress={jumpForwardPressed} >
+        <Icon raised name='rotate-cw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
+        <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
+      </TouchableOpacity>
+
+      {/* <Icon raised name='skip-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
+      </>
+    )
+  }, [sessionEnd, position, isPlaying]);
 
   return ( 
     <>  
@@ -264,26 +278,7 @@ export const ContentScreen = ({ route, navigation }) => {
             </View>
 
             <View style={{flexDirection: "row", justifyContent:'space-around', marginTop: 120, marginHorizontal: 50, padding:15}}>
-              {Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0  ? 
-                <Icon raised name='rotate-ccw' size={35} onPress={resumePressed} disabled={!isTrackPlayerInit} color='white' />
-              :
-                <>
-                {/* <Icon raised name='skip-back' size={30} onPress={stepBackwardPressed} disabled={!isTrackPlayerInit} color='white' /> */}
-                <TouchableOpacity onPress={jumpBackwardPressed} >
-                  <Icon raised name='rotate-ccw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}} />
-                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
-                </TouchableOpacity>
-
-                <Icon raised name={isPlaying ? 'pause' : 'play'} size={35} onPress={onButtonPressed} disabled={!isTrackPlayerInit} style={{color:'white'}} />
-
-                <TouchableOpacity onPress={jumpForwardPressed} >
-                  <Icon raised name='rotate-cw' size={30} disabled={!isTrackPlayerInit} style={{color:'white'}}/>
-                  <Text style={{ color: "white", fontSize: 11, textAlign: "center", position: 'absolute',top: 7, right: 9 }}>15</Text>
-                </TouchableOpacity>
-
-                {/* <Icon raised name='skip-forward' size={30} onPress={stepforwarddPressed} disabled={!isTrackPlayerInit} color='white' /> */}
-                </>
-              }
+              {Buttons}
             </View>
 
             <View style={{alignItems: 'stretch', padding: 15}}>
@@ -304,9 +299,6 @@ export const ContentScreen = ({ route, navigation }) => {
               </View>
               
             </View>
-
-            {/* <Text style = {styles.smalltext}> { Math.floor(position,0) == Math.floor(duration,0) && Math.floor(position,0) !== 0 ? 'Session ended ' : ''}</Text> */}
-
             {goBackSection}
 
           </View>
