@@ -40,12 +40,12 @@ PushNotification.configure({
       const { title, message } = notification;
       console.log(notification.action)
       switch (notification.action) {
-        case "Start Now":
+        case "Start":
           clearAllNotifications()
           PushNotification.invokeApp(notification);
           navigationRef.current?.navigate("Home", { screen: "Chat" });
           break;
-        case "Skip This Session":
+        case "Skip":
           clearAllNotifications();
         default:
           return;

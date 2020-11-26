@@ -99,24 +99,27 @@ export const ResourceImage = (props: ResourceImage) => {
   const [Touchablestate, setTouchablestate] = useState(false);
 
   return (
-    <TouchableOpacity disabled={Touchablestate}
-      onPress={() => {
-        setTouchablestate(true);
-        resourceRef.update(props); // update data to firebase
-        crossAppNotification.emit('ResourcePlayStarted'),
-        navigation.navigate("ContentDetails", {data: {
-          type, name, author, audiouri, backgroundImage
-        }});
-      }}
-    >
-      {/* <Text> testing </Text> */}
-      <View>
-        <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
-        {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>         */}
-        <Icon name ='play' style={styles.playicon} size={30} />
+    <View style={{flexDirection: "column"}} >
+      <TouchableOpacity disabled={Touchablestate}
+        onPress={() => {
+          setTouchablestate(true);
+          resourceRef.update(props); // update data to firebase
+          crossAppNotification.emit('ResourcePlayStarted'),
+          navigation.navigate("ContentDetails", {data: {
+            type, name, author, audiouri, backgroundImage
+          }});
+        }}
+      >
+        {/* <Text> testing </Text> */}
+        <View>
+          <Image style={styles.tinyLogo} source={{uri: resourceImage}}/>
+          {/* <Image style={styles.tinyLogo} source={{uri: "https://picsum.photos/200/300"}}/>         */}
+          <Icon name ='play' style={styles.playicon} size={30} />
 
-      </View>
-    </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+      <Text style={styles.resourceTitleText}>{props.name}</Text>
+    </View>
   )
 }
 
@@ -243,6 +246,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: 16,
+  },
+  resourceTitleText: {
+    color: "#979797",
+    textAlign: "center",
+    fontSize: 12
   },
   rating: {
     alignItems: 'flex-start',
