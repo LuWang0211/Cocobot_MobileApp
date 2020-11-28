@@ -95,10 +95,16 @@ export const Notification = (props) => {
 
     const sendNotificationAtScheduledTime = useCallback(() => {
         let d = Date.parse(date);
+        let wording_for_10mins_ahead = ["Hi Lisa, we are starting the 1st meditation for this week in 10 mins!", 
+        "Hi Lisa, you have completed 1/7 practice scheduled! We will start the 2nd one in 10 mins!",
+        "Hi Lisa, you have practiced meditation for 3 consecutive days! Start today’s session in 10-mins and win a 4-day streak！"
+        ];
+        let RandomIndex = Math.floor(Math.random() * wording_for_10mins_ahead.length );
+        let wording = wording_for_10mins_ahead[RandomIndex];
         if (Date.now() )
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's almost time for today's meditation. Click me when you are ready.", new Date(d - 10 * 60 * 1000 + (d - Date.now() < 10 * 60 * 1000 ? 24 * 60 * 60 * 1000 : 0)), '1', freq);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's time for today's meditation. Click me when you are ready.", date, '2', freq);
-        handlerScheduleNotification('Reminder', "Hi Lisa, it's past time for today's meditation. Click me when you are ready.", new Date(d + 30 * 60 * 1000), '3', freq);
+        handlerScheduleNotification('Reminder', wording, new Date(d - 10 * 60 * 1000 + (d - Date.now() < 10 * 60 * 1000 ? 24 * 60 * 60 * 1000 : 0)), '1', freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, are you ready for today’s meditation?", date, '2', freq);
+        handlerScheduleNotification('Reminder', "Hi Lisa, are you ready for today’s meditation?", new Date(d + 30 * 60 * 1000), '3', freq);
         setShowNotificationConfirm(true);
     }, [date, freq]);
 

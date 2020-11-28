@@ -37,13 +37,14 @@ export const TodayScreen = (props) => {
         if (!scheduledTime) {
             return;
         }
-        let day = new Date(scheduledTime);
+        let day = new Date(scheduledTime - 30 * 60 * 1000);
         let day_tostring = day.toDateString(); // e.g "Sun Nov 8 2020"
         let hours = day.getHours();
         let mins = day.getMinutes();
         let date = day_tostring.slice(0, 3) + ', '+ day_tostring.slice(4, 7) + ' '+ day_tostring.slice(7, 10) ;
         let AmOrPm = hours >= 12 ? 'PM' : 'AM';
         hours = (hours % 12) || 12;
+        mins = mins < 10 ? '0'+ mins : mins;
         let time = hours + ':' + mins + " " + AmOrPm;
 
         setCurrentDate( date );
