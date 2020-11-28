@@ -13,17 +13,6 @@ import { useNavigation } from "@react-navigation/native";
 
 import { crossAppNotification, ResourcePlayDone } from "../config";
 
-// const meditationResources = [
-//   //{type:"Meditation", name:"Breathing Meditation", author: "?author", duration:"5 min", audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/01_Breathing_Meditation.mp3", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-//   //{type:"Meditation", name:"4-min Meditation", author: "?author", duration:"4 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/LifeHappens5MinuteBreathing.mp3", pictureuri:"https://s1.1zoom.me/b6756/963/Stones_Closeup_Equilibrium_Balance_511958_640x960.jpg"},
-//   {type:"Testing", name:"Ding Test",author: "?author",  duration:"1 min", audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", pictureuri:"https://images.ctfassets.net/v3n26e09qg2r/60rE9vaE6cMIIgiYuYSuoi/6a489ad7611102d432deaa5ba3a45f1a/SXSW_Meditating_Character_with_Headphones_1.png"}
-//   // {type:"Testing", name:"Youtube", author: "?author", duration:"5 min", audiouri: "https://www.youtube-nocookie.com/embed/47xfSnzp6j4?controls=0", pictureuri: "https://i.pinimg.com/originals/fd/8d/bf/fd8dbf3f0b8ceed5c2fbd37ab512d901.jpg"},
-
-// ]
-
-// let RandomIndex = Math.floor(Math.random() * meditationResources.length);
-// const meditation = meditationResources[RandomIndex];
-
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -40,12 +29,20 @@ const trackPlayerInit = async (data) => {
       TrackPlayer.CAPABILITY_JUMP_BACKWARD,
     ],
   });
-  await TrackPlayer.add({
+
+  await TrackPlayer.add([{
+    id: 'main',
     url: data.audiouri,
     title: data.name,
     artist: data.author,
     artwork: data.image,
-  });
+  },{
+    id: 'end',
+    url: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/ending_prompt.mp3",
+    title: data.name,
+    artist: data.author,
+    artwork: data.image,
+  }]);
   return true;
 };
 
@@ -188,6 +185,7 @@ export const ContentScreen = ({ route, navigation }) => {
   const resumePressed =() => {
     console.log('resumePressed')
     let newPosition = 0;
+    TrackPlayer.skipToPrevious();
     TrackPlayer.seekTo(newPosition);
     TrackPlayer.play();
     // setIsSeeking(true);
