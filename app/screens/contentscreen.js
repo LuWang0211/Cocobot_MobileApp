@@ -38,7 +38,7 @@ const trackPlayerInit = async (data) => {
     artwork: data.image,
   },{
     id: 'end',
-    url: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/ending_prompt.mp3",
+    url: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/ending_prompt_01.wav",
     title: data.name,
     artist: data.author,
     artwork: data.image,

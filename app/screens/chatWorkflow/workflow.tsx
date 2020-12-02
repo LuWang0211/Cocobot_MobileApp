@@ -829,7 +829,7 @@ export class TryNextTimeNode extends ResponseNodeLogic {
         const jsonValue  = await AsyncStorage.getItem('SkippedResource');
         const scheduledTimevalue = await AsyncStorage.getItem('scheduledTime');
         const dateValue = parseInt(scheduledTimevalue);
-        let day = new Date(dateValue);
+        let day = new Date(dateValue - 30 * 60 * 1000);
         let hours = day.getHours();
         let mins = day.getMinutes();
         let AmOrPm = hours >= 12 ? 'PM' : 'AM';
