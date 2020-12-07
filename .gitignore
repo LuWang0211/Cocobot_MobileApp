@@ -24,7 +24,9 @@ DerivedData
 
 # firebase
 google-services.json
-app/config.js
+*/config.js
+./app/config.js
+config.js
 
 # Android/IntelliJ
 #
