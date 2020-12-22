@@ -38,9 +38,9 @@ export const categories = [
     duration:"2 mins", 
     category: "SymptomManagement",
     about: "Anxiety",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/SleepArticle.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/2min_breathing_exercise_no_piano.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/2mins_meditation_img.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/SleepArticle.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/SleepArticle.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/2min_breathing_exercise_no_piano.mp3", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/2min_breathing_exercise_no_piano.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/2mins_meditation_img.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/2mins_meditation_img.jpg"
     favored: false,
   },
   {
@@ -52,9 +52,9 @@ export const categories = [
     duration:"6 mins", 
     category: "ChildCondition",
     about: "Stress",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6min_meditation_card.jpg",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/6min_meditation_no_piano+5.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6min_meditation_no_piano.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/6min_meditation_card.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6min_meditation_card.jpg"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/6min_meditation_no_piano+5.mp3", // Transfer from  "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/6min_meditation_no_piano+5.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/6min_meditation_no_piano.jpg", // Transfer from  "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6min_meditation_no_piano.jpg"
     favored: false,
   },
   {
@@ -66,9 +66,9 @@ export const categories = [
     duration:"3 mins", 
     category: "ChildCondition",
     about: "Stress",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/breathing.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/3min_meditation.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/2.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/breathing.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/breathing.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/3min_meditation.mp3",  // Transfer from  "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/3min_meditation.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/2.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/2.jpg"
     favored: false,
   },
   {
@@ -80,9 +80,9 @@ export const categories = [
     duration:"4 mins", 
     category: "SymptomManagement",
     about: "Anxiety",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/humanspeaking.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/4min_meditation.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/3.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/humanspeaking.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/humanspeaking.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/4min_meditation.mp3",  // Transfer from  "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/4min_meditation.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/3.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/3.jpg"
     favored: false,
   },
   {
@@ -94,9 +94,9 @@ export const categories = [
     duration:"6 mins", 
     category: "ChildCondition",
     about: "Stress",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/bodyscan.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/6min_meditation.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/4.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/bodyscan.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/bodyscan.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/6min_meditation.mp3",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/6min_meditation.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/4.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/4.jpg"
     favored: false,
   },
   {
@@ -108,9 +108,9 @@ export const categories = [
     duration:"7 mins 35 s", 
     category: "ChildCondition",
     about: "Stress",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/StressExercise.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/RelaxationForCaregiversMindfulnesaMeditation.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/1.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/StressExercise.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/StressExercise.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/RelaxationForCaregiversMindfulnesaMeditation.mp3",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/RelaxationForCaregiversMindfulnesaMeditation.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/1.jpg", // Transfer from  "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/1.jpg"
     favored: false,
   },
   {
@@ -122,9 +122,9 @@ export const categories = [
     duration:"16 min", 
     category: "Other",
     about: "Health",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/AnxietyAudio.png",
-    audiouri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/TenThingsThatWorkedForMeIn2020.mp3", 
-    pictureuri: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/5.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/AnxietyAudio.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/AnxietyAudio.png"
+    audiouri: "https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/TenThingsThatWorkedForMeIn2020.mp3",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/TenThingsThatWorkedForMeIn2020.mp3"
+    pictureuri: "https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/5.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/5.jpg"
     favored: false,
   },
   {
@@ -136,9 +136,9 @@ export const categories = [
     duration:"5 min", 
     category: "SymptomManagement",
     about: "Anxiety",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/StressMusic.png",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/BensoundRelaxing.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/StressMusic.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/StressMusic.png"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/BensoundRelaxing.mp3",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/BensoundRelaxing.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/6.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/6.jpg"
     favored: false,
   },
   {
@@ -150,9 +150,9 @@ export const categories = [
     duration:"8 min", 
     category: "SymptomManagement",
     about: "Anxiety",
-    image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/music_card_img.jpg",
-    audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/music_DivineLove.mp3", 
-    pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/music_card_background.jpg",
+    image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/music_card_img.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/music_card_img.jpg"
+    audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/music_DivineLove.mp3",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/final_resources/music_DivineLove.mp3"
+    pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/music_card_background.jpg", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/music_card_background.jpg"
     favored: false,
   },
   // {
@@ -164,9 +164,9 @@ export const categories = [
   //   duration:"5 min", 
   //   category: "SymptomManagement",
   //   about: "Sleep",
-  //   image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/SleepArticle.png",
-  //   audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", 
-  //   pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/7.png",
+  //   image: "https://gixresources.s3-us-west-2.amazonaws.com/CardsImages/SleepArticle.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/SleepArticle.png"
+  //   audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/elevatording.wav",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav"
+  //   pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/7.png",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/7.png"
   //   favored: false,
   // },
   // {
@@ -178,9 +178,9 @@ export const categories = [
   //   duration:"1 min", 
   //   category: "Other",
   //   about: "Health",
-  //   image: "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/DrinkWater.png",
-  //   audiouri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav", 
-  //   pictureuri:"https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/7.png",
+  //   image: "hhttps://gixresources.s3-us-west-2.amazonaws.com/CardsImages/DrinkWater.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/DrinkWater.png"
+  //   audiouri:"https://gixresources.s3-us-west-2.amazonaws.com/FinalAudioResources/elevatording.wav",  // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/elevatording.wav"
+  //   pictureuri:"https://gixresources.s3-us-west-2.amazonaws.com/BackgroundImages/7.png", // Transfer from "https://cocobotpracticeaudio.s3-us-west-2.amazonaws.com/img/7.png"
   //   favored: false,
   // }
 ];
